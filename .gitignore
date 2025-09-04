@@ -1,0 +1,8 @@
+# Flutter/Dart/Pub related
+.dart_tool/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
