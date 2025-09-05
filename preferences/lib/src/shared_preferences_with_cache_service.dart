@@ -100,9 +100,11 @@ final class SharedPreferencesWithCacheService implements PreferencesService {
     String key, {
     required bool value,
   }) {
-    return _setValue(
+    return _setValueIfChanged(
       key,
-      setAction: (String resultKey) => _preferences.setBool(resultKey, value),
+      value: value,
+      valueResultProvider: getBoolean,
+      setValueAction: _preferences.setBool,
     );
   }
 
@@ -111,9 +113,11 @@ final class SharedPreferencesWithCacheService implements PreferencesService {
     String key, {
     required String value,
   }) {
-    return _setValue(
+    return _setValueIfChanged(
       key,
-      setAction: (String resultKey) => _preferences.setString(resultKey, value),
+      value: value,
+      valueResultProvider: getString,
+      setValueAction: _preferences.setString,
     );
   }
 
@@ -122,9 +126,11 @@ final class SharedPreferencesWithCacheService implements PreferencesService {
     String key,
     int value,
   ) {
-    return _setValue(
+    return _setValueIfChanged(
       key,
-      setAction: (String resultKey) => _preferences.setInt(resultKey, value),
+      value: value,
+      valueResultProvider: getInt,
+      setValueAction: _preferences.setInt,
     );
   }
 
@@ -133,17 +139,21 @@ final class SharedPreferencesWithCacheService implements PreferencesService {
     String key,
     double value,
   ) {
-    return _setValue(
+    return _setValueIfChanged(
       key,
-      setAction: (String resultKey) => _preferences.setDouble(resultKey, value),
+      value: value,
+      valueResultProvider: getDouble,
+      setValueAction: _preferences.setDouble,
     );
   }
 
   @override
   Future<Result<void>> setStringList(String key, List<String> value) {
-    return _setValue(
+    return _setValueIfChanged(
       key,
-      setAction: (String resultKey) => _preferences.setStringList(resultKey, value),
+      value: value,
+      valueResultProvider: getStringList,
+      setValueAction: _preferences.setStringList,
     );
   }
 
@@ -160,9 +170,9 @@ final class SharedPreferencesWithCacheService implements PreferencesService {
     return _preferences.clear().mapToResult(ClearPreferencesFailure.new);
   }
 
-  Result<T> _getValue<T>(
+  Result<T?> _getValue<T extends Object>(
     String key, {
-    required T Function(String resultKey) valueProvider,
+    required T? Function(String resultKey) valueProvider,
   }) {
     final String resultKey = _getPrefixedKey(key);
     return mapToResult(
@@ -172,6 +182,24 @@ final class SharedPreferencesWithCacheService implements PreferencesService {
   }
 
   String _getPrefixedKey(String key) => _getKeyPrefixWithKey(keyPrefix: _keyPrefix, key: key);
+
+  Future<Result<void>> _setValueIfChanged<T extends Object>(
+    String key, {
+    required T value,
+    required Result<T?> Function(String key) valueResultProvider,
+    required Future<void> Function(String resultKey, T value) setValueAction,
+  }) {
+    final T? currentValue = valueResultProvider.call(key).outputOrNull;
+
+    if (currentValue != value) {
+      return _setValue(
+        key,
+        setAction: (String resultKey) => setValueAction(resultKey, value),
+      );
+    } else {
+      return emptyResult.toFuture();
+    }
+  }
 
   Future<Result<void>> _setValue(
     String key, {
