@@ -4,58 +4,27 @@ import 'package:async/async.dart';
 abstract interface class PreferencesService {
   /// Gets a boolean value from preferences.
   /// [key] is the name of the preference to retrieve.
-  /// [defaultValue] is the value to return if the preference does not exist.
-  Result<bool> getBoolean(
-    String key, {
-    required bool defaultValue,
-  });
-
-  /// Gets an optional boolean value from preferences.
-  /// [key] is the name of the preference to retrieve.
   /// Returns null if the preference does not exist.
-  Result<bool?> optBoolean(String key);
+  Result<bool?> getBoolean(String key);
 
   /// Gets a string value from preferences.
   /// [key] is the name of the preference to retrieve.
-  /// [defaultValue] is the value to return if the preference does not exist.
-  Result<String> getString(
-    String key, {
-    required String defaultValue,
-  });
-
-  /// Gets an optional string value from preferences.
-  /// [key] is the name of the preference to retrieve.
   /// Returns null if the preference does not exist.
-  Result<String?> optString(String key);
+  Result<String?> getString(String key);
 
   /// Gets an integer value from preferences.
   /// [key] is the name of the preference to retrieve.
-  /// [defaultValue] is the value to return if the preference does not exist.
-  Result<int> getInt(
-    String key, {
-    required int defaultValue,
-  });
-
-  /// Gets an optional integer value from preferences.
-  /// [key] is the name of the preference to retrieve.
   /// Returns null if the preference does not exist.
-  Result<int?> optInt(String key);
+  Result<int?> getInt(String key);
 
   /// Gets a double value from preferences.
   /// [key] is the name of the preference to retrieve.
-  /// [defaultValue] is the value to return if the preference does not exist.
-  Result<double> getDouble(
-    String key, {
-    required double defaultValue,
-  });
+  Result<double?> getDouble(String key);
 
   /// Gets a list of strings from preferences.
   /// [key] is the name of the preference to retrieve.
   /// [defaultValue] is the value to return if the preference does not exist.
-  Result<List<String>> getStringList(
-    String key, {
-    List<String> defaultValue = const <String>[],
-  });
+  Result<List<String>?> getStringList(String key);
 
   /// Stores a boolean value in preferences.
   /// [key] is the name of the preference to store.

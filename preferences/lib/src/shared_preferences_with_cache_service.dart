@@ -1,6 +1,7 @@
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
-import 'package:preferences_service/preferences_service.dart';
+import 'package:preferences_service/src/failure/preferences_failure.dart';
+import 'package:preferences_service/src/preferences_service.dart';
 import 'package:preferences_service/src/util/async_util.dart';
 import 'package:preferences_service/src/util/collection_util.dart';
 import 'package:preferences_service/src/util/object_util.dart';
@@ -13,9 +14,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// A `null` [allKeys] will prevent filtering, allowing all items to be cached.
 /// An empty [allKeys] will prevent all caching as well as getting and setting.
 /// Setting an [allKeys] is strongly recommended, to prevent getting and caching unneeded or unexpected data.
-class SharedPreferencesWithCacheService implements PreferencesService {
+final class SharedPreferencesWithCacheService implements PreferencesService {
   /// Creates a [SharedPreferencesWithCacheService].
-  SharedPreferencesWithCacheService({
+  const SharedPreferencesWithCacheService({
     required SharedPreferencesWithCache sharedPreferencesWithCache,
     required String keyPrefix,
   }) : _preferences = sharedPreferencesWithCache,
@@ -55,15 +56,7 @@ class SharedPreferencesWithCacheService implements PreferencesService {
   }
 
   @override
-  Result<bool> getBoolean(
-    String key, {
-    required bool defaultValue,
-  }) {
-    return optBoolean(key).mapNullValueToValue(() => defaultValue);
-  }
-
-  @override
-  Result<bool?> optBoolean(String key) {
+  Result<bool?> getBoolean(String key) {
     return _getValue(
       key,
       valueProvider: _preferences.getBool,
@@ -71,15 +64,7 @@ class SharedPreferencesWithCacheService implements PreferencesService {
   }
 
   @override
-  Result<String> getString(
-    String key, {
-    required String defaultValue,
-  }) {
-    return optString(key).mapNullValueToValue(() => defaultValue);
-  }
-
-  @override
-  Result<String?> optString(String key) {
+  Result<String?> getString(String key) {
     return _getValue(
       key,
       valueProvider: _preferences.getString,
@@ -87,12 +72,7 @@ class SharedPreferencesWithCacheService implements PreferencesService {
   }
 
   @override
-  Result<int> getInt(String key, {required int defaultValue}) {
-    return optInt(key).mapNullValueToValue(() => defaultValue);
-  }
-
-  @override
-  Result<int?> optInt(String key) {
+  Result<int?> getInt(String key) {
     return _getValue(
       key,
       valueProvider: _preferences.getInt,
@@ -100,24 +80,18 @@ class SharedPreferencesWithCacheService implements PreferencesService {
   }
 
   @override
-  Result<double> getDouble(
-    String key, {
-    required double defaultValue,
-  }) {
+  Result<double?> getDouble(String key) {
     return _getValue(
       key,
-      valueProvider: (String resultKey) => _preferences.getDouble(resultKey) ?? defaultValue,
+      valueProvider: _preferences.getDouble,
     );
   }
 
   @override
-  Result<List<String>> getStringList(
-    String key, {
-    List<String> defaultValue = const <String>[],
-  }) {
+  Result<List<String>?> getStringList(String key) {
     return _getValue(
       key,
-      valueProvider: (String resultKey) => _preferences.getStringList(resultKey) ?? defaultValue,
+      valueProvider: _preferences.getStringList,
     );
   }
 
@@ -178,7 +152,7 @@ class SharedPreferencesWithCacheService implements PreferencesService {
     final String resultKey = _getPrefixedKey(key);
     return _preferences
         .remove(resultKey)
-        .mapToResult((Object error) => RemovePreferencesFailure(error, key: resultKey));
+        .mapToResult((Object error) => RemovePreferenceFailure(error, key: resultKey));
   }
 
   @override
@@ -193,7 +167,7 @@ class SharedPreferencesWithCacheService implements PreferencesService {
     final String resultKey = _getPrefixedKey(key);
     return mapToResult(
       valueProvider: () => valueProvider.call(resultKey),
-      failureProvider: (Object error) => GetPreferencesFailure(error, key: resultKey),
+      failureProvider: (Object error) => GetPreferenceFailure(error, key: resultKey),
     );
   }
 
@@ -206,6 +180,6 @@ class SharedPreferencesWithCacheService implements PreferencesService {
     final String resultKey = _getPrefixedKey(key);
     return setAction
         .call(resultKey)
-        .mapToResult((Object error) => SetPreferencesFailure(error, key: resultKey));
+        .mapToResult((Object error) => SetPreferenceFailure(error, key: resultKey));
   }
 }

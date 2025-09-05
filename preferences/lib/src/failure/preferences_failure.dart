@@ -4,7 +4,7 @@ import 'package:common_result/common_result.dart';
 sealed class PreferencesFailure implements Failure {}
 
 /// Failure during  preferences creation.
-class PreferencesCreationFailure implements PreferencesFailure {
+final class PreferencesCreationFailure implements PreferencesFailure {
   /// Creates a [PreferencesCreationFailure].
   const PreferencesCreationFailure(this._error);
 
@@ -16,10 +16,10 @@ class PreferencesCreationFailure implements PreferencesFailure {
   }
 }
 
-/// Failure during getting preferences.
-class GetPreferencesFailure implements PreferencesFailure {
-  /// Creates a [GetPreferencesFailure].
-  const GetPreferencesFailure(
+/// Failure during getting preference.
+final class GetPreferenceFailure implements PreferencesFailure {
+  /// Creates a [GetPreferenceFailure].
+  const GetPreferenceFailure(
     this._error, {
     required this.key,
   });
@@ -34,10 +34,10 @@ class GetPreferencesFailure implements PreferencesFailure {
   }
 }
 
-/// Failure during saving preferences.
-class SetPreferencesFailure implements PreferencesFailure {
-  /// Creates a [SetPreferencesFailure].
-  const SetPreferencesFailure(
+/// Failure during saving preference.
+final class SetPreferenceFailure implements PreferencesFailure {
+  /// Creates a [SetPreferenceFailure].
+  const SetPreferenceFailure(
     this._error, {
     required this.key,
   });
@@ -52,10 +52,10 @@ class SetPreferencesFailure implements PreferencesFailure {
   }
 }
 
-/// Failure during removing bool preferences.
-class RemovePreferencesFailure implements PreferencesFailure {
-  /// Creates a [SetPreferencesFailure].
-  const RemovePreferencesFailure(
+/// Failure during removing bool preference.
+final class RemovePreferenceFailure implements PreferencesFailure {
+  /// Creates a [SetPreferenceFailure].
+  const RemovePreferenceFailure(
     this._error, {
     required this.key,
   });
@@ -71,8 +71,8 @@ class RemovePreferencesFailure implements PreferencesFailure {
 }
 
 /// Failure during clearing  preferences.
-class ClearPreferencesFailure implements PreferencesFailure {
-  /// Creates a [SetPreferencesFailure].
+final class ClearPreferencesFailure implements PreferencesFailure {
+  /// Creates a [SetPreferenceFailure].
   const ClearPreferencesFailure(this._error);
 
   final Object _error;
