@@ -1,4 +1,5 @@
 import 'package:async/async.dart';
+import 'package:collection/collection.dart';
 import 'package:common_result/common_result.dart';
 import 'package:preferences_service/src/failure/preferences_failure.dart';
 import 'package:preferences_service/src/preferences_service.dart';
@@ -190,8 +191,9 @@ final class SharedPreferencesWithCacheService implements PreferencesService {
     required Future<void> Function(String resultKey, T value) setValueAction,
   }) {
     final T? currentValue = valueResultProvider.call(key).outputOrNull;
+    final bool hasValueChanged = _hasValueChanged(currentValue: currentValue, newValue: value);
 
-    if (currentValue != value) {
+    if (hasValueChanged) {
       return _setValue(
         key,
         setAction: (String resultKey) => setValueAction(resultKey, value),
@@ -199,6 +201,13 @@ final class SharedPreferencesWithCacheService implements PreferencesService {
     } else {
       return emptyResult.toFuture();
     }
+  }
+
+  bool _hasValueChanged<T>({required T? currentValue, required T newValue}) {
+    final Equality<Object?> equality = currentValue is List && newValue is List
+        ? const ListEquality<Object>()
+        : const DefaultEquality<Object>();
+    return !equality.equals(currentValue, newValue);
   }
 
   Future<Result<void>> _setValue(
