@@ -1,0 +1,23 @@
+name: deep_links_service
+description: Deep links service module
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  app_links: 6.4.1
+  async: 2.13.0
+  rxdart: 0.28.0
+
+  common_result:
+    git:
+      url: git@github.com:nove8/fl-common-result.git
+      ref: 3.0.0
+
+dev_dependencies:
+  common_package:
+    git:
+      url: git@github.com:nove8/fl-common-package.git
+      ref: 2.0.0
