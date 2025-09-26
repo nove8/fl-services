@@ -24,12 +24,6 @@ final class AppLinksDeepLinkService implements DeepLinkService {
   @override
   Stream<Result<Uri>> get deepLinkUrlStream => _deepLinkUrlController.stream;
 
-  /// Initializes the service, emits first deep link
-  Future<void> init() async {
-    await _addLatestDeepLinkIfNeeded();
-    _deepLinkUrlSubscription = _appLinks.stringLinkStream.listen(_addNewDeepLinkUrl);
-  }
-
   /// Disposes the service, cancels stream subscriptions and closes stream controllers
   void dispose() {
     _deepLinkUrlSubscription.cancel();
