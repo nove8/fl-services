@@ -9,11 +9,16 @@ import 'package:rxdart/rxdart.dart';
 
 /// Implementation of deep links service with app_links package
 final class AppLinksDeepLinkService implements DeepLinkService {
+  /// Creates a [AppLinksDeepLinkService]
+  AppLinksDeepLinkService() {
+    _addLatestDeepLinkIfNeeded().then((_) {
+      _deepLinkUrlSubscription = _appLinks.stringLinkStream.listen(_addNewDeepLinkUrl);
+    });
+  }
+
   final AppLinks _appLinks = AppLinks();
 
-  final StreamController<Result<Uri>> _deepLinkUrlController = BehaviorSubject<Result<Uri>>(
-    sync: true,
-  );
+  final StreamController<Result<Uri>> _deepLinkUrlController = BehaviorSubject<Result<Uri>>(sync: true);
   late final StreamSubscription<void> _deepLinkUrlSubscription;
 
   @override
@@ -32,7 +37,7 @@ final class AppLinksDeepLinkService implements DeepLinkService {
   }
 
   Future<void> _addLatestDeepLinkIfNeeded() async {
-    final String? latestDeepLinkUriString = await _appLinks.getLatestLinkString();
+    final String? latestDeepLinkUriString = await _appLinks.getLatestLinkString().onError((_, _) => null);
     if (latestDeepLinkUriString != null) {
       _addNewDeepLinkUrl(latestDeepLinkUriString);
     }
