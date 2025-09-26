@@ -7,27 +7,31 @@ import 'package:deep_link_service/src/deep_link_service.dart';
 import 'package:deep_link_service/src/failure/deep_link_failure.dart';
 import 'package:rxdart/rxdart.dart';
 
-/// Implementation of deep links service with app_links package
+/// Implementation of deep link service with app_links package
 final class AppLinksDeepLinkService implements DeepLinkService {
   /// Creates a [AppLinksDeepLinkService]
   AppLinksDeepLinkService() {
-    _addLatestDeepLinkIfNeeded().then((_) {
-      _deepLinkUrlSubscription = _appLinks.stringLinkStream.listen(_addNewDeepLinkUrl);
-    });
+    _init();
   }
 
   final AppLinks _appLinks = AppLinks();
 
   final StreamController<Result<Uri>> _deepLinkUrlController = BehaviorSubject<Result<Uri>>(sync: true);
-  late final StreamSubscription<void> _deepLinkUrlSubscription;
+
+  StreamSubscription<void>? _deepLinkUrlSubscription;
 
   @override
   Stream<Result<Uri>> get deepLinkUrlStream => _deepLinkUrlController.stream;
 
   /// Disposes the service, cancels stream subscriptions and closes stream controllers
   void dispose() {
-    _deepLinkUrlSubscription.cancel();
+    _deepLinkUrlSubscription?.cancel();
     _deepLinkUrlController.close();
+  }
+
+  Future<void> _init() async {
+    await _addLatestDeepLinkIfNeeded();
+    _deepLinkUrlSubscription = _appLinks.stringLinkStream.listen(_addNewDeepLinkUrl);
   }
 
   Future<void> _addLatestDeepLinkIfNeeded() async {

@@ -1,6 +1,6 @@
 import 'package:common_result/common_result.dart';
 
-/// Base class for deep links failure
+/// Base class for deep link failure
 sealed class DeepLinkFailure implements Failure {}
 
 /// Failure during parsing deep link uri
