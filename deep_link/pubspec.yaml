@@ -1,5 +1,5 @@
-name: deep_links_service
-description: Deep links service module
+name: deep_link_service
+description: Deep link service module
 version: 1.0.0
 publish_to: none
 
@@ -20,4 +20,4 @@ dev_dependencies:
   common_package:
     git:
       url: git@github.com:nove8/fl-common-package.git
-      ref: 2.0.0
+      ref: 3.0.0

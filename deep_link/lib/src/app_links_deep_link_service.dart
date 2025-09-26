@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
-import 'package:deep_links_service/src/deep_links_service.dart';
-import 'package:deep_links_service/src/failure/deep_links_failure.dart';
+import 'package:deep_link_service/src/deep_link_service.dart';
+import 'package:deep_link_service/src/failure/deep_link_failure.dart';
 import 'package:rxdart/rxdart.dart';
 
 /// Implementation of deep links service with app_links package
-final class AppLinksDeepLinksService implements DeepLinksService {
+final class AppLinksDeepLinkService implements DeepLinkService {
   final AppLinks _appLinks = AppLinks();
 
   final StreamController<Result<Uri>> _deepLinkUrlController = BehaviorSubject<Result<Uri>>(
@@ -45,8 +45,6 @@ final class AppLinksDeepLinksService implements DeepLinksService {
 
   Result<Uri> _obtainDeepLinkUriFromString(String uriString) {
     final Uri? uri = Uri.tryParse(uriString);
-    return uri != null
-        ? uri.toSuccessResult()
-        : InvalidDeepLinkUriFailure(uriString).toFailureResult();
+    return uri != null ? uri.toSuccessResult() : InvalidDeepLinkUriFailure(uriString).toFailureResult();
   }
 }

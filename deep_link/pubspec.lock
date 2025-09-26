@@ -61,11 +61,11 @@ packages:
     dependency: "direct dev"
     description:
       path: "."
-      ref: "2.0.0"
-      resolved-ref: "0ed4362458c4442bd1c028cd577001aee8b5ac1c"
+      ref: "3.0.0"
+      resolved-ref: ab30284f901318378e10dbb8b8a4df1a4593edfa
       url: "git@github.com:nove8/fl-common-package.git"
     source: git
-    version: "2.0.0"
+    version: "3.0.0"
   common_result:
     dependency: "direct main"
     description:
