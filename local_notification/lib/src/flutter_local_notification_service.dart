@@ -9,11 +9,20 @@ import 'package:local_notification_service/src/failure/local_notification_failur
 import 'package:local_notification_service/src/local_notification_service.dart';
 import 'package:local_notification_service/src/util/async_util.dart';
 import 'package:local_notification_service/src/util/object_util.dart';
-import 'package:timezone/data/latest_all.dart';
-import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as timezone_data;
+import 'package:timezone/timezone.dart' as timezone;
 
 /// Flutter implementation of [LocalNotificationService] using flutter_local_notifications plugin.
 final class FlutterLocalNotificationService implements LocalNotificationService {
+  /// Returns the singleton instance of [FlutterLocalNotificationService].
+  factory FlutterLocalNotificationService({
+    required FlutterLocalNotificationAndroidInitializationSettings androidInitializationSettings,
+  }) {
+    return _instance ??= FlutterLocalNotificationService._(
+      androidInitializationSettings: androidInitializationSettings,
+    );
+  }
+
   FlutterLocalNotificationService._({required this.androidInitializationSettings}) {
     _init();
   }
@@ -24,16 +33,6 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
   final FlutterLocalNotificationAndroidInitializationSettings androidInitializationSettings;
 
   late final FlutterLocalNotificationsPlugin _localNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
-  /// Returns the singleton instance of [FlutterLocalNotificationService].
-  // ignore:prefer_constructors_over_static_methods
-  static FlutterLocalNotificationService getInstance({
-    required FlutterLocalNotificationAndroidInitializationSettings androidInitializationSettings,
-  }) {
-    return _instance ??= FlutterLocalNotificationService._(
-      androidInitializationSettings: androidInitializationSettings,
-    );
-  }
 
   @override
   Future<Result<void>> scheduleNotification({
@@ -46,7 +45,7 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
           notification.id,
           notification.title,
           null,
-          tz.TZDateTime.from(notification.triggerDateTime, tz.local),
+          timezone.TZDateTime.from(notification.triggerDateTime, timezone.local),
           _obtainNotificationDetails(channel: channel),
           androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         )
@@ -60,10 +59,25 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
     );
   }
 
+  Future<void> _init() async {
+    timezone_data.initializeTimeZones();
+    await _localNotificationsPlugin.initialize(
+      InitializationSettings(
+        iOS: const DarwinInitializationSettings(
+          requestAlertPermission: false,
+          requestBadgePermission: false,
+          requestSoundPermission: false,
+        ),
+        android: AndroidInitializationSettings(androidInitializationSettings.iconResourceName),
+      ),
+    );
+  }
+
   Future<Result<void>> _setLocalLocation() {
     return _getLocalTimezoneIdentifier().flatMapAsync(_setLocalLocationForTimezoneIdentifier);
   }
 
+  // TODO take out to separate service to use timezone independently
   Future<Result<String>> _getLocalTimezoneIdentifier() {
     return FlutterTimezone.getLocalTimezone()
         .mapToResult(GetLocalTimezoneFailure.new)
@@ -72,7 +86,7 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
 
   Result<void> _setLocalLocationForTimezoneIdentifier(String timezoneIdentifier) {
     return mapToResult(
-      valueProvider: () => tz.setLocalLocation(tz.getLocation(timezoneIdentifier)),
+      valueProvider: () => timezone.setLocalLocation(timezone.getLocation(timezoneIdentifier)),
       failureProvider: SetLocalLocationFailure.new,
     );
   }
@@ -85,20 +99,7 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
         importance: Importance.max,
         priority: Priority.high,
       ),
-    );
-  }
-
-  Future<void> _init() async {
-    initializeTimeZones();
-    await _localNotificationsPlugin.initialize(
-      InitializationSettings(
-        iOS: const DarwinInitializationSettings(
-          requestAlertPermission: false,
-          requestBadgePermission: false,
-          requestSoundPermission: false,
-        ),
-        android: AndroidInitializationSettings(androidInitializationSettings.iconResourceName),
-      ),
+      iOS: DarwinNotificationDetails(threadIdentifier: channel.id),
     );
   }
 }
