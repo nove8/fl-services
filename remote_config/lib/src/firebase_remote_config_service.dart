@@ -12,7 +12,7 @@ import 'package:remote_config_service/src/util/async_util.dart';
 /// The entry point for accessing remote config.
 final class FirebaseRemoteConfigService implements RemoteConfigService {
   /// Creates a [FirebaseRemoteConfigService].
-  FirebaseRemoteConfigService({
+  FirebaseRemoteConfigService._({
     required bool isTestEnvironment,
     Duration fetchTimeout = _defaultFetchTimeout,
   }) : _isTestEnvironment = isTestEnvironment,
@@ -25,6 +25,8 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
   static const Duration _testEnvironmentMinimumFetchInterval = Duration.zero;
   static const Duration _prodEnvironmentMinimumFetchInterval = Duration(minutes: 5);
 
+  static FirebaseRemoteConfigService? _instance;
+
   final bool _isTestEnvironment;
   final Duration _fetchTimeout;
   final FirebaseRemoteConfig _remoteConfig = FirebaseRemoteConfig.instance;
@@ -33,6 +35,18 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
 
   /// Fires when config was fully initialized.
   Future<Result<void>> get _configInitialization => _configInitializationCompleter.future;
+
+  /// Returns the singleton instance of [FirebaseRemoteConfigService].
+  // ignore:prefer_constructors_over_static_methods
+  static FirebaseRemoteConfigService getInstance({
+    required bool isTestEnvironment,
+    Duration fetchTimeout = _defaultFetchTimeout,
+  }) {
+    return _instance ??= FirebaseRemoteConfigService._(
+      isTestEnvironment: isTestEnvironment,
+      fetchTimeout: fetchTimeout,
+    );
+  }
 
   /// Awaits config initialization and gets [String] parameter value for selected [parameterKey].
   @override
