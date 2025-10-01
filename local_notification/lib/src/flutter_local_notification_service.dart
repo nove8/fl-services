@@ -53,6 +53,13 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
   }
 
   @override
+  Future<Result<void>> cancelNotification({required int notificationId}) {
+    return _localNotificationsPlugin
+        .cancel(notificationId)
+        .mapToResult(LocalNotificationNotCancelledFailure.new);
+  }
+
+  @override
   Future<Result<void>> cancelAllScheduledNotifications() {
     return _localNotificationsPlugin.cancelAllPendingNotifications().mapToResult(
       CancelAllScheduledNotificationsFailure.new,

@@ -17,6 +17,20 @@ final class CancelAllScheduledNotificationsFailure implements LocalNotificationF
   }
 }
 
+/// Failure when canceling a notification.
+final class LocalNotificationNotCancelledFailure implements LocalNotificationFailure {
+  /// Creates a [LocalNotificationNotCancelledFailure].
+  const LocalNotificationNotCancelledFailure(this.error);
+
+  /// The error that occurred during canceling a notification.
+  final Object error;
+
+  @override
+  String toString() {
+    return 'LocalNotificationNotCancelledFailure{error: $error}';
+  }
+}
+
 /// Failure when scheduling a notification.
 final class LocalNotificationNotScheduledFailure implements LocalNotificationFailure {
   /// Creates a [LocalNotificationNotScheduledFailure].

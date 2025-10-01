@@ -10,6 +10,12 @@ abstract interface class LocalNotificationService {
     required LocalNotificationChannel channel,
   });
 
+  /// Cancels a previously scheduled  notification with the specified ID.
+  ///
+  /// This applies to notifications that have been scheduled and those that
+  /// have already been presented.
+  Future<Result<void>> cancelNotification({required int notificationId});
+
   /// Cancels all previously scheduled notifications.
   Future<Result<void>> cancelAllScheduledNotifications();
 }
