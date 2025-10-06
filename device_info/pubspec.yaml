@@ -1,0 +1,22 @@
+name: device_info_service
+description: Device info service module
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  async: 2.13.0
+  device_info_plus: 11.5.0
+
+  common_result:
+    git:
+      url: git@github.com:nove8/fl-common-result.git
+      ref: 3.0.0
+
+dev_dependencies:
+  common_package:
+    git:
+      url: git@github.com:nove8/fl-common-package.git
+      ref: 3.0.0
