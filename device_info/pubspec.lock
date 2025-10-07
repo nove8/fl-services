@@ -76,7 +76,7 @@ packages:
     source: hosted
     version: "7.0.1"
   flutter:
-    dependency: transitive
+    dependency: "direct main"
     description: flutter
     source: sdk
     version: "0.0.0"
@@ -156,4 +156,4 @@ packages:
     version: "2.1.0"
 sdks:
   dart: ">=3.9.0 <4.0.0"
-  flutter: ">=3.29.0"
+  flutter: ">=3.35.2 <4.0.0"

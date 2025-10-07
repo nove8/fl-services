@@ -2,6 +2,7 @@ import 'package:async/async.dart';
 
 /// A service interface for retrieving device-specific information.
 abstract interface class DeviceInfoService {
-  /// Retrieves the iOS identifier for vendor (IDFV) for the current device.
-  Future<Result<String?>> getIosIdentifierForVendor();
+  /// An alphanumeric string that uniquely identifies a device to the app’s vendor.
+  /// Available on iOS platform only. On other platforms will be [UnsupportedPlatformFailure].
+  Future<Result<String?>> getIdentifierForVendor();
 }
