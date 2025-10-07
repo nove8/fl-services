@@ -1,0 +1,24 @@
+name: database_service
+description: Database service module
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  async: 2.13.0
+  collection: 1.19.1
+  path: 1.9.1
+  sqflite: 2.4.2
+
+  common_result:
+    git:
+      url: git@github.com:nove8/fl-common-result.git
+      ref: 3.0.0
+
+dev_dependencies:
+  common_package:
+    git:
+      url: git@github.com:nove8/fl-common-package.git
+      ref: 3.0.0
