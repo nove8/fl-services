@@ -15,10 +15,10 @@ final class DeviceInfoPlusService implements DeviceInfoService {
 
   @override
   Future<Result<String?>> getIdentifierForVendor() {
-    return _getAppPlatform().flatMapAsync(_getIdentifierForVendorForAppPlatform);
+    return _determineAppPlatform().flatMapAsync(_getIdentifierForVendorForAppPlatform);
   }
 
-  Result<AppPlatform> _getAppPlatform() {
+  Result<AppPlatform> _determineAppPlatform() {
     if (kIsWeb) {
       return AppPlatform.web.toSuccessResult();
     } else if (Platform.isIOS) {
