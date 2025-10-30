@@ -12,9 +12,12 @@ part 'mapper/permission_handler_permission_mappers.dart';
 
 /// Default implementation of [PermissionService] using the permission_handler package.
 final class PermissionHandlerPermissionService implements PermissionService {
-  final _PermissionServiceToLibMapper _permissionDomainToLibMapper = const _PermissionServiceToLibMapper();
-  final _PermissionStatusLibToServiceMapper _permissionStatusLibToDomainMapper =
-      const _PermissionStatusLibToServiceMapper();
+  /// Creates a [PermissionHandlerPermissionService].
+  const PermissionHandlerPermissionService();
+
+  static const _PermissionServiceToLibMapper _permissionDomainToLibMapper = _PermissionServiceToLibMapper();
+  static const _PermissionStatusLibToServiceMapper _permissionStatusLibToDomainMapper =
+      _PermissionStatusLibToServiceMapper();
 
   /// Requests the specified [permission] on the given [appPlatform].
   ///
