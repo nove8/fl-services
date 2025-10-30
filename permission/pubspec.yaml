@@ -13,10 +13,10 @@ dependencies:
   common_result:
     git:
       url: git@github.com:nove8/fl-common-result.git
-      ref: develop
+      ref: 3.0.0
 
 dev_dependencies:
   common_package:
     git:
       url: git@github.com:nove8/fl-common-package.git
-      ref: develop
+      ref: 3.0.0

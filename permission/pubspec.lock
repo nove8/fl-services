@@ -29,7 +29,7 @@ packages:
     dependency: "direct dev"
     description:
       path: "."
-      ref: develop
+      ref: "3.0.0"
       resolved-ref: ab30284f901318378e10dbb8b8a4df1a4593edfa
       url: "git@github.com:nove8/fl-common-package.git"
     source: git
@@ -38,7 +38,7 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: develop
+      ref: "3.0.0"
       resolved-ref: b5e7120126d76112dde783bb1023576f5ac94e64
       url: "git@github.com:nove8/fl-common-result.git"
     source: git
