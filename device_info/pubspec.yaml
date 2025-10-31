@@ -11,8 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
 
-  async: 2.13.0
-  device_info_plus: 12.2.0
+  async: ^2.13.0
+  device_info_plus: ^12.2.0
 
   common_result:
     git:
