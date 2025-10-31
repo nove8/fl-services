@@ -4,4 +4,7 @@ import 'package:async/async.dart';
 abstract interface class NetworkInfoService {
   /// Returns whether device is connected to the internet.
   Future<Result<bool>> get isConnectedToTheInternet;
+
+  /// Waits for internet connection to appear.
+  Future<Result<void>> waitForInternetConnection();
 }

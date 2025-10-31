@@ -1,4 +1,5 @@
 import 'package:async/async.dart';
+import 'package:common_result/common_result.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:network_info_service/src/failure/network_info_failure.dart';
 import 'package:network_info_service/src/network_info_service.dart';
@@ -15,6 +16,15 @@ final class NetworkInfoConnectivityPlusService implements NetworkInfoService {
         .checkConnectivity()
         .then(_isConnectedResults)
         .mapToResult(IsConnectedToTheInternetCheckFailure.new);
+  }
+
+  @override
+  Future<Result<void>> waitForInternetConnection() {
+    return isConnectedToTheInternet.mapFuture((bool isConnected) async {
+      if (!isConnected) {
+        await Connectivity().onConnectivityChanged.firstWhere(_isConnectedResults);
+      }
+    });
   }
 
   bool _isConnectedResults(List<ConnectivityResult> connectivityResults) {
