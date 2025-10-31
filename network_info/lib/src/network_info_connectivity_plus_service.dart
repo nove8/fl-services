@@ -19,12 +19,11 @@ final class NetworkInfoConnectivityPlusService implements NetworkInfoService {
   }
 
   @override
-  Future<Result<void>> waitForInternetConnection() {
-    return isConnectedToTheInternet.mapFuture((bool isConnected) async {
-      if (!isConnected) {
-        await Connectivity().onConnectivityChanged.firstWhere(_isConnectedResults);
-      }
-    });
+  Future<void> waitForInternetConnection() async {
+    final bool isConnected = await isConnectedToTheInternet.outputOrFalse;
+    if (!isConnected) {
+      await Connectivity().onConnectivityChanged.firstWhere(_isConnectedResults);
+    }
   }
 
   bool _isConnectedResults(List<ConnectivityResult> connectivityResults) {

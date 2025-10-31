@@ -6,5 +6,5 @@ abstract interface class NetworkInfoService {
   Future<Result<bool>> get isConnectedToTheInternet;
 
   /// Waits for internet connection to appear.
-  Future<Result<void>> waitForInternetConnection();
+  Future<void> waitForInternetConnection();
 }
