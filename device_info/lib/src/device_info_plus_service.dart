@@ -15,7 +15,49 @@ final class DeviceInfoPlusService implements DeviceInfoService {
 
   @override
   Future<Result<String?>> getIdentifierForVendor() {
-    return _determineAppPlatform().flatMapAsync(_getIdentifierForVendorForAppPlatform);
+    return _getDeviceInfoOnMobilePlatforms(
+      (device_info_plus.IosDeviceInfo iosInfo) => iosInfo.identifierForVendor.toSuccessResult(),
+      (_) => const UnsupportedPlatformFailure().toFailureResult(),
+    );
+  }
+
+  @override
+  Future<Result<String>> getOsVersion() {
+    return _getDeviceInfoOnMobilePlatforms(
+      (device_info_plus.IosDeviceInfo iosInfo) => iosInfo.systemVersion.toSuccessResult(),
+      (device_info_plus.AndroidDeviceInfo androidInfo) => androidInfo.version.release.toSuccessResult(),
+    );
+  }
+
+  Future<Result<T>> _getDeviceInfoOnMobilePlatforms<T>(
+    Result<T> Function(device_info_plus.IosDeviceInfo iosInfo) iosInfoProvider,
+    Result<T> Function(device_info_plus.AndroidDeviceInfo androidInfo) androidInfoProvider,
+  ) {
+    return _getDeviceInfo(
+      iosInfoProvider,
+      androidInfoProvider,
+      (_) => const UnsupportedPlatformFailure().toFailureResult(),
+    );
+  }
+
+  Future<Result<T>> _getDeviceInfo<T>(
+    Result<T> Function(device_info_plus.IosDeviceInfo iosInfo) iosInfoProvider,
+    Result<T> Function(device_info_plus.AndroidDeviceInfo androidInfo) androidInfoProvider,
+    Result<T> Function(device_info_plus.WebBrowserInfo webInfo) webInfoProvider,
+  ) {
+    return _determineAppPlatform().flatMapAsync((AppPlatform appPlatform) {
+      return switch (appPlatform) {
+        AppPlatform.iOS => _getPlatformDeviceInfoResult(
+          (device_info_plus.DeviceInfoPlugin infoPlugin) => infoPlugin.iosInfo,
+        ).flatMapAsync(iosInfoProvider),
+        AppPlatform.android => _getPlatformDeviceInfoResult(
+          (device_info_plus.DeviceInfoPlugin infoPlugin) => infoPlugin.androidInfo,
+        ).flatMapAsync(androidInfoProvider),
+        AppPlatform.web => _getPlatformDeviceInfoResult(
+          (device_info_plus.DeviceInfoPlugin infoPlugin) => infoPlugin.webBrowserInfo,
+        ).flatMapAsync(webInfoProvider),
+      };
+    });
   }
 
   Result<AppPlatform> _determineAppPlatform() {
@@ -30,20 +72,9 @@ final class DeviceInfoPlusService implements DeviceInfoService {
     }
   }
 
-  Future<Result<String?>> _getIdentifierForVendorForAppPlatform(AppPlatform appPlatform) {
-    return switch (appPlatform) {
-      AppPlatform.iOS => _getIosIdentifierForVendor(),
-      _ => const UnsupportedPlatformFailure().toFailureResultFuture(),
-    };
-  }
-
-  Future<Result<String?>> _getIosIdentifierForVendor() {
-    return _getIosDeviceInfo().mapAsync(
-      (device_info_plus.IosDeviceInfo iosInfo) => iosInfo.identifierForVendor,
-    );
-  }
-
-  Future<Result<device_info_plus.IosDeviceInfo>> _getIosDeviceInfo() {
-    return _deviceInfoPlugin.iosInfo.mapToResult(GetIosDeviceInfoFailure.new);
+  Future<Result<T>> _getPlatformDeviceInfoResult<T>(
+    Future<T> Function(device_info_plus.DeviceInfoPlugin infoPlugin) deviceInfoProvider,
+  ) {
+    return deviceInfoProvider.call(_deviceInfoPlugin).mapToResult(GetDeviceInfoFailure.new);
   }
 }
