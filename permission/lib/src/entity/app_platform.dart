@@ -1,11 +1,19 @@
-/// Represents the different platforms that the app can run on.
+/// Enum representing the different application platforms.
+///
+/// Used to identify the current platform the application is running on.
 enum AppPlatform {
-  /// iOS platform
+  /// Apple's iOS platform.
   iOS,
 
-  /// Android platform
-  android;
+  /// Google's Android platform.
+  android,
+
+  /// Web platform.
+  web;
 
   /// Returns true if the current platform is iOS.
   bool get isIos => this == iOS;
+
+  /// Returns true if the current platform is Android.
+  bool get isAndroid => this == android;
 }

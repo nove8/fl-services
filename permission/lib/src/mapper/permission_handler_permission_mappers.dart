@@ -7,7 +7,7 @@ final class _PermissionServiceToLibMapper {
     return switch (permission) {
       Permission.appTrackingTransparency => ph.Permission.appTrackingTransparency,
       Permission.notification => ph.Permission.notification,
-      Permission.camera => ph.Permission.camera,
+      Permission.cameraSystemExternal || Permission.cameraPreviewInternal => ph.Permission.camera,
     };
   }
 }

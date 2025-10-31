@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
+import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
 import 'package:permission_service/src/entity/app_platform.dart';
 import 'package:permission_service/src/entity/permission.dart';
@@ -25,13 +28,9 @@ final class PermissionHandlerPermissionService implements PermissionService {
   /// specified [appPlatform], a successful result of [PermissionStatus.granted] will be returned.
   /// In case of error, a [RequestPermissionFailure] will be returned as failure.
   @override
-  Future<Result<PermissionStatus>> requestPermission(
-    Permission permission, {
-    required AppPlatform appPlatform,
-  }) {
+  Future<Result<PermissionStatus>> requestPermission(Permission permission) {
     return _makePermissionAction(
       permission,
-      appPlatform,
       (ph.Permission permission) => permission.request(),
       RequestPermissionFailure.new,
     );
@@ -43,13 +42,9 @@ final class PermissionHandlerPermissionService implements PermissionService {
   /// specified [appPlatform], a successful result of [PermissionStatus.granted] will be returned.
   /// In case of error, a [GetPermissionStatusFailure] will be returned as failure.
   @override
-  Future<Result<PermissionStatus>> getPermissionStatus(
-    Permission permission, {
-    required AppPlatform appPlatform,
-  }) {
+  Future<Result<PermissionStatus>> getPermissionStatus(Permission permission) {
     return _makePermissionAction(
       permission,
-      appPlatform,
       (ph.Permission permission) => permission.status,
       GetPermissionStatusFailure.new,
     );
@@ -57,34 +52,42 @@ final class PermissionHandlerPermissionService implements PermissionService {
 
   Future<Result<PermissionStatus>> _makePermissionAction(
     Permission permission,
-    AppPlatform appPlatform,
     Future<ph.PermissionStatus> Function(ph.Permission) permissionAction,
     Failure Function(Object error) failureProvider,
   ) {
-    final bool hasPermissionOnPlatform = _hasPermissionOnPlatform(
-      permission,
-      appPlatform: appPlatform,
-    );
-
-    if (hasPermissionOnPlatform) {
-      final ph.Permission libPermission = _permissionDomainToLibMapper.transform(permission);
-      return permissionAction
-          .call(libPermission)
-          .mapToResult(failureProvider)
-          .mapAsync(_permissionStatusLibToDomainMapper.transform);
-    } else {
-      return PermissionStatus.granted.toFutureSuccessResult();
-    }
+    return _hasPermission(permission).flatMapAsync((bool hasPermission) {
+      if (hasPermission) {
+        final ph.Permission libPermission = _permissionDomainToLibMapper.transform(permission);
+        return permissionAction
+            .call(libPermission)
+            .mapToResult(failureProvider)
+            .mapAsync(_permissionStatusLibToDomainMapper.transform);
+      } else {
+        return PermissionStatus.granted.toFutureSuccessResult();
+      }
+    });
   }
 
-  bool _hasPermissionOnPlatform(
-    Permission permission, {
-    required AppPlatform appPlatform,
-  }) {
-    return switch (permission) {
-      Permission.appTrackingTransparency => appPlatform.isIos,
-      Permission.camera => true,
-      Permission.notification => true,
-    };
+  Result<bool> _hasPermission(Permission permission) {
+    return _determineAppPlatform().map((AppPlatform appPlatform) {
+      return switch (permission) {
+        Permission.appTrackingTransparency => appPlatform.isIos,
+        Permission.cameraSystemExternal => !appPlatform.isAndroid,
+        Permission.cameraPreviewInternal => true,
+        Permission.notification => true,
+      };
+    });
+  }
+
+  Result<AppPlatform> _determineAppPlatform() {
+    if (kIsWeb) {
+      return AppPlatform.web.toSuccessResult();
+    } else if (Platform.isIOS) {
+      return AppPlatform.iOS.toSuccessResult();
+    } else if (Platform.isAndroid) {
+      return AppPlatform.android.toSuccessResult();
+    } else {
+      return const UnsupportedPlatformFailure().toFailureResult();
+    }
   }
 }
