@@ -17,7 +17,7 @@ dependencies:
   common_result:
     git:
       url: git@github.com:nove8/fl-common-result.git
-      ref: main
+      ref: 3.0.0
 
 dev_dependencies:
   common_package:
