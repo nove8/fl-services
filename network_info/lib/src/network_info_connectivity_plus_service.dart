@@ -19,10 +19,17 @@ final class NetworkInfoConnectivityPlusService implements NetworkInfoService {
   }
 
   @override
+  Stream<bool> get isConnectedToTheInternetStream {
+    return _onConnectivityChanged.map(_isConnectedResults);
+  }
+
+  Stream<List<ConnectivityResult>> get _onConnectivityChanged => Connectivity().onConnectivityChanged;
+
+  @override
   Future<void> waitForInternetConnection() async {
     final bool isConnected = await isConnectedToTheInternet.outputOrFalse;
     if (!isConnected) {
-      await Connectivity().onConnectivityChanged.firstWhere(_isConnectedResults);
+      await _onConnectivityChanged.firstWhere(_isConnectedResults);
     }
   }
 
