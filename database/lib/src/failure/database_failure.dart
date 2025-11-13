@@ -66,9 +66,9 @@ final class RawQueryDatabaseFailure implements DatabaseFailure {
 }
 
 /// Failure that occurs when selecting all rows.
-final class SelectAllDatabaseFailure implements DatabaseFailure {
-  /// Creates a [SelectAllDatabaseFailure] with the underlying error.
-  const SelectAllDatabaseFailure(this.error);
+final class SelectAllRowsDatabaseFailure implements DatabaseFailure {
+  /// Creates a [SelectAllRowsDatabaseFailure] with the underlying error.
+  const SelectAllRowsDatabaseFailure(this.error);
 
   /// The underlying error object from the database operation.
   final Object error;

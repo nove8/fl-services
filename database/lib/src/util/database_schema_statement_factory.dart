@@ -38,5 +38,7 @@ abstract final class DatabaseSchemaStatementFactory {
   static String _obtainIndexName({
     required String tableName,
     required String columnName,
-  }) => '${tableName}_${columnName}_index';
+  }) {
+    return '${tableName}_${columnName}_index';
+  }
 }

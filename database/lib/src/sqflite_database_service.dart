@@ -137,28 +137,6 @@ final class SqfliteDatabaseService implements DatabaseService {
   }
 
   @override
-  Future<Result<int>> getCount({
-    required String tableName,
-    String? whereClause,
-    List<Object?>? whereArguments,
-  }) {
-    final String query = 'SELECT $countSelectClause FROM $tableName ${whereClause.toWhereString()}';
-    return rawQuery(
-      query,
-      arguments: whereArguments,
-    ).toEntityOrNull<int>().flatMapNullValueAsyncToFailure(GetCountDatabaseFailure.new);
-  }
-
-  @override
-  Future<Result<T?>> getMaxValue<T>({
-    required String tableName,
-    required String valueColumnName,
-  }) {
-    final String query = 'SELECT MAX($countSelectClause) FROM $tableName';
-    return rawQuery(query).toEntityOrNull<T>().flatMapNullValueAsyncToFailure(GetCountDatabaseFailure.new);
-  }
-
-  @override
   Future<Result<List<Map<String, Object?>>>> rawQuery(
     String query, {
     List<Object?>? arguments,
@@ -186,7 +164,7 @@ final class SqfliteDatabaseService implements DatabaseService {
           orderByClauses: orderByClauses,
           limit: limit,
         )
-        .mapToResult(SelectAllDatabaseFailure.new);
+        .mapToResult(SelectAllRowsDatabaseFailure.new);
   }
 
   @override

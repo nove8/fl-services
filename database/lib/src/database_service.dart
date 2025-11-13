@@ -17,19 +17,6 @@ abstract interface class DatabaseService {
     required String tableName,
   });
 
-  /// Gets the row count from [tableName] matching the optional where clause.
-  Future<Result<int>> getCount({
-    required String tableName,
-    String? whereClause,
-    List<Object?>? whereArguments,
-  });
-
-  /// Gets the maximum value of [valueColumnName] from [tableName].
-  Future<Result<T?>> getMaxValue<T>({
-    required String tableName,
-    required String valueColumnName,
-  });
-
   /// Executes a raw SQL query with optional arguments.
   Future<Result<List<Map<String, Object?>>>> rawQuery(
     String query, {
