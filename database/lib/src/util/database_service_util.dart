@@ -2,6 +2,9 @@ import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
 import 'package:database_service/src/database_service.dart';
 import 'package:database_service/src/entity/database_entity.dart';
+import 'package:database_service/src/failure/database_failure.dart';
+import 'package:database_service/src/util/database_clause_util.dart';
+import 'package:database_service/src/util/database_row_util.dart';
 
 /// Extension methods for [DatabaseService] with entity-based operations.
 extension DatabaseServiceUtil on DatabaseService {
@@ -21,6 +24,28 @@ extension DatabaseServiceUtil on DatabaseService {
   }) {
     final Iterable<Map<String, Object?>> values = _obtainValues(entities);
     return replaceAll(values, tableName: tableName);
+  }
+
+  /// Gets the row count from [tableName] matching the optional where clause.
+  Future<Result<int>> getCount({
+    required String tableName,
+    String? whereClause,
+    List<Object?>? whereArguments,
+  }) {
+    final String query = 'SELECT $countSelectClause FROM $tableName ${whereClause.toWhereString()}';
+    return rawQuery(
+      query,
+      arguments: whereArguments,
+    ).toEntityOrNull<int>().flatMapNullValueAsyncToFailure(GetCountDatabaseFailure.new);
+  }
+
+  /// Gets the maximum value of [valueColumnName] from [tableName].
+  Future<Result<T?>> getMaxValue<T>({
+    required String tableName,
+    required String valueColumnName,
+  }) {
+    final String query = 'SELECT MAX($valueColumnName) FROM $tableName';
+    return rawQuery(query).toEntityOrNull<T>();
   }
 
   /// Checks if the table has any rows matching the optional where clause.

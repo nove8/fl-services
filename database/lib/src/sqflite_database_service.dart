@@ -10,11 +10,8 @@ import 'package:database_service/src/failure/database_failure.dart';
 import 'package:database_service/src/util/collection_util.dart';
 import 'package:database_service/src/util/database_clause_util.dart';
 import 'package:database_service/src/util/database_row_util.dart';
-import 'package:database_service/src/util/database_table_column_util.dart';
 import 'package:database_service/src/util/database_util.dart';
 import 'package:database_service/src/util/future_util.dart';
-import 'package:database_service/src/util/object_util.dart';
-import 'package:database_service/src/util/string_util.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -140,23 +137,34 @@ final class SqfliteDatabaseService implements DatabaseService {
   }
 
   @override
-  Future<Result<int>> getCount({
-    required String tableName,
-    String? whereClause,
-    List<Object?>? whereArguments,
-  }) {
-    final String query = 'SELECT $countSelectClause FROM $tableName ${whereClause.toWhereString()}';
-    return rawQuery(query, arguments: whereArguments)
-        .mapAsync((List<Map<String, Object?>> rows) => rows.toEntityOrNull<int>())
-        .flatMapNullValueAsyncToFailure(GetCountDatabaseFailure.new);
-  }
-
-  @override
   Future<Result<List<Map<String, Object?>>>> rawQuery(
     String query, {
     List<Object?>? arguments,
   }) {
     return _database.rawQuery(query, arguments).mapToResult(RawQueryDatabaseFailure.new);
+  }
+
+  @override
+  Future<Result<List<Map<String, Object?>>>> select({
+    required String tableName,
+    List<String?>? whereClauses,
+    List<Object?>? whereArgs,
+    String? orderByColumn,
+    DatabaseOrder? order,
+    List<String>? orderByClauses,
+    int? limit,
+  }) {
+    return _database
+        .queryExtended(
+          tableName,
+          whereClause: whereClauses?.toPredicateClause(),
+          whereArgs: whereArgs,
+          orderByColumn: orderByColumn,
+          order: order,
+          orderByClauses: orderByClauses,
+          limit: limit,
+        )
+        .mapToResult(SelectAllRowsDatabaseFailure.new);
   }
 
   @override
@@ -168,25 +176,47 @@ final class SqfliteDatabaseService implements DatabaseService {
     DatabaseOrder? order,
     List<String>? orderByClauses,
   }) {
-    assert(
-      (orderByColumn == null && order == null) || orderByClauses == null,
-      'Cannot provide both orderByColumn/order and orderByClauses',
-    );
-
     final String whereClause = '$targetColumnName ${targetValues.toInWithoutArgumentsClause()}';
     final List<Object?> whereArguments = targetValues.toUnmodifiableList();
-    final List<String>? resultingOrderByClauses =
-        orderByClauses ?? orderByColumn?.toOrderPredicateClause(order).toList(isGrowable: false);
     return targetValues.isNotEmpty
         ? _database
-              .query(
+              .queryExtended(
                 tableName,
-                where: whereClause,
+                whereClause: whereClause,
                 whereArgs: whereArguments,
-                orderBy: resultingOrderByClauses?.joinWithCommaAndSpace(),
+                orderByColumn: orderByColumn,
+                order: order,
+                orderByClauses: orderByClauses,
               )
               .mapToResult(SelectByColumnValuesDatabaseFailure.new)
         : <Map<String, Object?>>[].toFutureSuccessResult();
+  }
+
+  @override
+  Future<Result<Set<T>>> selectDistinctValues<T>({
+    required String tableName,
+    required String valueColumnName,
+    List<String?>? whereClauses,
+    List<Object?>? whereArgs,
+    String? orderByColumn,
+    DatabaseOrder? order,
+    List<String>? orderByClauses,
+    int? limit,
+  }) {
+    return _database
+        .queryExtended(
+          tableName,
+          isDistinct: true,
+          selectColumns: <String>[valueColumnName],
+          whereClause: whereClauses?.toPredicateClause(),
+          whereArgs: whereArgs,
+          orderByColumn: orderByColumn,
+          order: order,
+          orderByClauses: orderByClauses,
+          limit: limit,
+        )
+        .mapToResult(SelectDistinctValuesDatabaseFailure.new)
+        .toEntitiesSet();
   }
 
   @override

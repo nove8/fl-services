@@ -17,17 +17,21 @@ abstract interface class DatabaseService {
     required String tableName,
   });
 
-  /// Gets the row count from [tableName] matching the optional where clause.
-  Future<Result<int>> getCount({
-    required String tableName,
-    String? whereClause,
-    List<Object?>? whereArguments,
-  });
-
   /// Executes a raw SQL query with optional arguments.
   Future<Result<List<Map<String, Object?>>>> rawQuery(
     String query, {
     List<Object?>? arguments,
+  });
+
+  /// Selects all rows from [tableName].
+  Future<Result<List<Map<String, Object?>>>> select({
+    required String tableName,
+    List<String?>? whereClauses,
+    List<Object?>? whereArgs,
+    String? orderByColumn,
+    DatabaseOrder? order,
+    List<String>? orderByClauses,
+    int? limit,
   });
 
   /// Selects rows from [tableName] where [targetColumnName] matches any value in [targetValues].
@@ -38,6 +42,18 @@ abstract interface class DatabaseService {
     String? orderByColumn,
     DatabaseOrder? order,
     List<String>? orderByClauses,
+  });
+
+  /// Selects distinct values of [valueColumnName] from [tableName].
+  Future<Result<Set<T>>> selectDistinctValues<T>({
+    required String tableName,
+    required String valueColumnName,
+    List<String?>? whereClauses,
+    List<Object?>? whereArgs,
+    String? orderByColumn,
+    DatabaseOrder? order,
+    List<String>? orderByClauses,
+    int? limit,
   });
 
   /// Inserts a row into [tableName], returning the row ID, or ignores on conflict.

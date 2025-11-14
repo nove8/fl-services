@@ -10,6 +10,9 @@ extension IterableExtension<E> on Iterable<E> {
 
   /// Converts this iterable to an unmodifiable list.
   List<E> toUnmodifiableList() => List<E>.unmodifiable(this);
+
+  /// Converts this iterable to an unmodifiable set.
+  Set<E> toUnmodifiableSet() => Set<E>.unmodifiable(this);
 }
 
 /// Extension methods for expanding [Iterable] collections.
