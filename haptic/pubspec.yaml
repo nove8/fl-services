@@ -1,25 +1,25 @@
 name: haptic_service
 description: Haptic service module
-version: 1.0.0
+version: 2.0.0
 publish_to: none
 
 environment:
-  sdk: ^3.9.0
-  flutter: ^3.35.7
+  sdk: ^3.10.1
+  flutter: ^3.38.3
 
 dependencies:
   flutter:
     sdk: flutter
 
-  async: 2.13.0
+  async: ^2.13.0
 
   common_result:
     git:
       url: git@github.com:nove8/fl-common-result.git
-      ref: 3.0.0
+      ref: 4.0.0
 
 dev_dependencies:
   common_package:
     git:
       url: git@github.com:nove8/fl-common-package.git
-      ref: 3.0.0
+      ref: 4.1.0
