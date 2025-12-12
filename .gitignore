@@ -1,6 +1,5 @@
 # Flutter/Dart/Pub related
 .dart_tool/
-*.lock
 
 # IntelliJ related
 *.iml
