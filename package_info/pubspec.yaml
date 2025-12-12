@@ -1,22 +1,22 @@
 name: package_info_service
 description: Package info service module
-version: 1.0.0
+version: 2.0.0
 publish_to: none
 
 environment:
-  sdk: ^3.9.0
+  sdk: ^3.10.1
 
 dependencies:
-  async: 2.13.0
-  package_info_plus: 8.3.1
+  async: ^2.13.0
+  package_info_plus: ^9.0.0
 
   common_result:
     git:
       url: git@github.com:nove8/fl-common-result.git
-      ref: 3.0.0
+      ref: 4.0.0
 
 dev_dependencies:
   common_package:
     git:
       url: git@github.com:nove8/fl-common-package.git
-      ref: 3.0.0
+      ref: 4.1.0
