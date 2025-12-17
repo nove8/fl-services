@@ -54,18 +54,6 @@ extension BatchExtensions on Batch {
     }
   }
 
-  /// Inserts a row from [values] into [tableName], replacing on conflicts.
-  void insertOrReplace(
-    Map<String, Object?> values, {
-    required String tableName,
-  }) {
-    insert(
-      tableName,
-      values,
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
   /// Replaces all rows in [tableName] by deleting matching rows and inserting new ones.
   void replaceAll(
     Iterable<Map<String, Object?>> valuesIterable, {
