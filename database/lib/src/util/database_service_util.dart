@@ -26,6 +26,14 @@ extension DatabaseServiceUtil on DatabaseService {
     return replaceAll(values, tableName: tableName);
   }
 
+  /// Inserts the [entity] into its table or replaces the existing row
+  Future<Result<void>> insertOrReplaceEntity(DatabaseEntity entity) {
+    return insertOrReplace(
+      entity.toMap(),
+      tableName: entity.tableName,
+    );
+  }
+
   /// Gets the row count from [tableName] matching the optional where clause.
   Future<Result<int>> getCount({
     required String tableName,

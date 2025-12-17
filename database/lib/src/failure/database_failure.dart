@@ -31,6 +31,20 @@ final class InsertAllDatabaseFailure implements DatabaseFailure {
   }
 }
 
+/// Failure that occurs when inserting or replacing a row into a database.
+final class InsertOrReplaceDatabaseFailure implements DatabaseFailure {
+  /// Creates an [InsertOrReplaceDatabaseFailure] with the underlying error.
+  const InsertOrReplaceDatabaseFailure(this.error);
+
+  /// The underlying error object from the database operation.
+  final Object error;
+
+  @override
+  String toString() {
+    return 'InsertOrReplaceDatabaseFailure{error: $error}';
+  }
+}
+
 /// Failure that occurs when replacing multiple rows in a database.
 final class ReplaceAllDatabaseFailure implements DatabaseFailure {
   /// Creates a [ReplaceAllDatabaseFailure] with the underlying error.

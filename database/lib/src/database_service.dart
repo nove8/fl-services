@@ -11,6 +11,12 @@ abstract interface class DatabaseService {
     required String tableName,
   });
 
+  /// Inserts a row from [values] into [tableName], replacing on conflicts.
+  Future<Result<void>> insertOrReplace(
+    Map<String, Object?> values, {
+    required String tableName,
+  });
+
   /// Replaces all rows from [valuesIterable] in [tableName].
   Future<Result<void>> replaceAll(
     Iterable<Map<String, Object?>> valuesIterable, {

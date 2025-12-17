@@ -127,6 +127,17 @@ final class SqfliteDatabaseService implements DatabaseService {
   }
 
   @override
+  Future<Result<void>> insertOrReplace(Map<String, Object?> values, {required String tableName}) {
+    return _database
+        .insert(
+          tableName,
+          values,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        )
+        .mapToResult(InsertOrReplaceDatabaseFailure.new);
+  }
+
+  @override
   Future<Result<void>> replaceAll(
     Iterable<Map<String, Object?>> valuesIterable, {
     required String tableName,
