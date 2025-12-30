@@ -21,18 +21,21 @@ final class HttpServiceImpl implements HttpService {
   /// Creates an [HttpServiceImpl].
   /// [networkInfoService] is used to check network connectivity before requests.
   /// [logLevel] controls the verbosity of HTTP request/response logging.
-  HttpServiceImpl({required this.logLevel});
+  HttpServiceImpl({
+    required LogLevel logLevel,
+    NetworkInfoService networkInfoService = const NetworkInfoConnectivityPlusService(),
+  }) : _libLogLevel = _logLevelServiceToLibMapper.transform(logLevel),
+       _networkInfoService = networkInfoService;
 
   static const _LogLevelServiceToLibMapper _logLevelServiceToLibMapper = _LogLevelServiceToLibMapper();
-  static const NetworkInfoService _networkInfoService = NetworkInfoConnectivityPlusService();
 
-  /// The log level for HTTP request/response logging.
-  final LogLevel logLevel;
+  final pretty_http_logger.LogLevel _libLogLevel;
+  final NetworkInfoService _networkInfoService;
 
   late final pretty_http_logger.HttpWithMiddleware _httpWithMiddleware =
       pretty_http_logger.HttpWithMiddleware.build(
         middlewares: <pretty_http_logger.MiddlewareContract>[
-          pretty_http_logger.HttpLogger(logLevel: _logLevelServiceToLibMapper.transform(logLevel)),
+          pretty_http_logger.HttpLogger(logLevel: _libLogLevel),
         ],
       );
 
@@ -40,7 +43,7 @@ final class HttpServiceImpl implements HttpService {
   late final pretty_http_logger.HttpClientWithMiddleware _httpClientWithMiddleware =
       pretty_http_logger.HttpClientWithMiddleware.build(
         middlewares: <pretty_http_logger.MiddlewareContract>[
-          pretty_http_logger.HttpLogger(logLevel: _logLevelServiceToLibMapper.transform(logLevel)),
+          pretty_http_logger.HttpLogger(logLevel: _libLogLevel),
         ],
       );
 
