@@ -4,7 +4,11 @@ final class LocalNotification {
   const LocalNotification({
     required this.id,
     required this.title,
+    this.body,
     required this.triggerDateTime,
+    this.payload,
+    this.repeatInterval,
+    this.androidScheduleMode = LocalNotificationAndroidScheduleMode.inexactAllowWhileIdle,
   });
 
   /// The unique identifier of the notification.
@@ -13,6 +17,45 @@ final class LocalNotification {
   /// The title of the notification.
   final String title;
 
+  /// The body of the notification.
+  final String? body;
+
   /// The date and time when the notification should be triggered.
   final DateTime triggerDateTime;
+
+  /// Custom payload that will be returned on click.
+  final String? payload;
+
+  /// Repeat interval.
+  final LocalNotificationRepeatInterval? repeatInterval;
+
+  /// Android schedule mode.
+  final LocalNotificationAndroidScheduleMode androidScheduleMode;
+}
+
+/// Repeat interval for a scheduled local notification.
+enum LocalNotificationRepeatInterval {
+  /// Repeat daily.
+  daily,
+
+  /// Repeat weekly.
+  weekly,
+
+  /// Repeat monthly.
+  monthly,
+
+  /// Repeat every three months.
+  threeMonths,
+
+  /// Repeat every six months.
+  sixMonths,
+
+  /// Repeat annually.
+  annually,
+}
+
+/// Android schedule mode for a scheduled local notification.
+enum LocalNotificationAndroidScheduleMode {
+  /// Inexact schedule mode that allows the notification to be shown while the device is idle.
+  inexactAllowWhileIdle,
 }

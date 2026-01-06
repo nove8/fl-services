@@ -45,6 +45,20 @@ final class LocalNotificationNotScheduledFailure implements LocalNotificationFai
   }
 }
 
+/// Failure when showing a notification.
+final class LocalNotificationNotShownFailure implements LocalNotificationFailure {
+  /// Creates a [LocalNotificationNotShownFailure].
+  const LocalNotificationNotShownFailure(this.error);
+
+  /// The error that occurred during showing a notification.
+  final Object error;
+
+  @override
+  String toString() {
+    return 'LocalNotificationNotShownFailure{error: $error}';
+  }
+}
+
 /// Failure when getting the local timezone.
 final class GetLocalTimezoneFailure implements LocalNotificationFailure {
   /// Creates a [GetLocalTimezoneFailure].

@@ -13,3 +13,9 @@ Result<T> mapToResult<T>({
     return FailureResult(failureProvider(error), stackTrace);
   }
 }
+
+/// Extensions on nullable objects.
+extension NullableObjectExtensions<T> on T {
+  /// Calls the specified function [block] with `this` value as its argument and returns its result.
+  R let<R>(R Function(T) block) => block(this);
+}
