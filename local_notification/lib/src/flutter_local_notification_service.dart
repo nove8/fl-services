@@ -41,9 +41,7 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
   late final FlutterLocalNotificationsPlugin _localNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   @override
-  Stream<Result<LocalNotificationClick>> getNotificationClickedStream() {
-    return _notificationsClickedSubject;
-  }
+  Stream<Result<LocalNotificationClick>> getNotificationClickedStream() => _notificationsClickedSubject;
 
   @override
   Future<Result<void>> scheduleNotification({
@@ -52,6 +50,7 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
   }) async {
     await _setLocalLocation();
     await _ensureAndroidChannel(channel);
+
     return _localNotificationsPlugin
         .zonedSchedule(
           notification.id,
@@ -71,8 +70,8 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
     required LocalNotification notification,
     required LocalNotificationChannel channel,
   }) async {
-    await _init();
     await _ensureAndroidChannel(channel);
+
     return _localNotificationsPlugin
         .show(
           notification.id,
