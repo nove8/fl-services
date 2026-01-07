@@ -11,4 +11,7 @@ extension NullableObjectExtensions<T> on T {
       growable: isGrowable,
     );
   }
+
+  /// Converts this value to a set containing a single element.
+  Set<T> toSet() => <T>{this};
 }

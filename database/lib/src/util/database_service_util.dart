@@ -5,6 +5,7 @@ import 'package:database_service/src/entity/database_entity.dart';
 import 'package:database_service/src/failure/database_failure.dart';
 import 'package:database_service/src/util/database_clause_util.dart';
 import 'package:database_service/src/util/database_row_util.dart';
+import 'package:database_service/src/util/object_util.dart';
 
 /// Extension methods for [DatabaseService] with entity-based operations.
 extension DatabaseServiceUtil on DatabaseService {
@@ -67,6 +68,23 @@ extension DatabaseServiceUtil on DatabaseService {
       whereClause: whereClause,
       whereArguments: whereArguments,
     ).mapAsync((int count) => count > 0);
+  }
+
+  /// Selects a single value of type [T] from [valueColumnName] in [tableName] where [targetColumnName] equals [targetValue].
+  Future<Result<T?>> selectValueByColumnValue<T>({
+    required String tableName,
+    required String targetColumnName,
+    required Object targetValue,
+    required String valueColumnName,
+    List<String?>? additionalWhereClauses,
+  }) {
+    return selectByColumnValues(
+      tableName: tableName,
+      targetColumnName: targetColumnName,
+      targetValues: targetValue.toSet(),
+      selectColumns: valueColumnName.toList(),
+      additionalWhereClauses: additionalWhereClauses,
+    ).toEntityOrNull<T>();
   }
 
   Iterable<Map<String, Object?>> _obtainValues(Iterable<DatabaseEntity> entities) {
