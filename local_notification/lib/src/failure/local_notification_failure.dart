@@ -86,3 +86,17 @@ final class SetLocalLocationFailure implements LocalNotificationFailure {
     return 'SetLocalLocationFailure{error: $error}';
   }
 }
+
+/// Failure when getting notification channels.
+final class GetNotificationChannelsFailure implements LocalNotificationFailure {
+  /// Creates a [GetNotificationChannelsFailure].
+  const GetNotificationChannelsFailure(this.error);
+
+  /// The error that occurred during getting notification channels.
+  final Object error;
+
+  @override
+  String toString() {
+    return 'GetNotificationChannelsFailure{error: $error}';
+  }
+}

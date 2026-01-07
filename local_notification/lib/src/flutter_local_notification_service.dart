@@ -11,6 +11,7 @@ import 'package:local_notification_service/src/entity/local_notification_channel
 import 'package:local_notification_service/src/entity/local_notification_response.dart';
 import 'package:local_notification_service/src/failure/local_notification_failure.dart';
 import 'package:local_notification_service/src/local_notification_service.dart';
+import 'package:local_notification_service/src/mapper/local_notification_channel_mapper.dart';
 import 'package:local_notification_service/src/util/async_util.dart';
 import 'package:local_notification_service/src/util/object_util.dart';
 import 'package:rxdart/rxdart.dart';
@@ -40,6 +41,26 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
   final StreamController<LocalNotificationResponse> _clickedNotificationResponseSubject =
       BehaviorSubject<LocalNotificationResponse>();
 
+  final LocalNotificationAndroidStyleToStyleInformationMapper _androidStyleToStyleInformationMapper =
+      const LocalNotificationAndroidStyleToStyleInformationMapper();
+  final LocalNotificationImportanceToAndroidImportanceMapper _importanceToAndroidImportanceMapper =
+      const LocalNotificationImportanceToAndroidImportanceMapper();
+  final LocalNotificationPriorityToAndroidPriorityMapper _priorityToAndroidPriorityMapper =
+      const LocalNotificationPriorityToAndroidPriorityMapper();
+  final LocalNotificationSoundToAndroidSoundMapper _soundToAndroidSoundMapper =
+      const LocalNotificationSoundToAndroidSoundMapper();
+  final LocalNotificationFilePathToDarwinNotificationAttachmentMapper _filePathToAttachmentMapper =
+      const LocalNotificationFilePathToDarwinNotificationAttachmentMapper();
+  final LocalNotificationScheduleModeToAndroidScheduleModeMapper _scheduleModeToAndroidScheduleModeMapper =
+      const LocalNotificationScheduleModeToAndroidScheduleModeMapper();
+  final LocalNotificationRepeatIntervalToDateTimeComponentsMapper _repeatIntervalToDateTimeComponentsMapper =
+      const LocalNotificationRepeatIntervalToDateTimeComponentsMapper();
+  late final LocalNotificationChannelToAndroidNotificationChannelMapper
+  _channelToAndroidNotificationChannelMapper = LocalNotificationChannelToAndroidNotificationChannelMapper(
+    _importanceToAndroidImportanceMapper,
+    _soundToAndroidSoundMapper,
+  );
+
   late final FlutterLocalNotificationsPlugin _localNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   @override
@@ -60,11 +81,15 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
           notification.id,
           notification.title,
           notification.body,
+          payload: notification.payload,
           timezone.TZDateTime.from(notification.triggerDateTime, timezone.local),
           _obtainNotificationDetails(channel: channel),
-          androidScheduleMode: _obtainAndroidScheduleMode(notification.androidScheduleMode),
-          payload: notification.payload,
-          matchDateTimeComponents: _obtainDateTimeComponents(notification.repeatInterval),
+          androidScheduleMode: _scheduleModeToAndroidScheduleModeMapper.transform(
+            notification.androidScheduleMode,
+          ),
+          matchDateTimeComponents: _repeatIntervalToDateTimeComponentsMapper.transform(
+            notification.repeatInterval,
+          ),
         )
         .mapToResult(LocalNotificationNotScheduledFailure.new);
   }
@@ -102,17 +127,18 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
   }
 
   @override
-  Future<Result<bool?>> isNotificationChannelEnabled({required String notificationChannelId}) async {
-    final List<AndroidNotificationChannel>? notificationChannels = await _obtainNotificationChannels();
-    final AndroidNotificationChannel? notificationChannel = notificationChannels?.firstWhereOrNull(
-      (AndroidNotificationChannel channel) => channel.id == notificationChannelId,
-    );
-    final bool? isNotificationChannelEnabled = notificationChannel?.let(
-      (AndroidNotificationChannel channel) => channel.importance != Importance.none,
-    );
-
-    // TODO: Return true for not Android platform
-    return isNotificationChannelEnabled.toFutureSuccessResult();
+  Future<Result<bool?>> isNotificationChannelEnabled({required String notificationChannelId}) {
+    return _obtainNotificationChannels().mapAsync((List<AndroidNotificationChannel>? notificationChannels) {
+      return notificationChannels == null
+          ? true
+          : notificationChannels
+                .firstWhereOrNull((AndroidNotificationChannel channel) {
+                  return channel.id == notificationChannelId;
+                })
+                ?.let((AndroidNotificationChannel channel) {
+                  return channel.importance != Importance.none;
+                });
+    });
   }
 
   @override
@@ -167,35 +193,14 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
   }
 
   Future<void> _ensureAndroidChannelCreated(LocalNotificationChannel channel) async {
-    final AndroidNotificationChannel androidChannel = _obtainAndroidNotificationChannel(channel: channel);
-
     return _localNotificationsPlugin
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(androidChannel);
-  }
-
-  AndroidNotificationChannel _obtainAndroidNotificationChannel({required LocalNotificationChannel channel}) {
-    final LocalNotificationAndroidChannelDetails? androidDetails = channel.androidDetails;
-
-    return AndroidNotificationChannel(
-      channel.id,
-      channel.name,
-      importance: _obtainImportance(androidDetails?.importance),
-      playSound: androidDetails?.isPlaySound ?? true,
-      sound: _obtainAndroidSound(androidDetails?.soundResourceName),
-      enableVibration: androidDetails?.isEnableVibration ?? true,
-      vibrationPattern: androidDetails?.vibrationPattern,
-      showBadge: androidDetails?.isShowBadge ?? true,
-      enableLights: androidDetails?.isEnableLights ?? false,
-      ledColor: androidDetails?.ledColor,
-    );
+        ?.createNotificationChannel(_channelToAndroidNotificationChannelMapper.transform(channel));
   }
 
   NotificationDetails _obtainNotificationDetails({required LocalNotificationChannel channel}) {
     final LocalNotificationAndroidChannelDetails? androidDetails = channel.androidDetails;
     final LocalNotificationDarwinChannelDetails? darwinDetails = channel.darwinDetails;
-
-    final StyleInformation? style = _obtainAndroidStyle(androidDetails?.style);
 
     return NotificationDetails(
       android: AndroidNotificationDetails(
@@ -203,80 +208,28 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
         channel.name,
         groupKey: androidDetails?.groupKey,
         color: androidDetails?.color,
-        importance: _obtainImportance(androidDetails?.importance),
-        priority: _obtainPriority(androidDetails?.priority),
-        sound: _obtainAndroidSound(androidDetails?.soundResourceName),
-        styleInformation: style,
+        importance: _importanceToAndroidImportanceMapper.transform(androidDetails?.importance),
+        priority: _priorityToAndroidPriorityMapper.transform(androidDetails?.priority),
+        sound: _soundToAndroidSoundMapper.transform(androidDetails?.soundResourceName),
+        styleInformation: _androidStyleToStyleInformationMapper.transform(androidDetails?.style),
       ),
       iOS: DarwinNotificationDetails(
         threadIdentifier: darwinDetails?.threadIdentifier ?? channel.id,
         sound: darwinDetails?.soundFileNameWithExtension,
-        attachments: _obtainDarwinAttachments(darwinDetails?.attachmentFilePaths),
+        attachments: _filePathToAttachmentMapper.transform(darwinDetails?.attachmentFilePaths),
       ),
     );
   }
 
-  StyleInformation? _obtainAndroidStyle(LocalNotificationAndroidStyle? style) {
-    return switch (style) {
-      final LocalNotificationBigPictureStyle localNotificationBigPictureStyle => BigPictureStyleInformation(
-        FilePathAndroidBitmap(localNotificationBigPictureStyle.imageFilePath),
-      ),
-      null => null,
-    };
-  }
-
-  Importance _obtainImportance(LocalNotificationImportance? importance) {
-    return switch (importance) {
-      LocalNotificationImportance.none => Importance.none,
-      LocalNotificationImportance.min => Importance.min,
-      LocalNotificationImportance.low => Importance.low,
-      LocalNotificationImportance.defaultImportance => Importance.defaultImportance,
-      LocalNotificationImportance.high => Importance.high,
-      LocalNotificationImportance.max || null => Importance.max,
-    };
-  }
-
-  Priority _obtainPriority(LocalNotificationPriority? priority) {
-    return switch (priority) {
-      LocalNotificationPriority.min => Priority.min,
-      LocalNotificationPriority.low => Priority.low,
-      LocalNotificationPriority.defaultPriority => Priority.defaultPriority,
-      LocalNotificationPriority.high || null => Priority.high,
-      LocalNotificationPriority.max => Priority.max,
-    };
-  }
-
-  RawResourceAndroidNotificationSound? _obtainAndroidSound(String? soundResourceName) {
-    return soundResourceName == null ? null : RawResourceAndroidNotificationSound(soundResourceName);
-  }
-
-  List<DarwinNotificationAttachment>? _obtainDarwinAttachments(List<String>? filePaths) {
-    return filePaths?.map(DarwinNotificationAttachment.new).toList();
-  }
-
-  AndroidScheduleMode _obtainAndroidScheduleMode(LocalNotificationAndroidScheduleMode scheduleMode) {
-    return switch (scheduleMode) {
-      LocalNotificationAndroidScheduleMode.inexactAllowWhileIdle => AndroidScheduleMode.inexactAllowWhileIdle,
-    };
-  }
-
-  DateTimeComponents? _obtainDateTimeComponents(LocalNotificationRepeatInterval? repeatInterval) {
-    return switch (repeatInterval) {
-      LocalNotificationRepeatInterval.daily => DateTimeComponents.time,
-      LocalNotificationRepeatInterval.weekly => DateTimeComponents.dayOfWeekAndTime,
-      LocalNotificationRepeatInterval.monthly => DateTimeComponents.dayOfMonthAndTime,
-      LocalNotificationRepeatInterval.threeMonths ||
-      LocalNotificationRepeatInterval.sixMonths ||
-      LocalNotificationRepeatInterval.annually => DateTimeComponents.dateAndTime,
-      null => null,
-    };
-  }
-
-  Future<List<AndroidNotificationChannel>?> _obtainNotificationChannels() async {
-    final List<AndroidNotificationChannel>? notificationChannels = await _localNotificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.getNotificationChannels();
-    return notificationChannels;
+  Future<Result<List<AndroidNotificationChannel>?>> _obtainNotificationChannels() async {
+    try {
+      final List<AndroidNotificationChannel>? notificationChannels = await _localNotificationsPlugin
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          ?.getNotificationChannels();
+      return notificationChannels.toSuccessResult();
+    } on Object catch (error, stackTrace) {
+      return FailureResult(GetNotificationChannelsFailure(error), stackTrace);
+    }
   }
 
   void _onNotificationClick(NotificationResponse? response) {
