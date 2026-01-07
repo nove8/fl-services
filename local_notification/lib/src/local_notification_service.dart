@@ -1,12 +1,12 @@
 import 'package:async/async.dart';
 import 'package:local_notification_service/src/entity/local_notification.dart';
 import 'package:local_notification_service/src/entity/local_notification_channel.dart';
-import 'package:local_notification_service/src/entity/local_notification_click.dart';
+import 'package:local_notification_service/src/entity/local_notification_response.dart';
 
 /// Service interface for managing local notifications.
 abstract interface class LocalNotificationService {
   /// Stream that emits when a notification is clicked.
-  Stream<Result<LocalNotificationClick>> getNotificationClickedStream();
+  Stream<LocalNotificationResponse> getClickedNotificationResponseStream();
 
   /// Schedules a local notification to be shown at the specified time.
   Future<Result<void>> scheduleNotification({

@@ -1,7 +1,7 @@
-/// Represents a click on a local notification.
-final class LocalNotificationClick {
-  /// Creates a [LocalNotificationClick].
-  const LocalNotificationClick({
+/// Represents response from [NotificationResponse] on click a local notification.
+final class LocalNotificationResponse {
+  /// Creates a [LocalNotificationResponse].
+  const LocalNotificationResponse({
     this.notificationId,
     this.payload,
   });

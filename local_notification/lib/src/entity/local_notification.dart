@@ -4,11 +4,11 @@ final class LocalNotification {
   const LocalNotification({
     required this.id,
     required this.title,
-    this.body,
     required this.triggerDateTime,
+    this.androidScheduleMode = LocalNotificationAndroidScheduleMode.inexactAllowWhileIdle,
+    this.body,
     this.payload,
     this.repeatInterval,
-    this.androidScheduleMode = LocalNotificationAndroidScheduleMode.inexactAllowWhileIdle,
   });
 
   /// The unique identifier of the notification.

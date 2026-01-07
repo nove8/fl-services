@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:common_result/common_result.dart';
@@ -6,7 +8,7 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:local_notification_service/src/entity/flutter_local_notification_android_initialization_settings.dart';
 import 'package:local_notification_service/src/entity/local_notification.dart';
 import 'package:local_notification_service/src/entity/local_notification_channel.dart';
-import 'package:local_notification_service/src/entity/local_notification_click.dart';
+import 'package:local_notification_service/src/entity/local_notification_response.dart';
 import 'package:local_notification_service/src/failure/local_notification_failure.dart';
 import 'package:local_notification_service/src/local_notification_service.dart';
 import 'package:local_notification_service/src/util/async_util.dart';
@@ -35,13 +37,15 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
   /// Android initialization settings.
   final FlutterLocalNotificationAndroidInitializationSettings androidInitializationSettings;
 
-  final BehaviorSubject<Result<LocalNotificationClick>> _notificationsClickedSubject =
-      BehaviorSubject<Result<LocalNotificationClick>>();
+  final StreamController<LocalNotificationResponse> _clickedNotificationResponseSubject =
+      BehaviorSubject<LocalNotificationResponse>();
 
   late final FlutterLocalNotificationsPlugin _localNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   @override
-  Stream<Result<LocalNotificationClick>> getNotificationClickedStream() => _notificationsClickedSubject;
+  Stream<LocalNotificationResponse> getClickedNotificationResponseStream() {
+    return _clickedNotificationResponseSubject.stream;
+  }
 
   @override
   Future<Result<void>> scheduleNotification({
@@ -49,7 +53,7 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
     required LocalNotificationChannel channel,
   }) async {
     await _setLocalLocation();
-    await _ensureAndroidChannel(channel);
+    await _ensureAndroidChannelCreated(channel);
 
     return _localNotificationsPlugin
         .zonedSchedule(
@@ -70,7 +74,7 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
     required LocalNotification notification,
     required LocalNotificationChannel channel,
   }) async {
-    await _ensureAndroidChannel(channel);
+    await _ensureAndroidChannelCreated(channel);
 
     return _localNotificationsPlugin
         .show(
@@ -113,19 +117,25 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
 
   @override
   Future<void> dispose() {
-    return _notificationsClickedSubject.close();
+    return _clickedNotificationResponseSubject.close();
   }
 
   Future<void> _init() async {
     timezone_data.initializeTimeZones();
+    await _checkIsAppLaunchedByNotification();
+    await _initializePlugin();
+  }
 
+  Future<void> _checkIsAppLaunchedByNotification() async {
     final NotificationAppLaunchDetails? notificationAppLaunchDetails = await _localNotificationsPlugin
         .getNotificationAppLaunchDetails();
-    if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
-      _onNotificationClicked(notificationAppLaunchDetails?.notificationResponse);
+    if (notificationAppLaunchDetails != null && notificationAppLaunchDetails.didNotificationLaunchApp) {
+      _onNotificationClick(notificationAppLaunchDetails.notificationResponse);
     }
+  }
 
-    await _localNotificationsPlugin.initialize(
+  Future<void> _initializePlugin() {
+    return _localNotificationsPlugin.initialize(
       InitializationSettings(
         iOS: const DarwinInitializationSettings(
           requestAlertPermission: false,
@@ -134,7 +144,7 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
         ),
         android: AndroidInitializationSettings(androidInitializationSettings.iconResourceName),
       ),
-      onDidReceiveNotificationResponse: _onNotificationClicked,
+      onDidReceiveNotificationResponse: _onNotificationClick,
     );
   }
 
@@ -156,7 +166,7 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
     );
   }
 
-  Future<void> _ensureAndroidChannel(LocalNotificationChannel channel) async {
+  Future<void> _ensureAndroidChannelCreated(LocalNotificationChannel channel) async {
     final AndroidNotificationChannel androidChannel = _obtainAndroidNotificationChannel(channel: channel);
 
     return _localNotificationsPlugin
@@ -165,43 +175,43 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
   }
 
   AndroidNotificationChannel _obtainAndroidNotificationChannel({required LocalNotificationChannel channel}) {
-    final LocalNotificationAndroidChannelDetails? android = channel.android;
+    final LocalNotificationAndroidChannelDetails? androidDetails = channel.androidDetails;
 
     return AndroidNotificationChannel(
       channel.id,
       channel.name,
-      importance: _obtainImportance(android?.importance),
-      playSound: android?.playSound ?? true,
-      sound: _obtainAndroidSound(android?.soundResourceName),
-      enableVibration: android?.enableVibration ?? true,
-      vibrationPattern: android?.vibrationPattern,
-      showBadge: android?.showBadge ?? true,
-      enableLights: android?.enableLights ?? false,
-      ledColor: android?.ledColor,
+      importance: _obtainImportance(androidDetails?.importance),
+      playSound: androidDetails?.isPlaySound ?? true,
+      sound: _obtainAndroidSound(androidDetails?.soundResourceName),
+      enableVibration: androidDetails?.isEnableVibration ?? true,
+      vibrationPattern: androidDetails?.vibrationPattern,
+      showBadge: androidDetails?.isShowBadge ?? true,
+      enableLights: androidDetails?.isEnableLights ?? false,
+      ledColor: androidDetails?.ledColor,
     );
   }
 
   NotificationDetails _obtainNotificationDetails({required LocalNotificationChannel channel}) {
-    final LocalNotificationAndroidChannelDetails? android = channel.android;
-    final LocalNotificationDarwinChannelDetails? darwin = channel.darwin;
+    final LocalNotificationAndroidChannelDetails? androidDetails = channel.androidDetails;
+    final LocalNotificationDarwinChannelDetails? darwinDetails = channel.darwinDetails;
 
-    final StyleInformation? style = _obtainAndroidStyle(android?.style);
+    final StyleInformation? style = _obtainAndroidStyle(androidDetails?.style);
 
     return NotificationDetails(
       android: AndroidNotificationDetails(
         channel.id,
         channel.name,
-        groupKey: android?.groupKey,
-        color: android?.color,
-        importance: _obtainImportance(android?.importance),
-        priority: _obtainPriority(android?.priority),
-        sound: _obtainAndroidSound(android?.soundResourceName),
+        groupKey: androidDetails?.groupKey,
+        color: androidDetails?.color,
+        importance: _obtainImportance(androidDetails?.importance),
+        priority: _obtainPriority(androidDetails?.priority),
+        sound: _obtainAndroidSound(androidDetails?.soundResourceName),
         styleInformation: style,
       ),
       iOS: DarwinNotificationDetails(
-        threadIdentifier: darwin?.threadIdentifier ?? channel.id,
-        sound: darwin?.soundFileNameWithExtension,
-        attachments: _obtainDarwinAttachments(darwin?.attachmentFilePaths),
+        threadIdentifier: darwinDetails?.threadIdentifier ?? channel.id,
+        sound: darwinDetails?.soundFileNameWithExtension,
+        attachments: _obtainDarwinAttachments(darwinDetails?.attachmentFilePaths),
       ),
     );
   }
@@ -216,22 +226,22 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
   }
 
   Importance _obtainImportance(LocalNotificationImportance? importance) {
-    return switch (importance ?? LocalNotificationImportance.max) {
+    return switch (importance) {
       LocalNotificationImportance.none => Importance.none,
       LocalNotificationImportance.min => Importance.min,
       LocalNotificationImportance.low => Importance.low,
       LocalNotificationImportance.defaultImportance => Importance.defaultImportance,
       LocalNotificationImportance.high => Importance.high,
-      LocalNotificationImportance.max => Importance.max,
+      LocalNotificationImportance.max || null => Importance.max,
     };
   }
 
   Priority _obtainPriority(LocalNotificationPriority? priority) {
-    return switch (priority ?? LocalNotificationPriority.high) {
+    return switch (priority) {
       LocalNotificationPriority.min => Priority.min,
       LocalNotificationPriority.low => Priority.low,
       LocalNotificationPriority.defaultPriority => Priority.defaultPriority,
-      LocalNotificationPriority.high => Priority.high,
+      LocalNotificationPriority.high || null => Priority.high,
       LocalNotificationPriority.max => Priority.max,
     };
   }
@@ -269,11 +279,11 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
     return notificationChannels;
   }
 
-  void _onNotificationClicked(NotificationResponse? response) {
-    final LocalNotificationClick click = LocalNotificationClick(
+  void _onNotificationClick(NotificationResponse? response) {
+    final LocalNotificationResponse localNotificationResponse = LocalNotificationResponse(
       notificationId: response?.id,
       payload: response?.payload,
     );
-    _notificationsClickedSubject.add(SuccessResult<LocalNotificationClick>(click));
+    _clickedNotificationResponseSubject.add(localNotificationResponse);
   }
 }
