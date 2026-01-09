@@ -84,6 +84,7 @@ extension DatabaseServiceUtil on DatabaseService {
       targetValues: targetValue.toSet(),
       selectColumns: valueColumnName.toList(),
       additionalWhereClauses: additionalWhereClauses,
+      limit: 1,
     ).toEntityOrNull<T>();
   }
 
