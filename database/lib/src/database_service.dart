@@ -45,9 +45,13 @@ abstract interface class DatabaseService {
     required String tableName,
     required String targetColumnName,
     required Set<Object> targetValues,
+    bool? isDistinct,
+    List<String>? selectColumns,
     String? orderByColumn,
     DatabaseOrder? order,
     List<String>? orderByClauses,
+    int? limit,
+    List<String?>? additionalWhereClauses,
   });
 
   /// Selects distinct values of [valueColumnName] from [tableName].

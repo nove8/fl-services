@@ -183,9 +183,13 @@ final class SqfliteDatabaseService implements DatabaseService {
     required String tableName,
     required String targetColumnName,
     required Set<Object> targetValues,
+    bool? isDistinct,
+    List<String>? selectColumns,
     String? orderByColumn,
     DatabaseOrder? order,
     List<String>? orderByClauses,
+    int? limit,
+    List<String?>? additionalWhereClauses,
   }) {
     final String whereClause = '$targetColumnName ${targetValues.toInWithoutArgumentsClause()}';
     final List<Object?> whereArguments = targetValues.toUnmodifiableList();
@@ -193,11 +197,17 @@ final class SqfliteDatabaseService implements DatabaseService {
         ? _database
               .queryExtended(
                 tableName,
-                whereClause: whereClause,
+                isDistinct: isDistinct,
+                selectColumns: selectColumns,
+                whereClause: <String?>[
+                  whereClause,
+                  ...?additionalWhereClauses,
+                ].toPredicateClause(),
                 whereArgs: whereArguments,
                 orderByColumn: orderByColumn,
                 order: order,
                 orderByClauses: orderByClauses,
+                limit: limit,
               )
               .mapToResult(SelectByColumnValuesDatabaseFailure.new)
         : <Map<String, Object?>>[].toFutureSuccessResult();
