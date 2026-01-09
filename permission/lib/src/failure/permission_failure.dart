@@ -36,3 +36,17 @@ final class GetPermissionStatusFailure implements PermissionFailure {
     return 'GetPermissionStatusFailure{error: $error}';
   }
 }
+
+/// Failure class for errors occurring during permission rationale check
+class CheckShouldShowRequestRationaleFailure implements PermissionFailure {
+  /// Creates a [CheckShouldShowRequestRationaleFailure].
+  const CheckShouldShowRequestRationaleFailure(this.error);
+
+  /// The error that occurred.
+  final Object error;
+
+  @override
+  String toString() {
+    return 'CheckShouldShowRequestRationaleFailure{error: $error}';
+  }
+}

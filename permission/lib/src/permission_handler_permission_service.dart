@@ -7,6 +7,8 @@ import 'package:permission_handler/permission_handler.dart' as ph;
 import 'package:permission_service/src/entity/app_platform.dart';
 import 'package:permission_service/src/entity/permission.dart';
 import 'package:permission_service/src/entity/permission_status.dart';
+import 'package:permission_service/src/entity/service.dart';
+import 'package:permission_service/src/entity/service_status.dart';
 import 'package:permission_service/src/failure/permission_failure.dart';
 import 'package:permission_service/src/permission_service.dart';
 import 'package:permission_service/src/util/future_util.dart';
@@ -21,6 +23,8 @@ final class PermissionHandlerPermissionService implements PermissionService {
   static const _PermissionServiceToLibMapper _permissionDomainToLibMapper = _PermissionServiceToLibMapper();
   static const _PermissionStatusLibToServiceMapper _permissionStatusLibToDomainMapper =
       _PermissionStatusLibToServiceMapper();
+  static const _ServiceStatusLibToDomainMapper _serviceStatusLibToDomainMapper =
+      _ServiceStatusLibToDomainMapper();
 
   /// Requests the specified [permission] on the given [appPlatform].
   ///
@@ -48,6 +52,19 @@ final class PermissionHandlerPermissionService implements PermissionService {
       (ph.Permission permission) => permission.status,
       GetPermissionStatusFailure.new,
     );
+  }
+
+  @override
+  Future<Result<ServiceStatus>> getServiceStatus(Service service) {
+    return switch (service) {
+      Service.location => _getLocationServiceStatus(),
+    };
+  }
+
+  @override
+  Future<Result<bool>> shouldShowRequestRationale(Permission permission) {
+    final ph.Permission libPermission = _permissionDomainToLibMapper.transform(permission);
+    return libPermission.shouldShowRequestRationale.mapToResult(CheckShouldShowRequestRationaleFailure.new);
   }
 
   Future<Result<PermissionStatus>> _makePermissionAction(
@@ -92,5 +109,11 @@ final class PermissionHandlerPermissionService implements PermissionService {
     } else {
       return const UnsupportedPlatformFailure().toFailureResult();
     }
+  }
+
+  Future<Result<ServiceStatus>> _getLocationServiceStatus() {
+    return ph.Permission.location.serviceStatus.then((ph.ServiceStatus libStatus) {
+      return _serviceStatusLibToDomainMapper.transform(libStatus).toSuccessResult();
+    });
   }
 }
