@@ -17,8 +17,11 @@ class LocalNotificationChannelToAndroidNotificationChannelMapper {
   final LocalNotificationSoundToAndroidSoundMapper _soundToAndroidSoundMapper;
 
   /// Transforms [LocalNotificationChannel] to [AndroidNotificationChannel].
-  AndroidNotificationChannel transform(LocalNotificationChannel channel) {
-    final LocalNotificationAndroidChannelDetails androidDetails = channel.androidDetails;
+  AndroidNotificationChannel transform({
+    required LocalNotificationChannel channel,
+    required LocalNotification notification,
+  }) {
+    final LocalNotificationAndroidChannelDetails androidDetails = notification.androidDetails;
 
     return AndroidNotificationChannel(
       channel.id,

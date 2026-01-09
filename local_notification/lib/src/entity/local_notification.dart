@@ -1,3 +1,5 @@
+import 'package:local_notification_service/src/entity/channel/local_notification_channel.dart';
+
 /// Represents a local notification with scheduling information.
 final class LocalNotification {
   /// Creates a [LocalNotification].
@@ -6,6 +8,8 @@ final class LocalNotification {
     required this.title,
     required this.triggerDateTime,
     this.androidScheduleMode = LocalNotificationAndroidScheduleMode.inexactAllowWhileIdle,
+    this.androidDetails = const LocalNotificationAndroidChannelDetails(),
+    this.darwinDetails = const LocalNotificationDarwinChannelDetails(),
     this.body,
     this.payload,
     this.repeatInterval,
@@ -31,6 +35,12 @@ final class LocalNotification {
 
   /// Android schedule mode.
   final LocalNotificationAndroidScheduleMode androidScheduleMode;
+
+  /// Android-specific channel and notification details.
+  final LocalNotificationAndroidChannelDetails androidDetails;
+
+  /// iOS-specific notification details.
+  final LocalNotificationDarwinChannelDetails darwinDetails;
 }
 
 /// Repeat interval for a scheduled local notification.

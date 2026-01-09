@@ -100,3 +100,17 @@ final class GetNotificationChannelsFailure implements LocalNotificationFailure {
     return 'GetNotificationChannelsFailure{error: $error}';
   }
 }
+
+/// Failure when creating a notification channel.
+final class CreateNotificationChannelFailure implements LocalNotificationFailure {
+  /// Creates a [CreateNotificationChannelFailure].
+  const CreateNotificationChannelFailure(this.error);
+
+  /// The error that occurred during creating a notification channel.
+  final Object error;
+
+  @override
+  String toString() {
+    return 'CreateNotificationChannelFailure{error: $error}';
+  }
+}

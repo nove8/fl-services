@@ -4,13 +4,9 @@ part of 'local_notification_channel.dart';
 final class LocalNotificationDarwinChannelDetails {
   /// Creates a [LocalNotificationDarwinChannelDetails].
   const LocalNotificationDarwinChannelDetails({
-    this.groupId,
     this.soundFileNameWithExtension,
     this.attachmentFilePaths,
   });
-
-  /// The thread identifier for grouping notifications.
-  final String? groupId;
 
   /// The name of the sound file to play (including extension).
   final String? soundFileNameWithExtension;

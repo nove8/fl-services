@@ -10,7 +10,6 @@ final class LocalNotificationAndroidChannelDetails {
     this.shouldEnableVibration = true,
     this.shouldShowBadge = true,
     this.shouldEnableLights = false,
-    this.groupId,
     this.color,
     this.soundResourceName,
     this.style,
@@ -35,9 +34,6 @@ final class LocalNotificationAndroidChannelDetails {
 
   /// Whether to enable LED lights for the notification.
   final bool shouldEnableLights;
-
-  /// The group key for grouping notifications.
-  final String? groupId;
 
   /// The color to use for the notification.
   final Color? color;
