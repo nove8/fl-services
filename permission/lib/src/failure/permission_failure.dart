@@ -37,8 +37,22 @@ final class GetPermissionStatusFailure implements PermissionFailure {
   }
 }
 
+/// Failure class for errors occurring during service status retrieval
+final class GetServiceStatusFailure implements PermissionFailure {
+  /// Creates a [GetServiceStatusFailure].
+  const GetServiceStatusFailure(this.error);
+
+  /// The error that occurred.
+  final Object error;
+
+  @override
+  String toString() {
+    return 'GetServiceStatusFailure{error: $error}';
+  }
+}
+
 /// Failure class for errors occurring during permission rationale check
-class CheckShouldShowRequestRationaleFailure implements PermissionFailure {
+final class CheckShouldShowRequestRationaleFailure implements PermissionFailure {
   /// Creates a [CheckShouldShowRequestRationaleFailure].
   const CheckShouldShowRequestRationaleFailure(this.error);
 

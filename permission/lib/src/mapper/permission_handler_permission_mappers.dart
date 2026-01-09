@@ -29,7 +29,7 @@ final class _PermissionStatusLibToServiceMapper {
   }
 }
 
-class _ServiceStatusLibToDomainMapper {
+final class _ServiceStatusLibToDomainMapper {
   const _ServiceStatusLibToDomainMapper();
 
   ServiceStatus transform(ph.ServiceStatus libStatus) {
