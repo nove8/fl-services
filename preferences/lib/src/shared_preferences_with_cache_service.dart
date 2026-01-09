@@ -171,6 +171,11 @@ final class SharedPreferencesWithCacheService implements PreferencesService {
     return _preferences.clear().mapToResult(ClearPreferencesFailure.new);
   }
 
+  @override
+  Future<Result<void>> reload() {
+    return _preferences.reloadCache().mapToResult(ReloadPreferencesFailure.new);
+  }
+
   Result<T?> _getValue<T extends Object>(
     String key, {
     required T? Function(String resultKey) valueProvider,

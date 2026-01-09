@@ -82,3 +82,16 @@ final class ClearPreferencesFailure implements PreferencesFailure {
     return 'RemovePreferencesFailure{_error: $_error}';
   }
 }
+
+/// Failure during reloading preferences.
+final class ReloadPreferencesFailure implements PreferencesFailure {
+  /// Creates a [ReloadPreferencesFailure].
+  const ReloadPreferencesFailure(this._error);
+
+  final Object _error;
+
+  @override
+  String toString() {
+    return 'ReloadPreferencesFailure{_error: $_error}';
+  }
+}
