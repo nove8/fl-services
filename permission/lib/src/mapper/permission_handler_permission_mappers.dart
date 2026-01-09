@@ -28,3 +28,15 @@ final class _PermissionStatusLibToServiceMapper {
     };
   }
 }
+
+final class _ServiceStatusLibToDomainMapper {
+  const _ServiceStatusLibToDomainMapper();
+
+  ServiceStatus transform(ph.ServiceStatus libStatus) {
+    return switch (libStatus) {
+      ph.ServiceStatus.disabled => ServiceStatus.disabled,
+      ph.ServiceStatus.enabled => ServiceStatus.enabled,
+      ph.ServiceStatus.notApplicable => ServiceStatus.notApplicable,
+    };
+  }
+}
