@@ -159,6 +159,14 @@ final class SharedPreferencesWithCacheService implements PreferencesService {
   }
 
   @override
+  Result<bool> contains(String key) {
+    return mapToResult(
+      valueProvider: () => _preferences.containsKey(key),
+      failureProvider: ContainsPreferenceFailure.new,
+    );
+  }
+
+  @override
   Future<Result<void>> remove(String key) {
     final String resultKey = _getPrefixedKey(key);
     return _preferences

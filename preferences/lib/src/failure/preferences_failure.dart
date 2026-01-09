@@ -52,6 +52,19 @@ final class SetPreferenceFailure implements PreferencesFailure {
   }
 }
 
+/// Failure during checking if a preference exists.
+final class ContainsPreferenceFailure implements PreferencesFailure {
+  /// Creates a [ContainsPreferenceFailure].
+  const ContainsPreferenceFailure(this._error);
+
+  final Object _error;
+
+  @override
+  String toString() {
+    return 'ContainsPreferencesFailure{_error: $_error}';
+  }
+}
+
 /// Failure during removing bool preference.
 final class RemovePreferenceFailure implements PreferencesFailure {
   /// Creates a [SetPreferenceFailure].
