@@ -72,4 +72,7 @@ abstract interface class PreferencesService {
 
   /// Clears preferences storage.
   Future<Result<void>> clear();
+
+  /// Reloads preferences storage.
+  Future<Result<void>> reload();
 }
