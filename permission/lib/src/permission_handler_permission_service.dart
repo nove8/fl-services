@@ -74,7 +74,10 @@ final class PermissionHandlerPermissionService implements PermissionService {
         Permission.appTrackingTransparency => appPlatform.isIos,
         Permission.cameraSystemExternal => !appPlatform.isAndroid,
         Permission.cameraPreviewInternal => true,
+        Permission.location => true,
+        Permission.locationAlways => true,
         Permission.notification => true,
+        Permission.saveToStorage => !appPlatform.isAndroid,
       };
     });
   }

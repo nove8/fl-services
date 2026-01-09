@@ -9,6 +9,15 @@ enum Permission {
   /// Permission to access data from device camera.
   cameraPreviewInternal,
 
+  /// Permission to
+  location,
+
+  /// Permission to
+  locationAlways,
+
   /// Permission to send push notifications.
   notification,
+
+  /// Permission to
+  saveToStorage,
 }
