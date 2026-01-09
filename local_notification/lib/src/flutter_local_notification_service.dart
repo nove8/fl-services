@@ -5,9 +5,9 @@ import 'package:collection/collection.dart';
 import 'package:common_result/common_result.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:local_notification_service/src/entity/channel/local_notification_channel.dart';
 import 'package:local_notification_service/src/entity/flutter_local_notification_android_initialization_settings.dart';
 import 'package:local_notification_service/src/entity/local_notification.dart';
-import 'package:local_notification_service/src/entity/local_notification_channel.dart';
 import 'package:local_notification_service/src/entity/local_notification_response.dart';
 import 'package:local_notification_service/src/failure/local_notification_failure.dart';
 import 'package:local_notification_service/src/local_notification_service.dart';
@@ -38,7 +38,7 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
   /// Android initialization settings.
   final FlutterLocalNotificationAndroidInitializationSettings androidInitializationSettings;
 
-  final StreamController<LocalNotificationResponse> _clickedNotificationResponseSubject =
+  final StreamController<LocalNotificationResponse> _clickedNotificationResponseController =
       BehaviorSubject<LocalNotificationResponse>();
 
   final LocalNotificationAndroidStyleToStyleInformationMapper _androidStyleToStyleInformationMapper =
@@ -65,7 +65,7 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
 
   @override
   Stream<LocalNotificationResponse> getClickedNotificationResponseStream() {
-    return _clickedNotificationResponseSubject.stream;
+    return _clickedNotificationResponseController.stream;
   }
 
   @override
@@ -127,23 +127,24 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
   }
 
   @override
-  Future<Result<bool?>> isNotificationChannelEnabled({required String notificationChannelId}) {
-    return _obtainNotificationChannels().mapAsync((List<AndroidNotificationChannel>? notificationChannels) {
-      return notificationChannels == null
-          ? true
-          : notificationChannels
-                .firstWhereOrNull((AndroidNotificationChannel channel) {
-                  return channel.id == notificationChannelId;
-                })
-                ?.let((AndroidNotificationChannel channel) {
-                  return channel.importance != Importance.none;
-                });
-    });
+  Future<Result<bool>> isNotificationChannelEnabled({required String notificationChannelId}) {
+    return _getAndroidNotificationsPlugin() == null
+        ? true.toFutureSuccessResult()
+        : _obtainNotificationChannels().mapAsync((List<AndroidNotificationChannel>? notificationChannels) {
+            return notificationChannels
+                    ?.firstWhereOrNull((AndroidNotificationChannel channel) {
+                      return channel.id == notificationChannelId;
+                    })
+                    ?.let((AndroidNotificationChannel channel) {
+                      return channel.importance != Importance.none;
+                    }) ??
+                false;
+          });
   }
 
   @override
   Future<void> dispose() {
-    return _clickedNotificationResponseSubject.close();
+    return _clickedNotificationResponseController.close();
   }
 
   Future<void> _init() async {
@@ -193,40 +194,48 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
   }
 
   Future<void> _ensureAndroidChannelCreated(LocalNotificationChannel channel) async {
+    return _getAndroidNotificationsPlugin()?.createNotificationChannel(
+      _channelToAndroidNotificationChannelMapper.transform(channel),
+    );
+  }
+
+  AndroidFlutterLocalNotificationsPlugin? _getAndroidNotificationsPlugin() {
     return _localNotificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(_channelToAndroidNotificationChannelMapper.transform(channel));
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
   }
 
   NotificationDetails _obtainNotificationDetails({required LocalNotificationChannel channel}) {
-    final LocalNotificationAndroidChannelDetails? androidDetails = channel.androidDetails;
-    final LocalNotificationDarwinChannelDetails? darwinDetails = channel.darwinDetails;
+    final LocalNotificationAndroidChannelDetails androidDetails = channel.androidDetails;
+    final LocalNotificationDarwinChannelDetails darwinDetails = channel.darwinDetails;
 
     return NotificationDetails(
       android: AndroidNotificationDetails(
         channel.id,
         channel.name,
-        groupKey: androidDetails?.groupKey,
-        color: androidDetails?.color,
-        importance: _importanceToAndroidImportanceMapper.transform(androidDetails?.importance),
-        priority: _priorityToAndroidPriorityMapper.transform(androidDetails?.priority),
-        sound: _soundToAndroidSoundMapper.transform(androidDetails?.soundResourceName),
-        styleInformation: _androidStyleToStyleInformationMapper.transform(androidDetails?.style),
+        groupKey: androidDetails.groupId,
+        color: androidDetails.color,
+        importance: _importanceToAndroidImportanceMapper.transform(androidDetails.importance),
+        priority: _priorityToAndroidPriorityMapper.transform(androidDetails.priority),
+        sound: _soundToAndroidSoundMapper.transform(androidDetails.soundResourceName),
+        styleInformation: _androidStyleToStyleInformationMapper.transform(androidDetails.style),
       ),
       iOS: DarwinNotificationDetails(
-        threadIdentifier: darwinDetails?.threadIdentifier ?? channel.id,
-        sound: darwinDetails?.soundFileNameWithExtension,
-        attachments: _filePathToAttachmentMapper.transform(darwinDetails?.attachmentFilePaths),
+        threadIdentifier: darwinDetails.groupId ?? channel.id,
+        sound: darwinDetails.soundFileNameWithExtension,
+        attachments: _filePathToAttachmentMapper.transform(darwinDetails.attachmentFilePaths),
       ),
     );
   }
 
   Future<Result<List<AndroidNotificationChannel>?>> _obtainNotificationChannels() async {
     try {
-      final List<AndroidNotificationChannel>? notificationChannels = await _localNotificationsPlugin
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-          ?.getNotificationChannels();
-      return notificationChannels.toSuccessResult();
+      final AndroidFlutterLocalNotificationsPlugin? androidNotificationsPlugin =
+          _getAndroidNotificationsPlugin();
+      return await (androidNotificationsPlugin == null
+          ? null.toFutureSuccessResult()
+          : androidNotificationsPlugin.getNotificationChannels().mapToResult(
+              GetNotificationChannelsFailure.new,
+            ));
     } on Object catch (error, stackTrace) {
       return FailureResult(GetNotificationChannelsFailure(error), stackTrace);
     }
@@ -237,6 +246,6 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
       notificationId: response?.id,
       payload: response?.payload,
     );
-    _clickedNotificationResponseSubject.add(localNotificationResponse);
+    _clickedNotificationResponseController.add(localNotificationResponse);
   }
 }

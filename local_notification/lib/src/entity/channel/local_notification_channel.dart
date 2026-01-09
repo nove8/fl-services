@@ -11,8 +11,8 @@ final class LocalNotificationChannel {
   const LocalNotificationChannel({
     required this.id,
     required this.name,
-    this.androidDetails,
-    this.darwinDetails,
+    this.androidDetails = const LocalNotificationAndroidChannelDetails(),
+    this.darwinDetails = const LocalNotificationDarwinChannelDetails(),
   });
 
   /// The unique identifier of notification channel.
@@ -22,8 +22,8 @@ final class LocalNotificationChannel {
   final String name;
 
   /// Android-specific channel and notification details.
-  final LocalNotificationAndroidChannelDetails? androidDetails;
+  final LocalNotificationAndroidChannelDetails androidDetails;
 
   /// iOS-specific notification details.
-  final LocalNotificationDarwinChannelDetails? darwinDetails;
+  final LocalNotificationDarwinChannelDetails darwinDetails;
 }

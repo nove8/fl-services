@@ -1,6 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:local_notification_service/src/entity/channel/local_notification_channel.dart';
 import 'package:local_notification_service/src/entity/local_notification.dart';
-import 'package:local_notification_service/src/entity/local_notification_channel.dart';
 
 /// Mapper for converting [LocalNotificationChannel] to [AndroidNotificationChannel].
 class LocalNotificationChannelToAndroidNotificationChannelMapper {
@@ -18,19 +18,19 @@ class LocalNotificationChannelToAndroidNotificationChannelMapper {
 
   /// Transforms [LocalNotificationChannel] to [AndroidNotificationChannel].
   AndroidNotificationChannel transform(LocalNotificationChannel channel) {
-    final LocalNotificationAndroidChannelDetails? androidDetails = channel.androidDetails;
+    final LocalNotificationAndroidChannelDetails androidDetails = channel.androidDetails;
 
     return AndroidNotificationChannel(
       channel.id,
       channel.name,
-      importance: _importanceMapper.transform(androidDetails?.importance),
-      playSound: androidDetails?.isPlaySound ?? true,
-      sound: _soundToAndroidSoundMapper.transform(androidDetails?.soundResourceName),
-      enableVibration: androidDetails?.isEnableVibration ?? true,
-      vibrationPattern: androidDetails?.vibrationPattern,
-      showBadge: androidDetails?.isShowBadge ?? true,
-      enableLights: androidDetails?.isEnableLights ?? false,
-      ledColor: androidDetails?.ledColor,
+      importance: _importanceMapper.transform(androidDetails.importance),
+      playSound: androidDetails.shouldPlaySound,
+      sound: _soundToAndroidSoundMapper.transform(androidDetails.soundResourceName),
+      enableVibration: androidDetails.shouldEnableVibration,
+      vibrationPattern: androidDetails.vibrationPattern,
+      showBadge: androidDetails.shouldShowBadge,
+      enableLights: androidDetails.shouldEnableLights,
+      ledColor: androidDetails.ledColor,
     );
   }
 }
@@ -41,14 +41,14 @@ class LocalNotificationImportanceToAndroidImportanceMapper {
   const LocalNotificationImportanceToAndroidImportanceMapper();
 
   /// Transforms [LocalNotificationImportance] to [Importance].
-  Importance transform(LocalNotificationImportance? importance) {
+  Importance transform(LocalNotificationImportance importance) {
     return switch (importance) {
       LocalNotificationImportance.none => Importance.none,
       LocalNotificationImportance.min => Importance.min,
       LocalNotificationImportance.low => Importance.low,
       LocalNotificationImportance.defaultImportance => Importance.defaultImportance,
       LocalNotificationImportance.high => Importance.high,
-      LocalNotificationImportance.max || null => Importance.max,
+      LocalNotificationImportance.max => Importance.max,
     };
   }
 }
@@ -59,12 +59,12 @@ class LocalNotificationPriorityToAndroidPriorityMapper {
   const LocalNotificationPriorityToAndroidPriorityMapper();
 
   /// Transforms [LocalNotificationPriority] to [Priority].
-  Priority transform(LocalNotificationPriority? priority) {
+  Priority transform(LocalNotificationPriority priority) {
     return switch (priority) {
       LocalNotificationPriority.min => Priority.min,
       LocalNotificationPriority.low => Priority.low,
       LocalNotificationPriority.defaultPriority => Priority.defaultPriority,
-      LocalNotificationPriority.high || null => Priority.high,
+      LocalNotificationPriority.high => Priority.high,
       LocalNotificationPriority.max => Priority.max,
     };
   }

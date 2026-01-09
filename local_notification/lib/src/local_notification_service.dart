@@ -1,6 +1,6 @@
 import 'package:async/async.dart';
+import 'package:local_notification_service/src/entity/channel/local_notification_channel.dart';
 import 'package:local_notification_service/src/entity/local_notification.dart';
-import 'package:local_notification_service/src/entity/local_notification_channel.dart';
 import 'package:local_notification_service/src/entity/local_notification_response.dart';
 
 /// Service interface for managing local notifications.
@@ -30,7 +30,7 @@ abstract interface class LocalNotificationService {
   Future<Result<void>> cancelAllScheduledNotifications();
 
   /// Checks if a notification channel is enabled.
-  Future<Result<bool?>> isNotificationChannelEnabled({required String notificationChannelId});
+  Future<Result<bool>> isNotificationChannelEnabled({required String notificationChannelId});
 
   /// Disposes the service, cancels stream subscriptions and closes stream controllers
   Future<void> dispose();
