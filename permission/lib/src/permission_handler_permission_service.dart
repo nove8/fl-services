@@ -114,6 +114,6 @@ final class PermissionHandlerPermissionService implements PermissionService {
   Future<Result<ServiceStatus>> _getLocationServiceStatus() {
     return ph.Permission.location.serviceStatus
         .mapToResult(GetServiceStatusFailure.new)
-        .mapAsync((ph.ServiceStatus libStatus) => _serviceStatusLibToDomainMapper.transform(libStatus));
+        .mapAsync(_serviceStatusLibToDomainMapper.transform);
   }
 }
