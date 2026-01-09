@@ -53,15 +53,17 @@ final class SetPreferenceFailure implements PreferencesFailure {
 }
 
 /// Failure during checking if a preference exists.
-final class ContainsPreferenceFailure implements PreferencesFailure {
-  /// Creates a [ContainsPreferenceFailure].
-  const ContainsPreferenceFailure(this._error);
+final class CheckContainsPreferenceFailure implements PreferencesFailure {
+  /// Creates a [CheckContainsPreferenceFailure].
+  const CheckContainsPreferenceFailure(this._error, {required this.key});
 
+  /// The preference key that failed to be checked.
+  final String key;
   final Object _error;
 
   @override
   String toString() {
-    return 'ContainsPreferencesFailure{_error: $_error}';
+    return 'CheckContainsPreferenceFailure{key: $key, _error: $_error}';
   }
 }
 
