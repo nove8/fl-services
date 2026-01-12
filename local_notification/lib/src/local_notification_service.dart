@@ -1,6 +1,6 @@
 import 'package:async/async.dart';
-import 'package:local_notification_service/src/entity/channel/local_notification_channel.dart';
 import 'package:local_notification_service/src/entity/local_notification.dart';
+import 'package:local_notification_service/src/entity/local_notification_channel.dart';
 import 'package:local_notification_service/src/entity/local_notification_response.dart';
 
 /// Service interface for managing local notifications.

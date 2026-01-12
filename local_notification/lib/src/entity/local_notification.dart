@@ -1,4 +1,9 @@
-import 'package:local_notification_service/src/entity/channel/local_notification_channel.dart';
+import 'dart:typed_data';
+import 'dart:ui';
+
+part 'local_notification_android_details.dart';
+
+part 'local_notification_darwin_details.dart';
 
 /// Represents a local notification with scheduling information.
 final class LocalNotification {
@@ -7,9 +12,8 @@ final class LocalNotification {
     required this.id,
     required this.title,
     required this.triggerDateTime,
-    this.androidScheduleMode = LocalNotificationAndroidScheduleMode.inexactAllowWhileIdle,
-    this.androidDetails = const LocalNotificationAndroidChannelDetails(),
-    this.darwinDetails = const LocalNotificationDarwinChannelDetails(),
+    this.androidDetails = const LocalNotificationAndroidDetails(),
+    this.darwinDetails = const LocalNotificationDarwinDetails(),
     this.body,
     this.payload,
     this.repeatInterval,
@@ -33,14 +37,11 @@ final class LocalNotification {
   /// Repeat interval.
   final LocalNotificationRepeatInterval? repeatInterval;
 
-  /// Android schedule mode.
-  final LocalNotificationAndroidScheduleMode androidScheduleMode;
-
   /// Android-specific channel and notification details.
-  final LocalNotificationAndroidChannelDetails androidDetails;
+  final LocalNotificationAndroidDetails androidDetails;
 
   /// iOS-specific notification details.
-  final LocalNotificationDarwinChannelDetails darwinDetails;
+  final LocalNotificationDarwinDetails darwinDetails;
 }
 
 /// Repeat interval for a scheduled local notification.
@@ -62,10 +63,4 @@ enum LocalNotificationRepeatInterval {
 
   /// Repeat annually.
   annually,
-}
-
-/// Android schedule mode for a scheduled local notification.
-enum LocalNotificationAndroidScheduleMode {
-  /// Inexact schedule mode that allows the notification to be shown while the device is idle.
-  inexactAllowWhileIdle,
 }

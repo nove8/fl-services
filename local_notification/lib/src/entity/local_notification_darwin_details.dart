@@ -1,9 +1,9 @@
-part of 'local_notification_channel.dart';
+part of 'local_notification.dart';
 
 /// iOS (Darwin) notification details.
-final class LocalNotificationDarwinChannelDetails {
-  /// Creates a [LocalNotificationDarwinChannelDetails].
-  const LocalNotificationDarwinChannelDetails({
+final class LocalNotificationDarwinDetails {
+  /// Creates a [LocalNotificationDarwinDetails].
+  const LocalNotificationDarwinDetails({
     this.soundFileNameWithExtension,
     this.attachmentFilePaths,
   });

@@ -1,11 +1,12 @@
-part of 'local_notification_channel.dart';
+part of 'local_notification.dart';
 
 /// Android channel/notification details.
-final class LocalNotificationAndroidChannelDetails {
-  /// Creates a [LocalNotificationAndroidChannelDetails].
-  const LocalNotificationAndroidChannelDetails({
+final class LocalNotificationAndroidDetails {
+  /// Creates a [LocalNotificationAndroidDetails].
+  const LocalNotificationAndroidDetails({
     this.importance = LocalNotificationImportance.max,
     this.priority = LocalNotificationPriority.high,
+    this.androidScheduleMode = LocalNotificationAndroidScheduleMode.inexactAllowWhileIdle,
     this.shouldPlaySound = true,
     this.shouldEnableVibration = true,
     this.shouldShowBadge = true,
@@ -22,6 +23,9 @@ final class LocalNotificationAndroidChannelDetails {
 
   /// The priority level of the notification.
   final LocalNotificationPriority priority;
+
+  /// Android schedule mode.
+  final LocalNotificationAndroidScheduleMode androidScheduleMode;
 
   /// Whether to play a sound when the notification is shown.
   final bool shouldPlaySound;
@@ -100,4 +104,10 @@ final class LocalNotificationBigPictureStyle implements LocalNotificationAndroid
 
   /// The file path of the image to display.
   final String imageFilePath;
+}
+
+/// Android schedule mode for a scheduled local notification.
+enum LocalNotificationAndroidScheduleMode {
+  /// Inexact schedule mode that allows the notification to be shown while the device is idle.
+  inexactAllowWhileIdle,
 }

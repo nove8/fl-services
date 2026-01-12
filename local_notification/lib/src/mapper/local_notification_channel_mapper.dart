@@ -1,40 +1,15 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:local_notification_service/src/entity/channel/local_notification_channel.dart';
 import 'package:local_notification_service/src/entity/local_notification.dart';
+import 'package:local_notification_service/src/entity/local_notification_channel.dart';
 
 /// Mapper for converting [LocalNotificationChannel] to [AndroidNotificationChannel].
 class LocalNotificationChannelToAndroidNotificationChannelMapper {
   /// Creates a [LocalNotificationChannelToAndroidNotificationChannelMapper].
-  const LocalNotificationChannelToAndroidNotificationChannelMapper(
-    this._importanceMapper,
-    this._soundToAndroidSoundMapper,
-  );
-
-  /// Mapper for converting [LocalNotificationImportance] to [Importance].
-  final LocalNotificationImportanceToAndroidImportanceMapper _importanceMapper;
-
-  /// Mapper for converting sound resource name to [RawResourceAndroidNotificationSound].
-  final LocalNotificationSoundToAndroidSoundMapper _soundToAndroidSoundMapper;
+  const LocalNotificationChannelToAndroidNotificationChannelMapper();
 
   /// Transforms [LocalNotificationChannel] to [AndroidNotificationChannel].
-  AndroidNotificationChannel transform({
-    required LocalNotificationChannel channel,
-    required LocalNotification notification,
-  }) {
-    final LocalNotificationAndroidChannelDetails androidDetails = notification.androidDetails;
-
-    return AndroidNotificationChannel(
-      channel.id,
-      channel.name,
-      importance: _importanceMapper.transform(androidDetails.importance),
-      playSound: androidDetails.shouldPlaySound,
-      sound: _soundToAndroidSoundMapper.transform(androidDetails.soundResourceName),
-      enableVibration: androidDetails.shouldEnableVibration,
-      vibrationPattern: androidDetails.vibrationPattern,
-      showBadge: androidDetails.shouldShowBadge,
-      enableLights: androidDetails.shouldEnableLights,
-      ledColor: androidDetails.ledColor,
-    );
+  AndroidNotificationChannel transform({required LocalNotificationChannel channel}) {
+    return AndroidNotificationChannel(channel.id, channel.name);
   }
 }
 

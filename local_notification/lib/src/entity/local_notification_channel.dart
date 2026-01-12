@@ -1,10 +1,3 @@
-import 'dart:typed_data';
-import 'dart:ui';
-
-part 'local_notification_android_channel_details.dart';
-
-part 'local_notification_darwin_channel_details.dart';
-
 /// Represents a notification channel configuration for local notifications.
 final class LocalNotificationChannel {
   /// Creates a [LocalNotificationChannel].
@@ -22,6 +15,4 @@ final class LocalNotificationChannel {
 
   /// The thread identifier for grouping notifications.
   final String? groupId;
-
-
 }
