@@ -66,6 +66,11 @@ abstract interface class PreferencesService {
     List<String> value,
   );
 
+  /// Checks if a preference exists.
+  /// [key] is the name of the preference to check.
+  /// Returns true if the preference exists, false otherwise.
+  Result<bool> contains(String key);
+
   /// Removes a value from preference
   /// [key] is the name of the preference to remove.
   Future<Result<void>> remove(String key);
