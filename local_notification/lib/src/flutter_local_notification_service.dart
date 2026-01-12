@@ -12,7 +12,7 @@ import 'package:local_notification_service/src/entity/local_notification_respons
 import 'package:local_notification_service/src/failure/local_notification_failure.dart';
 import 'package:local_notification_service/src/local_notification_service.dart';
 import 'package:local_notification_service/src/mapper/local_notification_channel_mapper.dart';
-import 'package:local_notification_service/src/mapper/local_notification_mapper.dart';
+import 'package:local_notification_service/src/mapper/local_notification_mappers.dart';
 import 'package:local_notification_service/src/util/async_util.dart';
 import 'package:local_notification_service/src/util/object_util.dart';
 import 'package:rxdart/rxdart.dart';
