@@ -11,6 +11,14 @@ final class PackageInfoPlusService implements PackageInfoService {
   const PackageInfoPlusService();
 
   @override
+  Future<Result<String>> get appVersion =>
+      _packageInfo.mapAsync((PackageInfo packageInfo) => packageInfo.version);
+
+  @override
+  Future<Result<String>> get appName =>
+      _packageInfo.mapAsync((PackageInfo packageInfo) => packageInfo.appName);
+
+  @override
   Future<Result<String>> get packageName =>
       _packageInfo.mapAsync((PackageInfo packageInfo) => packageInfo.packageName);
 

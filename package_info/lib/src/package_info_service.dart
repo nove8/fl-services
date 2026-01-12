@@ -2,6 +2,17 @@ import 'package:async/async.dart';
 
 /// A service interface for retrieving package information.
 abstract interface class PackageInfoService {
+  /// The application version.
+  ///
+  /// Returns the version string of the application.
+  /// This is typically the user-facing version number.
+  Future<Result<String>> get appVersion;
+
+  /// The application name.
+  ///
+  /// Returns the display name of the application as shown to users.
+  Future<Result<String>> get appName;
+
   /// The package name.
   ///
   /// - `bundleIdentifier` on iOS.
