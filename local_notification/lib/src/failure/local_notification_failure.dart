@@ -45,6 +45,20 @@ final class LocalNotificationNotScheduledFailure implements LocalNotificationFai
   }
 }
 
+/// Failure when showing a notification.
+final class LocalNotificationNotShownFailure implements LocalNotificationFailure {
+  /// Creates a [LocalNotificationNotShownFailure].
+  const LocalNotificationNotShownFailure(this.error);
+
+  /// The error that occurred during showing a notification.
+  final Object error;
+
+  @override
+  String toString() {
+    return 'LocalNotificationNotShownFailure{error: $error}';
+  }
+}
+
 /// Failure when getting the local timezone.
 final class GetLocalTimezoneFailure implements LocalNotificationFailure {
   /// Creates a [GetLocalTimezoneFailure].
@@ -70,5 +84,33 @@ final class SetLocalLocationFailure implements LocalNotificationFailure {
   @override
   String toString() {
     return 'SetLocalLocationFailure{error: $error}';
+  }
+}
+
+/// Failure when getting notification channels.
+final class GetNotificationChannelsFailure implements LocalNotificationFailure {
+  /// Creates a [GetNotificationChannelsFailure].
+  const GetNotificationChannelsFailure(this.error);
+
+  /// The error that occurred during getting notification channels.
+  final Object error;
+
+  @override
+  String toString() {
+    return 'GetNotificationChannelsFailure{error: $error}';
+  }
+}
+
+/// Failure when creating a notification channel.
+final class CreateNotificationChannelFailure implements LocalNotificationFailure {
+  /// Creates a [CreateNotificationChannelFailure].
+  const CreateNotificationChannelFailure(this.error);
+
+  /// The error that occurred during creating a notification channel.
+  final Object error;
+
+  @override
+  String toString() {
+    return 'CreateNotificationChannelFailure{error: $error}';
   }
 }

@@ -1,6 +1,6 @@
 name: local_notification_service
 description: Local notification service module
-version: 2.0.0
+version: 3.0.0
 publish_to: none
 
 environment:
@@ -8,8 +8,10 @@ environment:
 
 dependencies:
   async: ^2.13.0
+  collection: ^1.19.1
   flutter_local_notifications: ^19.5.0
   flutter_timezone: ^5.0.1
+  rxdart: ^0.28.0
   timezone: ^0.10.1
 
   common_result:
