@@ -1,0 +1,26 @@
+name: location_service
+description: Location service module
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.10.7
+  flutter: ^3.38.6
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  async: ^2.13.0
+  geolocator: ^14.0.2
+
+  common_result:
+    git:
+      url: git@github.com:nove8/fl-common-result.git
+      ref: 4.0.0
+
+dev_dependencies:
+  common_package:
+    git:
+      url: git@github.com:nove8/fl-common-package.git
+      ref: 4.1.0
