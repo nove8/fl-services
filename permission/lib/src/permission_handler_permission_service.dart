@@ -23,8 +23,8 @@ final class PermissionHandlerPermissionService implements PermissionService {
   static const _PermissionServiceToLibMapper _permissionDomainToLibMapper = _PermissionServiceToLibMapper();
   static const _PermissionStatusLibToServiceMapper _permissionStatusLibToDomainMapper =
       _PermissionStatusLibToServiceMapper();
-  static const _ServiceStatusLibToDomainMapper _serviceStatusLibToDomainMapper =
-      _ServiceStatusLibToDomainMapper();
+  static const _ServiceStatusLibToDeviceServiceStatusMapper _serviceStatusLibToDomainMapper =
+      _ServiceStatusLibToDeviceServiceStatusMapper();
 
   /// Requests the specified [permission] on the given [appPlatform].
   ///

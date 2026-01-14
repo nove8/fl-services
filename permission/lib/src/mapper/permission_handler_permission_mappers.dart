@@ -29,8 +29,8 @@ final class _PermissionStatusLibToServiceMapper {
   }
 }
 
-final class _ServiceStatusLibToDomainMapper {
-  const _ServiceStatusLibToDomainMapper();
+final class _ServiceStatusLibToDeviceServiceStatusMapper {
+  const _ServiceStatusLibToDeviceServiceStatusMapper();
 
   DeviceServiceStatus transform(ph.ServiceStatus libStatus) {
     return switch (libStatus) {
