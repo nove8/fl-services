@@ -49,20 +49,19 @@ final class LocationGeolocatorService implements LocationService {
   }
 
   @override
-  Result<double> distanceBetween(
-    Coordinates beginCoordinates,
+  Result<double> distanceBetween({
+    required Coordinates beginCoordinates,
     Coordinates? endCoordinates,
-  ) {
-    if (endCoordinates == null) {
-      return 0.0.toSuccessResult();
-    } else {
-      return Geolocator.distanceBetween(
-        beginCoordinates.latitude,
-        beginCoordinates.longitude,
-        endCoordinates.latitude,
-        endCoordinates.longitude,
-      ).toSuccessResult();
-    }
+  }) {
+    return (endCoordinates == null
+            ? 0.0
+            : Geolocator.distanceBetween(
+                beginCoordinates.latitude,
+                beginCoordinates.longitude,
+                endCoordinates.latitude,
+                endCoordinates.longitude,
+              ))
+        .toSuccessResult();
   }
 
   @override
@@ -81,11 +80,9 @@ final class LocationGeolocatorService implements LocationService {
 
   @override
   Future<Result<Coordinates?>> getLastKnownCoordinates() {
-    return Geolocator.getLastKnownPosition().mapToResult(GetLastKnownCoordinatesFailure.new).mapAsync(
-      (Position? position) {
-        return position == null ? null : _servicePositionToCoordinatesMapper.transform(position);
-      },
-    );
+    return Geolocator.getLastKnownPosition()
+        .mapToResult(GetLastKnownCoordinatesFailure.new)
+        .mapNotNullValueAsync(_servicePositionToCoordinatesMapper.transform);
   }
 
   Result<LocationSettings> _obtainLocationSettings(

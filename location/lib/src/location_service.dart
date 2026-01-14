@@ -30,10 +30,10 @@ abstract interface class LocationService {
   /// The [endCoordinates] parameter is the ending point. If null, returns 0.0.
   ///
   /// Returns the distance in meters between the two points.
-  Result<double> distanceBetween(
-    Coordinates beginCoordinates,
+  Result<double> distanceBetween({
+    required Coordinates beginCoordinates,
     Coordinates? endCoordinates,
-  );
+  });
 
   /// Checks the current location permission status without requesting permission.
   ///
