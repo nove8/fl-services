@@ -59,30 +59,8 @@ final class GetLastKnownCoordinatesFailure implements LocationFailure {
   }
 }
 
-/// Failure class for errors occurring during opening the app settings
-final class OpenAppSettingFailure implements LocationFailure {
-  /// Creates a [OpenAppSettingFailure].
-  const OpenAppSettingFailure(this.error);
-
-  /// The error that occurred.
-  final Object error;
-
-  @override
-  String toString() {
-    return 'OpenAppSettingFailure{error: $error}';
-  }
-}
-
-/// Failure class for errors occurring during opening the location settings
-final class OpenLocationSettingFailure implements LocationFailure {
-  /// Creates a [OpenLocationSettingFailure].
-  const OpenLocationSettingFailure(this.error);
-
-  /// The error that occurred.
-  final Object error;
-
-  @override
-  String toString() {
-    return 'OpenLocationSettingFailure{error: $error}';
-  }
+/// Failure that occurs when retrieving device information from the platform isn't possible.
+final class UnsupportedPlatformFailure implements LocationFailure {
+  /// Creates a [UnsupportedPlatformFailure].
+  const UnsupportedPlatformFailure();
 }

@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:location_service/src/entity/android_foreground_notification_config.dart';
 import 'package:location_service/src/entity/app_platform.dart';
@@ -10,12 +12,20 @@ import 'package:location_service/src/entity/permission_status.dart';
 import 'package:location_service/src/failure/location_failure.dart';
 import 'package:location_service/src/location_service.dart';
 import 'package:location_service/src/util/future_util.dart';
-import 'package:location_service/src/util/position_util.dart';
+
+part 'mapper/location_geolocator_mapper.dart';
 
 /// Default implementation of [LocationService] using the geolocator package.
 final class LocationGeolocatorService implements LocationService {
   /// Creates a [LocationGeolocatorService]
   const LocationGeolocatorService();
+
+  static const _ServicePositionToCoordinatesMapper _servicePositionToCoordinatesMapper =
+      _ServicePositionToCoordinatesMapper();
+  static const _AndroidForegroundNotificationConfigToServiceMapper
+  _androidForegroundNotificationConfigToServiceMapper = _AndroidForegroundNotificationConfigToServiceMapper();
+  static const _LocationPermissionToPermissionStatusMapper _locationPermissionToPermissionStatusMapper =
+      _LocationPermissionToPermissionStatusMapper();
 
   static const LocationAccuracy _locationAccuracy = LocationAccuracy.bestForNavigation;
   static const Duration _intervalDuration = Duration(seconds: 1);
@@ -26,14 +36,16 @@ final class LocationGeolocatorService implements LocationService {
   }
 
   @override
-  Stream<Coordinates?> getCoordinatesStream(
-    AppPlatform appPlatform, [
-    AndroidForegroundNotificationConfig? config,
+  Result<Stream<Coordinates?>> getCoordinatesStream([
+    AndroidForegroundNotificationConfig? androidForegroundNotificationConfig,
   ]) {
-    final LocationSettings locationSettings = _obtainLocationSettings(appPlatform, config);
-    return Geolocator.getPositionStream(
-      locationSettings: locationSettings,
-    ).map((Position position) => position.toCoordinates()).handleError((_) => null);
+    return _obtainLocationSettings(androidForegroundNotificationConfig).map((
+      LocationSettings locationSettings,
+    ) {
+      return Geolocator.getPositionStream(
+        locationSettings: locationSettings,
+      ).map(_servicePositionToCoordinatesMapper.transform).handleError((_) => null);
+    });
   }
 
   @override
@@ -41,86 +53,71 @@ final class LocationGeolocatorService implements LocationService {
     Coordinates beginCoordinates,
     Coordinates? endCoordinates,
   ) {
-    final double latitude = beginCoordinates.latitude;
-    final double longitude = beginCoordinates.longitude;
-    return Geolocator.distanceBetween(
-      latitude,
-      longitude,
-      endCoordinates?.latitude ?? latitude,
-      endCoordinates?.longitude ?? longitude,
-    ).toSuccessResult();
+    if (endCoordinates == null) {
+      return 0.0.toSuccessResult();
+    } else {
+      return Geolocator.distanceBetween(
+        beginCoordinates.latitude,
+        beginCoordinates.longitude,
+        endCoordinates.latitude,
+        endCoordinates.longitude,
+      ).toSuccessResult();
+    }
   }
 
   @override
   Future<Result<PermissionStatus>> checkPermission() {
     return Geolocator.checkPermission()
         .mapToResult(CheckPermissionFailure.new)
-        .flatMapAsync(_mapGeolocatorLocationPermissionToPermission);
+        .mapAsync(_locationPermissionToPermissionStatusMapper.transform);
   }
 
   @override
   Future<Result<PermissionStatus>> requestPermission() {
     return Geolocator.requestPermission()
         .mapToResult(RequestPermissionFailure.new)
-        .flatMapAsync(_mapGeolocatorLocationPermissionToPermission);
+        .mapAsync(_locationPermissionToPermissionStatusMapper.transform);
   }
 
   @override
   Future<Result<Coordinates?>> getLastKnownCoordinates() {
-    return Geolocator.getLastKnownPosition()
-        .mapToResult(GetLastKnownCoordinatesFailure.new)
-        .mapAsync((Position? position) => position?.toCoordinates());
+    return Geolocator.getLastKnownPosition().mapToResult(GetLastKnownCoordinatesFailure.new).mapAsync(
+      (Position? position) {
+        return position == null ? null : _servicePositionToCoordinatesMapper.transform(position);
+      },
+    );
   }
 
-  @override
-  Future<Result<bool>> openAppSettings() {
-    return Geolocator.openAppSettings().mapToResult(OpenAppSettingFailure.new);
-  }
-
-  @override
-  Future<Result<bool>> openLocationSettings() {
-    return Geolocator.openLocationSettings().mapToResult(OpenLocationSettingFailure.new);
-  }
-
-  LocationSettings _obtainLocationSettings(
-    AppPlatform appPlatform,
-    AndroidForegroundNotificationConfig? config,
+  Result<LocationSettings> _obtainLocationSettings(
+    AndroidForegroundNotificationConfig? androidForegroundNotificationConfig,
   ) {
-    return switch (appPlatform) {
-      AppPlatform.iOS => AppleSettings(
-        activityType: ActivityType.fitness,
-        accuracy: _locationAccuracy,
-      ),
-      AppPlatform.android => AndroidSettings(
-        intervalDuration: _intervalDuration,
-        accuracy: _locationAccuracy,
-        foregroundNotificationConfig: _obtainAndroidForegroundNotificationConfig(config),
-      ),
-      AppPlatform.web => WebSettings(),
-    };
+    return _determineAppPlatform().map((AppPlatform appPlatform) {
+      return switch (appPlatform) {
+        AppPlatform.iOS => AppleSettings(
+          activityType: ActivityType.fitness,
+          accuracy: _locationAccuracy,
+        ),
+        AppPlatform.android => AndroidSettings(
+          intervalDuration: _intervalDuration,
+          accuracy: _locationAccuracy,
+          foregroundNotificationConfig: _androidForegroundNotificationConfigToServiceMapper.transform(
+            androidForegroundNotificationConfig,
+          ),
+        ),
+        AppPlatform.web => WebSettings(),
+      };
+    });
   }
 
-  ForegroundNotificationConfig? _obtainAndroidForegroundNotificationConfig(
-    AndroidForegroundNotificationConfig? config,
-  ) {
-    return config == null
-        ? null
-        : ForegroundNotificationConfig(
-            notificationTitle: config.notificationTitle,
-            notificationText: config.notificationText,
-            notificationChannelName: config.notificationChannelName,
-            notificationIcon: AndroidResource(name: config.notificationIcon),
-            color: Color(config.colorCode),
-          );
-  }
-
-  Result<PermissionStatus> _mapGeolocatorLocationPermissionToPermission(
-    LocationPermission locationPermission,
-  ) {
-    return switch (locationPermission) {
-      LocationPermission.denied || LocationPermission.unableToDetermine => PermissionStatus.denied,
-      LocationPermission.deniedForever => PermissionStatus.permanentlyDenied,
-      LocationPermission.whileInUse || LocationPermission.always => PermissionStatus.granted,
-    }.toSuccessResult();
+  Result<AppPlatform> _determineAppPlatform() {
+    if (kIsWeb) {
+      return AppPlatform.web.toSuccessResult();
+    } else if (Platform.isIOS) {
+      return AppPlatform.iOS.toSuccessResult();
+    } else if (Platform.isAndroid) {
+      return AppPlatform.android.toSuccessResult();
+    } else {
+      return const UnsupportedPlatformFailure().toFailureResult();
+    }
   }
 }

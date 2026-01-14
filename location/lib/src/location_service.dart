@@ -1,6 +1,5 @@
 import 'package:async/async.dart';
 import 'package:location_service/src/entity/android_foreground_notification_config.dart';
-import 'package:location_service/src/entity/app_platform.dart';
 import 'package:location_service/src/entity/coordinates.dart';
 import 'package:location_service/src/entity/permission_status.dart';
 
@@ -16,15 +15,13 @@ abstract interface class LocationService {
 
   /// Provides a stream of location coordinates updates.
   ///
-  /// The [appPlatform] parameter specifies the platform type.
-  /// For Android, the optional [config] parameter can be provided to configure
+  /// For Android, the optional [androidForegroundNotificationConfig] parameter can be provided to configure
   /// foreground notification settings when tracking location in the background.
   ///
   /// Returns a stream that emits [Coordinates] when location updates are available,
   /// or null if the location cannot be determined.
-  Stream<Coordinates?> getCoordinatesStream(
-    AppPlatform appPlatform, [
-    AndroidForegroundNotificationConfig? config,
+  Result<Stream<Coordinates?>> getCoordinatesStream([
+    AndroidForegroundNotificationConfig? androidForegroundNotificationConfig,
   ]);
 
   /// Calculates the distance in meters between two coordinates.
@@ -53,14 +50,4 @@ abstract interface class LocationService {
   /// Returns the last cached [Coordinates] if available, otherwise null.
   /// This method is faster than requesting a new location but may return stale data.
   Future<Result<Coordinates?>> getLastKnownCoordinates();
-
-  /// Opens the device's app settings page for this application.
-  ///
-  /// Returns [true] if the app settings page could be opened, otherwise [false].
-  Future<Result<bool>> openAppSettings();
-
-  /// Opens the device's location settings page.
-  ///
-  /// Returns [true] if the location settings page could be opened, otherwise [false].
-  Future<Result<bool>> openLocationSettings();
 }
