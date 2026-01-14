@@ -26,13 +26,13 @@ abstract interface class LocationService {
 
   /// Calculates the distance in meters between two coordinates.
   ///
-  /// The [beginCoordinates] parameter is the starting point.
-  /// The [endCoordinates] parameter is the ending point. If null, returns 0.0.
+  /// Uses the Haversine formula to compute the great-circle distance between
+  /// [beginCoordinates] (starting point) and [endCoordinates] (ending point).
   ///
-  /// Returns the distance in meters between the two points.
+  /// Returns the distance in meters as a [double].
   Result<double> distanceBetween({
     required Coordinates beginCoordinates,
-    Coordinates? endCoordinates,
+    required Coordinates endCoordinates,
   });
 
   /// Checks the current location permission status without requesting permission.

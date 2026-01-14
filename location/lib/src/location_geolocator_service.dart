@@ -51,17 +51,14 @@ final class LocationGeolocatorService implements LocationService {
   @override
   Result<double> distanceBetween({
     required Coordinates beginCoordinates,
-    Coordinates? endCoordinates,
+    required Coordinates endCoordinates,
   }) {
-    return (endCoordinates == null
-            ? 0.0
-            : Geolocator.distanceBetween(
-                beginCoordinates.latitude,
-                beginCoordinates.longitude,
-                endCoordinates.latitude,
-                endCoordinates.longitude,
-              ))
-        .toSuccessResult();
+    return Geolocator.distanceBetween(
+      beginCoordinates.latitude,
+      beginCoordinates.longitude,
+      endCoordinates.latitude,
+      endCoordinates.longitude,
+    ).toSuccessResult();
   }
 
   @override
