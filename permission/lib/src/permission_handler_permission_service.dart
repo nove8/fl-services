@@ -5,10 +5,10 @@ import 'package:common_result/common_result.dart';
 import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart' as ph;
 import 'package:permission_service/src/entity/app_platform.dart';
+import 'package:permission_service/src/entity/device_service.dart';
+import 'package:permission_service/src/entity/device_service_status.dart';
 import 'package:permission_service/src/entity/permission.dart';
 import 'package:permission_service/src/entity/permission_status.dart';
-import 'package:permission_service/src/entity/service.dart';
-import 'package:permission_service/src/entity/service_status.dart';
 import 'package:permission_service/src/failure/permission_failure.dart';
 import 'package:permission_service/src/permission_service.dart';
 import 'package:permission_service/src/util/future_util.dart';
@@ -23,8 +23,8 @@ final class PermissionHandlerPermissionService implements PermissionService {
   static const _PermissionServiceToLibMapper _permissionDomainToLibMapper = _PermissionServiceToLibMapper();
   static const _PermissionStatusLibToServiceMapper _permissionStatusLibToDomainMapper =
       _PermissionStatusLibToServiceMapper();
-  static const _ServiceStatusLibToDomainMapper _serviceStatusLibToDomainMapper =
-      _ServiceStatusLibToDomainMapper();
+  static const _ServiceStatusLibToDeviceServiceStatusMapper _serviceStatusLibToDomainMapper =
+      _ServiceStatusLibToDeviceServiceStatusMapper();
 
   /// Requests the specified [permission] on the given [appPlatform].
   ///
@@ -55,9 +55,9 @@ final class PermissionHandlerPermissionService implements PermissionService {
   }
 
   @override
-  Future<Result<ServiceStatus>> getServiceStatus(Service service) {
+  Future<Result<DeviceServiceStatus>> getServiceStatus(DeviceService service) {
     return switch (service) {
-      Service.location => _getLocationServiceStatus(),
+      DeviceService.location => _getLocationServiceStatus(),
     };
   }
 
@@ -111,7 +111,7 @@ final class PermissionHandlerPermissionService implements PermissionService {
     }
   }
 
-  Future<Result<ServiceStatus>> _getLocationServiceStatus() {
+  Future<Result<DeviceServiceStatus>> _getLocationServiceStatus() {
     return ph.Permission.location.serviceStatus
         .mapToResult(GetServiceStatusFailure.new)
         .mapAsync(_serviceStatusLibToDomainMapper.transform);

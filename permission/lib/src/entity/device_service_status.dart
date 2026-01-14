@@ -1,5 +1,5 @@
-/// Defines the different states a service can be in.
-enum ServiceStatus {
+/// Defines the different states a [DeviceService] can be in.
+enum DeviceServiceStatus {
   /// The service for the permission is disabled.
   disabled,
 

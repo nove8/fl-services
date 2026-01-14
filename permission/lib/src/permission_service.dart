@@ -1,8 +1,8 @@
 import 'package:async/async.dart';
+import 'package:permission_service/src/entity/device_service.dart';
+import 'package:permission_service/src/entity/device_service_status.dart';
 import 'package:permission_service/src/entity/permission.dart';
 import 'package:permission_service/src/entity/permission_status.dart';
-import 'package:permission_service/src/entity/service.dart';
-import 'package:permission_service/src/entity/service_status.dart';
 
 /// A service interface for handling device permissions.
 abstract interface class PermissionService {
@@ -22,9 +22,9 @@ abstract interface class PermissionService {
 
   /// Gets the status of the specified [service].
   ///
-  /// Returns a [Result] containing the [ServiceStatus] (enabled, disabled, or not applicable).
+  /// Returns a [Result] containing the [DeviceServiceStatus] (enabled, disabled, or not applicable).
   /// In case of error, a [GetServiceStatusFailure] will be returned as failure.
-  Future<Result<ServiceStatus>> getServiceStatus(Service service);
+  Future<Result<DeviceServiceStatus>> getServiceStatus(DeviceService service);
 
   /// Checks whether the app should show a rationale for requesting the specified [permission].
   ///
