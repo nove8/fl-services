@@ -1,0 +1,31 @@
+name: http_service
+description: HTTP service module
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.10.1
+
+dependencies:
+  async: ^2.13.0
+  http: ^1.6.0
+  http_parser: ^4.1.2
+  mime: ^2.0.0
+  pretty_http_logger: ^1.0.5
+  uuid: ^4.5.2
+
+  common_result:
+    git:
+      url: git@github.com:nove8/fl-common-result.git
+      ref: 4.0.0
+  network_info_service:
+    git:
+      url: git@github.com:nove8/fl-services.git
+      path: network_info
+      ref: network-info-v2.0.0
+
+dev_dependencies:
+  common_package:
+    git:
+      url: git@github.com:nove8/fl-common-package.git
+      ref: 4.1.0
