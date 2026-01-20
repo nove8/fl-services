@@ -150,9 +150,17 @@ final class HttpServiceImpl implements HttpService {
     final int statusCode = response.statusCode;
 
     if (statusCode.isClientErrorCode) {
-      return FailureResult(ClientErrorHttpStatusCodeFailure(statusCode, response.reasonPhrase));
+      return ClientErrorHttpStatusCodeFailure(
+        statusCode: statusCode,
+        reasonPhrase: response.reasonPhrase,
+        bodyBytes: response.bodyBytes,
+      ).toFailureResult();
     } else if (statusCode.isServerErrorCode) {
-      return FailureResult(ServerErrorHttpStatusCodeFailure(statusCode, response.reasonPhrase));
+      return ServerErrorHttpStatusCodeFailure(
+        statusCode: statusCode,
+        reasonPhrase: response.reasonPhrase,
+        bodyBytes: response.bodyBytes,
+      ).toFailureResult();
     } else {
       return HttpServiceResponse(
         bodyBytes: response.bodyBytes,
