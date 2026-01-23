@@ -9,6 +9,7 @@ environment:
 dependencies:
   async: ^2.13.0
   firebase_messaging: ^16.1.0
+  rxdart: ^0.28.0
 
   common_result:
     git:
