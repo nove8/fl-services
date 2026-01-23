@@ -4,7 +4,7 @@ import 'package:remote_notification_service/src/entity/remote_notification.dart'
 /// Service interface for managing remote notifications (e.g. FCM/APNs).
 abstract interface class RemoteNotificationService {
   /// Stream that emits refreshed notification token (e.g. when FCM/APNs token changes).
-  Result<Stream<String>> get tokenRefreshedStream;
+  Stream<Result<String>> get tokenRefreshedStream;
 
   /// Stream that emits a [RemoteNotification] when a notification is received in the foreground.
   Stream<Result<RemoteNotification>> get foregroundNotificationReceivedStream;

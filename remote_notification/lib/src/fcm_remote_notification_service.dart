@@ -34,7 +34,8 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
   StreamSubscription<fcm.RemoteMessage>? _notificationOpenedAppStreamSubscription;
 
   @override
-  Result<Stream<String>> get tokenRefreshedStream => _firebaseMessaging.onTokenRefresh.toSuccessResult();
+  Stream<Result<String>> get tokenRefreshedStream =>
+      _firebaseMessaging.onTokenRefresh.map((String token) => token.toSuccessResult());
 
   @override
   Stream<Result<RemoteNotification>> get foregroundNotificationReceivedStream =>
