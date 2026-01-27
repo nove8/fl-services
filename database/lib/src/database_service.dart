@@ -78,4 +78,12 @@ abstract interface class DatabaseService {
     required String valueColumnName,
     required Object? value,
   });
+
+  /// Updates rows in [tableName] with [values] where [whereClauses] match, or ignores if no rows match.
+  Future<Result<void>> updateOrIgnoreValues(
+    Map<String, Object?> values, {
+    required String tableName,
+    required List<String> whereClauses,
+    List<Object?>? whereArgs,
+  });
 }

@@ -126,3 +126,17 @@ final class InsertDatabaseFailure implements DatabaseFailure {
   /// Creates an [InsertDatabaseFailure].
   const InsertDatabaseFailure();
 }
+
+/// Failure that occurs when updating or ignoring values in the database.
+final class UpdateOrIgnoreValuesDatabaseFailure implements DatabaseFailure {
+  /// Creates a [UpdateOrIgnoreValuesDatabaseFailure] with the underlying error.
+  const UpdateOrIgnoreValuesDatabaseFailure(this.error);
+
+  /// The underlying error object from the database operation.
+  final Object error;
+
+  @override
+  String toString() {
+    return 'UpdateOrIgnoreValuesDatabaseFailure{error: $error}';
+  }
+}

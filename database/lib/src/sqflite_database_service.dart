@@ -269,4 +269,22 @@ final class SqfliteDatabaseService implements DatabaseService {
     );
     return emptyResult;
   }
+
+  @override
+  Future<Result<void>> updateOrIgnoreValues(
+    Map<String, Object?> values, {
+    required String tableName,
+    required List<String> whereClauses,
+    List<Object?>? whereArgs,
+  }) {
+    return _database
+        .update(
+          tableName,
+          values,
+          where: whereClauses.toPredicateClause(),
+          whereArgs: whereArgs,
+          conflictAlgorithm: ConflictAlgorithm.ignore,
+        )
+        .mapToResult(UpdateOrIgnoreValuesDatabaseFailure.new);
+  }
 }
