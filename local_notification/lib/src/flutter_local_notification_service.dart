@@ -62,6 +62,26 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
 
   late final FlutterLocalNotificationsPlugin _localNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
+  /// {@macro LocalNotificationService.ensureAndroidChannelCreated}
+  ///
+  /// Implementation details:
+  /// - Retrieves the Android-specific notification plugin implementation
+  /// - If the platform is not Android, returns a successful result immediately
+  /// - Otherwise, creates the notification channel using the Android plugin
+  /// - Maps any exceptions to [CreateNotificationChannelFailure]
+  @override
+  Future<Result<void>> ensureAndroidChannelCreated({required LocalNotificationChannel channel}) {
+    final AndroidFlutterLocalNotificationsPlugin? androidNotificationsPlugin =
+        _getAndroidNotificationsPlugin();
+    return androidNotificationsPlugin == null
+        ? null.toFutureSuccessResult()
+        : androidNotificationsPlugin
+              .createNotificationChannel(
+                _channelToAndroidNotificationChannelMapper.transform(channel: channel),
+              )
+              .mapToResult(CreateNotificationChannelFailure.new);
+  }
+
   @override
   Stream<LocalNotificationResponse> getClickedNotificationResponseStream() {
     return _clickedNotificationResponseController.stream;
@@ -73,7 +93,7 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
     required LocalNotificationChannel channel,
   }) async {
     await _setLocalLocation();
-    await _ensureAndroidChannelCreated(channel: channel);
+    await ensureAndroidChannelCreated(channel: channel);
 
     return _localNotificationsPlugin
         .zonedSchedule(
@@ -98,7 +118,7 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
     required LocalNotification notification,
     required LocalNotificationChannel channel,
   }) async {
-    await _ensureAndroidChannelCreated(channel: channel);
+    await ensureAndroidChannelCreated(channel: channel);
 
     return _localNotificationsPlugin
         .show(
@@ -188,18 +208,6 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
       valueProvider: () => timezone.setLocalLocation(timezone.getLocation(timezoneIdentifier)),
       failureProvider: SetLocalLocationFailure.new,
     );
-  }
-
-  Future<Result<void>> _ensureAndroidChannelCreated({required LocalNotificationChannel channel}) {
-    final AndroidFlutterLocalNotificationsPlugin? androidNotificationsPlugin =
-        _getAndroidNotificationsPlugin();
-    return androidNotificationsPlugin == null
-        ? null.toFutureSuccessResult()
-        : androidNotificationsPlugin
-              .createNotificationChannel(
-                _channelToAndroidNotificationChannelMapper.transform(channel: channel),
-              )
-              .mapToResult(CreateNotificationChannelFailure.new);
   }
 
   AndroidFlutterLocalNotificationsPlugin? _getAndroidNotificationsPlugin() {
