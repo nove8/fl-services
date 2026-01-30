@@ -1,6 +1,6 @@
 name: local_notification_service
 description: Local notification service module
-version: 3.1.0
+version: 4.0.0
 publish_to: none
 
 environment:

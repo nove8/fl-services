@@ -48,8 +48,6 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
       const LocalNotificationImportanceToAndroidImportanceMapper();
   final LocalNotificationPriorityToAndroidPriorityMapper _priorityToAndroidPriorityMapper =
       const LocalNotificationPriorityToAndroidPriorityMapper();
-  final LocalNotificationChannelSoundToAndroidSoundMapper _channelSoundToAndroidSoundMapper =
-      const LocalNotificationChannelSoundToAndroidSoundMapper();
   final LocalNotificationFilePathToDarwinNotificationAttachmentMapper _filePathToAttachmentMapper =
       const LocalNotificationFilePathToDarwinNotificationAttachmentMapper();
   final LocalNotificationScheduleModeToAndroidScheduleModeMapper _scheduleModeToAndroidScheduleModeMapper =
@@ -223,7 +221,6 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
         importance: _importanceToAndroidImportanceMapper.transform(androidDetails.importance),
         priority: _priorityToAndroidPriorityMapper.transform(androidDetails.priority),
         playSound: androidDetails.shouldPlaySound,
-        sound: _channelSoundToAndroidSoundMapper.transform(channel.soundResourceName),
         enableVibration: androidDetails.shouldEnableVibration,
         vibrationPattern: androidDetails.vibrationPattern,
         channelShowBadge: androidDetails.shouldShowBadge,
