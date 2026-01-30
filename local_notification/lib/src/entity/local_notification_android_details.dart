@@ -12,7 +12,6 @@ final class LocalNotificationAndroidDetails {
     this.shouldShowBadge = true,
     this.shouldEnableLights = false,
     this.color,
-    this.soundResourceName,
     this.style,
     this.vibrationPattern,
     this.ledColor,
@@ -41,9 +40,6 @@ final class LocalNotificationAndroidDetails {
 
   /// The color to use for the notification.
   final Color? color;
-
-  /// The name of the sound resource to play.
-  final String? soundResourceName;
 
   /// The style to use for the notification.
   final LocalNotificationAndroidStyle? style;

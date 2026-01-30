@@ -5,6 +5,7 @@ final class LocalNotificationChannel {
     required this.id,
     required this.name,
     this.groupId,
+    this.soundResourceName,
   });
 
   /// The unique identifier of notification channel.
@@ -15,4 +16,7 @@ final class LocalNotificationChannel {
 
   /// The thread identifier for grouping notifications.
   final String? groupId;
+
+  /// The name of the sound resource to play.
+  final String? soundResourceName;
 }
