@@ -257,16 +257,35 @@ final class SqfliteDatabaseService implements DatabaseService {
   }
 
   @override
-  Future<Result<void>> deleteByValue({
+  Future<Result<void>> delete({
     required String tableName,
-    required String valueColumnName,
-    required Object? value,
-  }) async {
-    await _database.delete(
-      tableName,
-      where: '$valueColumnName = ?',
-      whereArgs: <Object?>[value],
-    );
-    return emptyResult;
+    List<String?>? whereClauses,
+    List<Object?>? whereArgs,
+  }) {
+    return _database
+        .delete(
+          tableName,
+          where: whereClauses?.toPredicateClause(),
+          whereArgs: whereArgs,
+        )
+        .mapToResult(DeleteDatabaseFailure.new);
+  }
+
+  @override
+  Future<Result<void>> updateOrIgnoreValues(
+    Map<String, Object?> values, {
+    required String tableName,
+    required List<String> whereClauses,
+    List<Object?>? whereArgs,
+  }) {
+    return _database
+        .update(
+          tableName,
+          values,
+          where: whereClauses.toPredicateClause(),
+          whereArgs: whereArgs,
+          conflictAlgorithm: ConflictAlgorithm.ignore,
+        )
+        .mapToResult(UpdateOrIgnoreValuesDatabaseFailure.new);
   }
 }
