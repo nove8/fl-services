@@ -62,13 +62,6 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
 
   late final FlutterLocalNotificationsPlugin _localNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-  /// {@macro LocalNotificationService.ensureAndroidChannelCreated}
-  ///
-  /// Implementation details:
-  /// - Retrieves the Android-specific notification plugin implementation
-  /// - If the platform is not Android, returns a successful result immediately
-  /// - Otherwise, creates the notification channel using the Android plugin
-  /// - Maps any exceptions to [CreateNotificationChannelFailure]
   @override
   Future<Result<void>> ensureAndroidChannelCreated({required LocalNotificationChannel channel}) {
     final AndroidFlutterLocalNotificationsPlugin? androidNotificationsPlugin =
