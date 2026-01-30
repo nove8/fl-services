@@ -10,13 +10,25 @@ import 'package:remote_notification_service/src/remote_notification_service.dart
 import 'package:remote_notification_service/src/util/future_util.dart';
 import 'package:rxdart/rxdart.dart';
 
+BackgroundRemoteNotificationHandler? _backgroundRemoteNotificationHandler;
+
+void _setBackgroundRemoteNotificationHandler(BackgroundRemoteNotificationHandler? notificationHandler) {
+  _backgroundRemoteNotificationHandler = notificationHandler;
+}
+
 /// Implementation of [RemoteNotificationService] using Firebase Cloud Messaging (FCM).
 final class FcmRemoteNotificationService implements RemoteNotificationService {
   /// Returns the singleton instance of [FcmRemoteNotificationService].
-  factory FcmRemoteNotificationService() => _instance ??= FcmRemoteNotificationService._();
+  factory FcmRemoteNotificationService({
+    BackgroundRemoteNotificationHandler? onBackgroundRemoteNotification,
+  }) {
+    return _instance ??= FcmRemoteNotificationService._(
+      onBackgroundRemoteNotification: onBackgroundRemoteNotification,
+    );
+  }
 
-  FcmRemoteNotificationService._() {
-    _init();
+  FcmRemoteNotificationService._({BackgroundRemoteNotificationHandler? onBackgroundRemoteNotification}) {
+    _init(onBackgroundNotification: onBackgroundRemoteNotification);
   }
 
   static FcmRemoteNotificationService? _instance;
@@ -56,9 +68,13 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
     await _notificationClickedSubject.close();
   }
 
-  void _init() {
+  void _init({
+    required BackgroundRemoteNotificationHandler? onBackgroundNotification,
+  }) {
+    _setBackgroundRemoteNotificationHandler(onBackgroundNotification);
     _listenNotificationOpened();
     _listenForegroundNotification();
+    _listenBackgroundNotification();
   }
 
   void _listenNotificationOpened() {
@@ -82,5 +98,20 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
       final RemoteNotification notification = _fcmRemoteMessageToRemoteNotificationMapper.transform(message);
       _foregroundNotificationReceivedSubject.add(notification.toSuccessResult());
     });
+  }
+
+  void _listenBackgroundNotification() {
+    fcm.FirebaseMessaging.onBackgroundMessage(_handleBackgroundFcmRemoteNotificationReceipt);
+  }
+}
+
+@pragma('vm:entry-point')
+Future<void> _handleBackgroundFcmRemoteNotificationReceipt(fcm.RemoteMessage message) async {
+  final BackgroundRemoteNotificationHandler? notificationHandler = _backgroundRemoteNotificationHandler;
+  if (notificationHandler != null) {
+    final RemoteNotification notification = const FcmRemoteMessageToRemoteNotificationMapper().transform(
+      message,
+    );
+    await notificationHandler.call(notification.toSuccessResult());
   }
 }

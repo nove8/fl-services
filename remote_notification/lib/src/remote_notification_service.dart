@@ -1,6 +1,9 @@
 import 'package:async/async.dart';
 import 'package:remote_notification_service/src/entity/remote_notification.dart';
 
+/// Handler function type for processing remote notifications received in the background.
+typedef BackgroundRemoteNotificationHandler = Future<void> Function(Result<RemoteNotification> remoteNotification);
+
 /// Service interface for managing remote notifications (e.g. FCM/APNs).
 abstract interface class RemoteNotificationService {
   /// Stream that emits refreshed notification token (e.g. when FCM/APNs token changes).
