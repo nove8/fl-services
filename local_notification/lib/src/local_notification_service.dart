@@ -5,6 +5,18 @@ import 'package:local_notification_service/src/entity/local_notification_respons
 
 /// Service interface for managing local notifications.
 abstract interface class LocalNotificationService {
+  /// Ensures that a notification channel is created on Android.
+  ///
+  /// On Android 8.0 (API level 26) and higher, notification channels are required
+  /// to display notifications. This method creates a channel with the specified
+  /// configuration if it doesn't exist.
+  ///
+  /// On non-Android platforms, this method completes successfully without any action.
+  ///
+  /// Returns a [Result] that is successful if the channel was created or already exists,
+  /// or contains a failure if the channel creation failed.
+  Future<Result<void>> ensureAndroidChannelCreated({required LocalNotificationChannel channel});
+
   /// Stream that emits when a notification is clicked.
   Stream<LocalNotificationResponse> getClickedNotificationResponseStream();
 
