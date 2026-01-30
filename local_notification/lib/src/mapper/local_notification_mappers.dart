@@ -36,17 +36,6 @@ class LocalNotificationPriorityToAndroidPriorityMapper {
   }
 }
 
-/// Mapper for converting sound resource name to [RawResourceAndroidNotificationSound].
-class LocalNotificationSoundToAndroidSoundMapper {
-  /// Creates a [LocalNotificationSoundToAndroidSoundMapper].
-  const LocalNotificationSoundToAndroidSoundMapper();
-
-  /// Transforms sound resource name to [RawResourceAndroidNotificationSound].
-  RawResourceAndroidNotificationSound? transform(String? soundResourceName) {
-    return soundResourceName == null ? null : RawResourceAndroidNotificationSound(soundResourceName);
-  }
-}
-
 /// Mapper for converting [LocalNotificationAndroidStyle] to [StyleInformation].
 class LocalNotificationAndroidStyleToStyleInformationMapper {
   /// Creates a [LocalNotificationAndroidStyleToStyleInformationMapper].
