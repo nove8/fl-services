@@ -7,9 +7,6 @@ environment:
   sdk: ^3.10.1
 
 dependencies:
-  preferences_service:
-    path: ../preferences/
-
   async: ^2.13.0
   firebase_messaging: ^16.1.0
   rxdart: ^0.28.0
@@ -18,6 +15,11 @@ dependencies:
     git:
       url: git@github.com:nove8/fl-common-result.git
       ref: 4.0.0
+  preferences_service:
+    git:
+      url: git@github.com:nove8/fl-services.git
+      path: preferences
+      ref: preferences-v2.2.0
 
 dev_dependencies:
   common_package:
