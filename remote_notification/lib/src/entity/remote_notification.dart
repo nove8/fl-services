@@ -19,4 +19,9 @@ final class RemoteNotification {
 
   /// Any additional data sent with the notification.
   final Map<String, Object?> data;
+
+  @override
+  String toString() {
+    return 'RemoteNotification{notificationId: $notificationId, title: $title, body: $body, data: $data}';
+  }
 }

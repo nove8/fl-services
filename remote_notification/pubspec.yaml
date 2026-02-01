@@ -7,6 +7,9 @@ environment:
   sdk: ^3.10.1
 
 dependencies:
+  preferences_service:
+    path: ../preferences/
+
   async: ^2.13.0
   firebase_messaging: ^16.1.0
   rxdart: ^0.28.0

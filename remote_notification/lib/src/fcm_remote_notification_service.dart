@@ -1,20 +1,17 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
 import 'package:firebase_messaging/firebase_messaging.dart' as fcm;
+import 'package:remote_notification_service/src/data_source/background_callback_handle_preferences_data_source.dart';
 import 'package:remote_notification_service/src/entity/remote_notification.dart';
 import 'package:remote_notification_service/src/failure/remote_notification_failure.dart';
 import 'package:remote_notification_service/src/mapper/fcm_remote_notification_mappers.dart';
 import 'package:remote_notification_service/src/remote_notification_service.dart';
 import 'package:remote_notification_service/src/util/future_util.dart';
+import 'package:remote_notification_service/src/util/object_util.dart';
 import 'package:rxdart/rxdart.dart';
-
-BackgroundRemoteNotificationHandler? _backgroundRemoteNotificationHandler;
-
-void _setBackgroundRemoteNotificationHandler(BackgroundRemoteNotificationHandler? notificationHandler) {
-  _backgroundRemoteNotificationHandler = notificationHandler;
-}
 
 /// Implementation of [RemoteNotificationService] using Firebase Cloud Messaging (FCM).
 final class FcmRemoteNotificationService implements RemoteNotificationService {
@@ -71,7 +68,7 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
   void _init({
     required BackgroundRemoteNotificationHandler? onBackgroundNotification,
   }) {
-    _setBackgroundRemoteNotificationHandler(onBackgroundNotification);
+    _evaluateBackgroundRemoteNotificationHandler(onBackgroundNotification);
     _listenNotificationOpened();
     _listenForegroundNotification();
     _listenBackgroundNotification();
@@ -105,9 +102,29 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
   }
 }
 
+void _evaluateBackgroundRemoteNotificationHandler(
+  BackgroundRemoteNotificationHandler? onBackgroundNotification,
+) {
+  if (onBackgroundNotification != null) {
+    final CallbackHandle? callback = PluginUtilities.getCallbackHandle(onBackgroundNotification);
+
+    if (callback == null) {
+      throw StateError('''
+          The backgroundRemoteNotificationHandler needs to be either a static function or a top 
+          level function to be accessible as a Flutter entry point.''');
+    }
+
+    BackgroundCallbackHandlePreferencesDataSource.setBackgroundCallbackHandle(callback);
+  }
+}
+
 @pragma('vm:entry-point')
 Future<void> _handleBackgroundFcmRemoteNotificationReceipt(fcm.RemoteMessage message) async {
-  final BackgroundRemoteNotificationHandler? notificationHandler = _backgroundRemoteNotificationHandler;
+  final CallbackHandle? callbackHandle =
+      await BackgroundCallbackHandlePreferencesDataSource.getBackgroundCallbackHandle().outputOrNull;
+  final BackgroundRemoteNotificationHandler? notificationHandler = callbackHandle
+      ?.let(PluginUtilities.getCallbackFromHandle)
+      ?.castTo();
   if (notificationHandler != null) {
     final RemoteNotification notification = const FcmRemoteMessageToRemoteNotificationMapper().transform(
       message,
