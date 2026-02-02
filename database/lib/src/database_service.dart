@@ -72,10 +72,18 @@ abstract interface class DatabaseService {
     required String tableName,
   });
 
-  /// Deletes rows from [tableName] where [valueColumnName] equals [value].
-  Future<Result<void>> deleteByValue({
+  /// Deletes rows from [tableName] where [whereClauses] and [whereArgs] match.
+  Future<Result<void>> delete({
     required String tableName,
-    required String valueColumnName,
-    required Object? value,
+    List<String?>? whereClauses,
+    List<Object?>? whereArgs,
+  });
+
+  /// Updates rows in [tableName] with [values] where [whereClauses] match, or ignores if no rows match.
+  Future<Result<void>> updateOrIgnoreValues(
+    Map<String, Object?> values, {
+    required String tableName,
+    required List<String> whereClauses,
+    List<Object?>? whereArgs,
   });
 }

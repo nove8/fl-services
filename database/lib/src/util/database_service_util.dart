@@ -88,6 +88,19 @@ extension DatabaseServiceUtil on DatabaseService {
     ).toEntityOrNull<T>();
   }
 
+  /// Deletes rows from [tableName] where [valueColumnName] equals [value].
+  Future<Result<void>> deleteByValue({
+    required String tableName,
+    required String valueColumnName,
+    required Object? value,
+  }) {
+    return delete(
+      tableName: tableName,
+      whereClauses: <String?>['$valueColumnName = ?'],
+      whereArgs: <Object?>[value],
+    );
+  }
+
   Iterable<Map<String, Object?>> _obtainValues(Iterable<DatabaseEntity> entities) {
     return entities.map((DatabaseEntity entity) => entity.toMap());
   }
