@@ -22,9 +22,9 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
     _init(onBackgroundNotification: onBackgroundRemoteNotification);
   }
 
-  final StreamController<Result<RemoteNotification>> _foregroundNotificationReceivedSubject =
+  final StreamController<Result<RemoteNotification>> _foregroundNotificationReceivedController =
       BehaviorSubject<Result<RemoteNotification>>();
-  final StreamController<Result<RemoteNotification>> _notificationClickedSubject =
+  final StreamController<Result<RemoteNotification>> _notificationClickedController =
       BehaviorSubject<Result<RemoteNotification>>();
 
   final FcmRemoteMessageToRemoteNotificationMapper _fcmRemoteMessageToRemoteNotificationMapper =
@@ -41,10 +41,10 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
 
   @override
   Stream<Result<RemoteNotification>> get foregroundNotificationReceivedStream =>
-      _foregroundNotificationReceivedSubject.stream;
+      _foregroundNotificationReceivedController.stream;
 
   @override
-  Stream<Result<RemoteNotification>> get notificationClickedStream => _notificationClickedSubject.stream;
+  Stream<Result<RemoteNotification>> get notificationClickedStream => _notificationClickedController.stream;
 
   @override
   Future<Result<String?>> getToken() {
@@ -55,8 +55,8 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
   Future<void> dispose() async {
     await _notificationOpenedAppStreamSubscription?.cancel();
     await _foregroundNotificationReceivedStreamSubscription?.cancel();
-    await _foregroundNotificationReceivedSubject.close();
-    await _notificationClickedSubject.close();
+    await _foregroundNotificationReceivedController.close();
+    await _notificationClickedController.close();
   }
 
   void _init({
@@ -83,27 +83,27 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
 
   void _handleInitialMessage(fcm.RemoteMessage message) {
     final RemoteNotification notification = _fcmRemoteMessageToRemoteNotificationMapper.transform(message);
-    _notificationClickedSubject.add(notification.toSuccessResult());
+    _notificationClickedController.add(notification.toSuccessResult());
   }
 
   void _onNotificationOpen(Result<fcm.RemoteMessage> messageResult) {
     final Result<RemoteNotification> notificationResult = messageResult.map(
       _fcmRemoteMessageToRemoteNotificationMapper.transform,
     );
-    _notificationClickedSubject.add(notificationResult);
+    _notificationClickedController.add(notificationResult);
   }
 
   void _listenForegroundNotification() {
     _foregroundNotificationReceivedStreamSubscription = fcm.FirebaseMessaging.onMessage
         .mapToResultStream(ForegroundRemoteNotificationReceivedFailure.new)
-        .listen(_onForegroundNotificationReceived);
+        .listen(_onForegroundNotificationReceive);
   }
 
-  void _onForegroundNotificationReceived(Result<fcm.RemoteMessage> messageResult) {
+  void _onForegroundNotificationReceive(Result<fcm.RemoteMessage> messageResult) {
     final Result<RemoteNotification> notification = messageResult.map(
       _fcmRemoteMessageToRemoteNotificationMapper.transform,
     );
-    _foregroundNotificationReceivedSubject.add(notification);
+    _foregroundNotificationReceivedController.add(notification);
   }
 
   void _listenBackgroundNotification() {
