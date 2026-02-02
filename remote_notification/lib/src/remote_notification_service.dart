@@ -13,7 +13,7 @@ abstract interface class RemoteNotificationService {
   Stream<Result<RemoteNotification>> get foregroundNotificationReceivedStream;
 
   /// Stream that emits a [RemoteNotification] when a notification is clicked by the user.
-  Stream<Result<RemoteNotification>> get remoteNotificationClickedStream;
+  Stream<Result<RemoteNotification>> get notificationClickedStream;
 
   /// Gets the current device notification token, or null if unavailable.
   Future<Result<String?>> getToken();

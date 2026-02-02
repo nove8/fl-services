@@ -12,9 +12,9 @@ abstract final class BackgroundCallbackHandlePreferencesDataSource {
 
   /// Retrieves the stored [CallbackHandle] for background remote notification, if present.
   static Future<Result<CallbackHandle?>> getBackgroundCallbackHandle() {
-    return preferences_service.SharedPreferencesWithCacheService.create(
-      keyPrefix: _preferencesPrefix,
-    ).flatMapAsync((preferences_service.SharedPreferencesWithCacheService preferencesService) {
+    return _obtainPreferences().flatMapAsync((
+      preferences_service.SharedPreferencesWithCacheService preferencesService,
+    ) {
       return preferencesService.getInt(_backgroundCallbackHandleKey).map((int? rawCallbackHandle) {
         return rawCallbackHandle?.let(CallbackHandle.fromRawHandle);
       });
@@ -23,10 +23,14 @@ abstract final class BackgroundCallbackHandlePreferencesDataSource {
 
   /// Stores the given [CallbackHandle] for use in background remote notification handling.
   static Future<Result<void>> setBackgroundCallbackHandle(CallbackHandle handle) {
-    return preferences_service.SharedPreferencesWithCacheService.create(
-      keyPrefix: _preferencesPrefix,
-    ).mapFuture((preferences_service.SharedPreferencesWithCacheService preferencesService) {
+    return _obtainPreferences().mapFuture((
+      preferences_service.SharedPreferencesWithCacheService preferencesService,
+    ) {
       return preferencesService.setInt(_backgroundCallbackHandleKey, handle.toRawHandle());
     });
+  }
+
+  static Future<Result<preferences_service.SharedPreferencesWithCacheService>> _obtainPreferences() {
+    return preferences_service.SharedPreferencesWithCacheService.create(keyPrefix: _preferencesPrefix);
   }
 }

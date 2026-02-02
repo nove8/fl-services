@@ -13,7 +13,7 @@ final class FcmRemoteMessageToRemoteNotificationMapper {
       notificationId: message.messageId,
       title: notification?.title,
       body: notification?.body,
-      data: message.data,
+      additionalData: message.data,
     );
   }
 }

@@ -11,28 +11,20 @@ import 'package:remote_notification_service/src/mapper/fcm_remote_notification_m
 import 'package:remote_notification_service/src/remote_notification_service.dart';
 import 'package:remote_notification_service/src/util/future_util.dart';
 import 'package:remote_notification_service/src/util/object_util.dart';
+import 'package:remote_notification_service/src/util/stream_util.dart';
 import 'package:rxdart/rxdart.dart';
 
 /// Implementation of [RemoteNotificationService] using Firebase Cloud Messaging (FCM).
 final class FcmRemoteNotificationService implements RemoteNotificationService {
-  /// Returns the singleton instance of [FcmRemoteNotificationService].
-  factory FcmRemoteNotificationService({
-    BackgroundRemoteNotificationHandler? onBackgroundRemoteNotification,
-  }) {
-    return _instance ??= FcmRemoteNotificationService._(
-      onBackgroundRemoteNotification: onBackgroundRemoteNotification,
-    );
-  }
-
-  FcmRemoteNotificationService._({BackgroundRemoteNotificationHandler? onBackgroundRemoteNotification}) {
+  /// Creates a new instance of [FcmRemoteNotificationService].
+  /// Optionally accepts a [BackgroundRemoteNotificationHandler] to handle background notifications.
+  FcmRemoteNotificationService({BackgroundRemoteNotificationHandler? onBackgroundRemoteNotification}) {
     _init(onBackgroundNotification: onBackgroundRemoteNotification);
   }
 
-  static FcmRemoteNotificationService? _instance;
-
-  final BehaviorSubject<Result<RemoteNotification>> _foregroundNotificationReceivedSubject =
+  final StreamController<Result<RemoteNotification>> _foregroundNotificationReceivedSubject =
       BehaviorSubject<Result<RemoteNotification>>();
-  final BehaviorSubject<Result<RemoteNotification>> _notificationClickedSubject =
+  final StreamController<Result<RemoteNotification>> _notificationClickedSubject =
       BehaviorSubject<Result<RemoteNotification>>();
 
   final FcmRemoteMessageToRemoteNotificationMapper _fcmRemoteMessageToRemoteNotificationMapper =
@@ -40,18 +32,19 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
 
   late final fcm.FirebaseMessaging _firebaseMessaging = fcm.FirebaseMessaging.instance;
 
-  StreamSubscription<fcm.RemoteMessage>? _notificationOpenedAppStreamSubscription;
+  StreamSubscription<Result<fcm.RemoteMessage>>? _notificationOpenedAppStreamSubscription;
+  StreamSubscription<Result<fcm.RemoteMessage>>? _foregroundNotificationReceivedStreamSubscription;
 
   @override
   Stream<Result<String>> get tokenRefreshedStream =>
-      _firebaseMessaging.onTokenRefresh.map((String token) => token.toSuccessResult());
+      _firebaseMessaging.onTokenRefresh.mapToResultStream(RemoteNotificationTokenRefreshedFailure.new);
 
   @override
   Stream<Result<RemoteNotification>> get foregroundNotificationReceivedStream =>
-      _foregroundNotificationReceivedSubject;
+      _foregroundNotificationReceivedSubject.stream;
 
   @override
-  Stream<Result<RemoteNotification>> get remoteNotificationClickedStream => _notificationClickedSubject;
+  Stream<Result<RemoteNotification>> get notificationClickedStream => _notificationClickedSubject.stream;
 
   @override
   Future<Result<String?>> getToken() {
@@ -61,6 +54,7 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
   @override
   Future<void> dispose() async {
     await _notificationOpenedAppStreamSubscription?.cancel();
+    await _foregroundNotificationReceivedStreamSubscription?.cancel();
     await _foregroundNotificationReceivedSubject.close();
     await _notificationClickedSubject.close();
   }
@@ -75,26 +69,41 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
   }
 
   void _listenNotificationOpened() {
-    _firebaseMessaging.getInitialMessage().then((fcm.RemoteMessage? initialMessage) {
+    _firebaseMessaging.getInitialMessage().mapToResult(GetInitialRemoteNotificationFailure.new).mapAsync((
+      fcm.RemoteMessage? initialMessage,
+    ) {
       if (initialMessage != null) {
-        _onNotificationOpen(initialMessage);
+        _handleInitialMessage(initialMessage);
       }
     });
-    _notificationOpenedAppStreamSubscription = fcm.FirebaseMessaging.onMessageOpenedApp.listen(
-      _onNotificationOpen,
-    );
+    _notificationOpenedAppStreamSubscription = fcm.FirebaseMessaging.onMessageOpenedApp
+        .mapToResultStream(RemoteNotificationOpenedAppFailure.new)
+        .listen(_onNotificationOpen);
   }
 
-  void _onNotificationOpen(fcm.RemoteMessage message) {
+  void _handleInitialMessage(fcm.RemoteMessage message) {
     final RemoteNotification notification = _fcmRemoteMessageToRemoteNotificationMapper.transform(message);
     _notificationClickedSubject.add(notification.toSuccessResult());
   }
 
+  void _onNotificationOpen(Result<fcm.RemoteMessage> messageResult) {
+    final Result<RemoteNotification> notificationResult = messageResult.map(
+      _fcmRemoteMessageToRemoteNotificationMapper.transform,
+    );
+    _notificationClickedSubject.add(notificationResult);
+  }
+
   void _listenForegroundNotification() {
-    fcm.FirebaseMessaging.onMessage.listen((fcm.RemoteMessage message) {
-      final RemoteNotification notification = _fcmRemoteMessageToRemoteNotificationMapper.transform(message);
-      _foregroundNotificationReceivedSubject.add(notification.toSuccessResult());
-    });
+    _foregroundNotificationReceivedStreamSubscription = fcm.FirebaseMessaging.onMessage
+        .mapToResultStream(ForegroundRemoteNotificationReceivedFailure.new)
+        .listen(_onForegroundNotificationReceived);
+  }
+
+  void _onForegroundNotificationReceived(Result<fcm.RemoteMessage> messageResult) {
+    final Result<RemoteNotification> notification = messageResult.map(
+      _fcmRemoteMessageToRemoteNotificationMapper.transform,
+    );
+    _foregroundNotificationReceivedSubject.add(notification);
   }
 
   void _listenBackgroundNotification() {
