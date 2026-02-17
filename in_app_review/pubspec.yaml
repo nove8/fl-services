@@ -1,0 +1,22 @@
+name: in_app_review_service
+description: In-app review service module
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.10.1
+
+dependencies:
+  async: ^2.13.0
+  in_app_review: ^2.0.11
+
+  common_result:
+    git:
+      url: git@github.com:nove8/fl-common-result.git
+      ref: 4.0.0
+
+dev_dependencies:
+  common_package:
+    git:
+      url: git@github.com:nove8/fl-common-package.git
+      ref: 4.1.0
