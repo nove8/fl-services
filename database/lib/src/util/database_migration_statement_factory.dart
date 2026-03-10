@@ -59,7 +59,7 @@ abstract final class DatabaseMigrationStatementFactory {
   static String addRealColumnStatement({
     required String tableName,
     required String columnName,
-    required int defaultValue,
+    required double defaultValue,
   }) {
     return _addRealColumn(
       tableName: tableName,
@@ -100,7 +100,7 @@ abstract final class DatabaseMigrationStatementFactory {
     required String tableName,
     required String columnName,
     required bool isNullable,
-    int? defaultValue,
+    double? defaultValue,
   }) {
     return addColumnStatement(
       tableName: tableName,
