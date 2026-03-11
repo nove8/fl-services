@@ -1,6 +1,6 @@
 name: preferences_service
 description: Preferences service module
-version: 2.2.0
+version: 2.2.1
 publish_to: none
 
 environment:
@@ -9,7 +9,11 @@ environment:
 dependencies:
   async: ^2.13.0
   collection: ^1.19.1
-  shared_preferences: ^2.5.3
+  shared_preferences:
+    git:
+      url: https://github.com/nove8/packages.git
+      path: packages/shared_preferences/shared_preferences
+      ref: shared_preferences-v.2.5.4-nove8
 
   common_result:
     git:
