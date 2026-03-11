@@ -55,6 +55,32 @@ abstract final class DatabaseMigrationStatementFactory {
     );
   }
 
+  /// Builds an `ALTER TABLE ... ADD COLUMN REAL NOT NULL` statement with the provided [defaultValue].
+  static String addRealColumnStatement({
+    required String tableName,
+    required String columnName,
+    required double defaultValue,
+  }) {
+    return _addRealColumn(
+      tableName: tableName,
+      columnName: columnName,
+      isNullable: false,
+      defaultValue: defaultValue,
+    );
+  }
+
+  /// Builds an `ALTER TABLE ... ADD COLUMN REAL` statement that allows `NULL` values.
+  static String addRealNullableColumnStatement({
+    required String tableName,
+    required String columnName,
+  }) {
+    return _addRealColumn(
+      tableName: tableName,
+      columnName: columnName,
+      isNullable: true,
+    );
+  }
+
   static String _addIntegerColumn({
     required String tableName,
     required String columnName,
@@ -65,6 +91,21 @@ abstract final class DatabaseMigrationStatementFactory {
       tableName: tableName,
       columnName: columnName,
       type: 'INTEGER',
+      isNullable: isNullable,
+      defaultValue: defaultValue,
+    );
+  }
+
+  static String _addRealColumn({
+    required String tableName,
+    required String columnName,
+    required bool isNullable,
+    double? defaultValue,
+  }) {
+    return addColumnStatement(
+      tableName: tableName,
+      columnName: columnName,
+      type: 'REAL',
       isNullable: isNullable,
       defaultValue: defaultValue,
     );
