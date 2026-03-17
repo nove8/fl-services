@@ -110,4 +110,19 @@ abstract final class DatabaseMigrationStatementFactory {
       defaultValue: defaultValue,
     );
   }
+
+  static String _addTextColumn({
+    required String tableName,
+    required String columnName,
+    required bool isNullable,
+    String? defaultValue,
+  }) {
+    return addColumnStatement(
+      tableName: tableName,
+      columnName: columnName,
+      type: 'TEXT',
+      isNullable: isNullable,
+      defaultValue: defaultValue,
+    );
+  }
 }
