@@ -26,3 +26,20 @@ abstract base class DatabaseTableWithIndex extends DatabaseTable {
   /// Builds the CREATE INDEX SQL statement for this table.
   String buildCreateIndexStatement();
 }
+
+/// A database table that includes multiple index definitions.
+abstract base class DatabaseTableWithIndexes extends DatabaseTable {
+  /// Creates a [DatabaseTableWithIndexes].
+  const DatabaseTableWithIndexes();
+
+  @override
+  List<String> get schemaList {
+    return <String>[
+      ...super.schemaList,
+      ...buildCreateIndexStatements(),
+    ];
+  }
+
+  /// Builds the CREATE INDEX SQL statements for this table.
+  List<String> buildCreateIndexStatements();
+}

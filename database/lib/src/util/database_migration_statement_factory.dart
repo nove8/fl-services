@@ -81,6 +81,51 @@ abstract final class DatabaseMigrationStatementFactory {
     );
   }
 
+  /// Builds an `ALTER TABLE ... ADD COLUMN TEXT NOT NULL` statement with the provided [defaultValue].
+  static String addTextColumnStatement({
+    required String tableName,
+    required String columnName,
+    required String defaultValue,
+  }) {
+    return _addTextColumn(
+      tableName: tableName,
+      columnName: columnName,
+      isNullable: false,
+      defaultValue: defaultValue,
+    );
+  }
+
+  /// Builds an `ALTER TABLE ... ADD COLUMN TEXT` statement that allows `NULL` values.
+  static String addTextNullableColumnStatement({
+    required String tableName,
+    required String columnName,
+    String? defaultValue,
+  }) {
+    return _addTextColumn(
+      tableName: tableName,
+      columnName: columnName,
+      isNullable: true,
+      defaultValue: defaultValue,
+    );
+  }
+
+  /// Builds an `ALTER TABLE ... RENAME COLUMN ... TO ...` statement.
+  static String renameColumnStatement({
+    required String tableName,
+    required String oldColumnName,
+    required String newColumnName,
+  }) {
+    return 'ALTER TABLE $tableName RENAME COLUMN $oldColumnName TO $newColumnName';
+  }
+
+  /// Builds an `ALTER TABLE ... RENAME TO ...` statement.
+  static String renameTableStatement({
+    required String oldTableName,
+    required String newTableName,
+  }) {
+    return 'ALTER TABLE $oldTableName RENAME TO $newTableName';
+  }
+
   static String _addIntegerColumn({
     required String tableName,
     required String columnName,
@@ -106,6 +151,21 @@ abstract final class DatabaseMigrationStatementFactory {
       tableName: tableName,
       columnName: columnName,
       type: 'REAL',
+      isNullable: isNullable,
+      defaultValue: defaultValue,
+    );
+  }
+
+  static String _addTextColumn({
+    required String tableName,
+    required String columnName,
+    required bool isNullable,
+    String? defaultValue,
+  }) {
+    return addColumnStatement(
+      tableName: tableName,
+      columnName: columnName,
+      type: 'TEXT',
       isNullable: isNullable,
       defaultValue: defaultValue,
     );
