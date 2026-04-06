@@ -6,6 +6,7 @@ import 'package:database_service/src/database_service.dart';
 import 'package:database_service/src/entity/base_database_executor.dart';
 import 'package:database_service/src/entity/database_migration_statements_provider.dart';
 import 'package:database_service/src/entity/database_table.dart';
+import 'package:database_service/src/entity/database_transaction.dart';
 import 'package:database_service/src/entity/transaction.dart';
 import 'package:database_service/src/exception/transaction_database_exception.dart';
 import 'package:database_service/src/failure/database_failure.dart';
@@ -126,7 +127,7 @@ final class SqfliteDatabaseService with BaseDatabaseExecutor implements Database
     return _database
         .transaction(
           (sqflite.Transaction sqfliteTransaction) async {
-            final Transaction transaction = Transaction(sqfliteTransaction: sqfliteTransaction);
+            final Transaction transaction = DatabaseTransaction(sqfliteTransaction: sqfliteTransaction);
             final Result<T> actionResult = await action(transaction);
             return _handleTransactionActionResult(actionResult);
           },
