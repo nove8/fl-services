@@ -1,5 +1,7 @@
 export 'src/database_service.dart';
 export 'src/entity/database_entity.dart';
+export 'src/entity/database_executor.dart';
+export 'src/entity/transaction.dart';
 export 'src/entity/database_migration_statements_provider.dart';
 export 'src/entity/database_order.dart';
 export 'src/entity/database_predicate_operator.dart';
