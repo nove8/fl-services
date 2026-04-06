@@ -13,8 +13,8 @@ import 'package:database_service/src/util/future_util.dart';
 import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
-/// Base implementation of [DatabaseExecutor]
-base mixin BaseDatabaseExecutor implements DatabaseExecutor {
+/// Base implementation of [DatabaseExecutor] methods.
+base mixin BaseDatabaseExecutorMixin implements DatabaseExecutor {
   /// The underlying sqflite database executor instance.
   @protected
   sqflite.DatabaseExecutor get sqfliteDatabaseExecutor;

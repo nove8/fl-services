@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
 import 'package:database_service/src/database_service.dart';
-import 'package:database_service/src/entity/base_database_executor.dart';
+import 'package:database_service/src/entity/base_database_executor_mixin.dart';
 import 'package:database_service/src/entity/database_migration_statements_provider.dart';
 import 'package:database_service/src/entity/database_table.dart';
 import 'package:database_service/src/entity/database_transaction.dart';
@@ -16,7 +16,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
 /// Default implementation of [DatabaseService] using the sqflite package.
-final class SqfliteDatabaseService with BaseDatabaseExecutor implements DatabaseService {
+final class SqfliteDatabaseService with BaseDatabaseExecutorMixin implements DatabaseService {
   const SqfliteDatabaseService._(this._database);
 
   static Completer<Result<SqfliteDatabaseService>>? _completer;

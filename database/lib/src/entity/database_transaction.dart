@@ -1,9 +1,9 @@
-import 'package:database_service/src/entity/base_database_executor.dart';
+import 'package:database_service/src/entity/base_database_executor_mixin.dart';
 import 'package:database_service/src/entity/transaction.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
 /// Database transaction implementation.
-final class DatabaseTransaction with BaseDatabaseExecutor implements Transaction {
+final class DatabaseTransaction with BaseDatabaseExecutorMixin implements Transaction {
   /// Creates a [Transaction] instance.
   const DatabaseTransaction({required sqflite.Transaction sqfliteTransaction})
     : _sqfliteTransaction = sqfliteTransaction;
