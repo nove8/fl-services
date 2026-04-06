@@ -10,4 +10,4 @@ export 'src/util/database_clause_util.dart';
 export 'src/util/database_migration_statement_factory.dart';
 export 'src/util/database_row_util.dart';
 export 'src/util/database_schema_statement_factory.dart';
-export 'src/util/database_service_util.dart';
+export 'src/util/database_executor_util.dart';
