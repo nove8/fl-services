@@ -12,7 +12,8 @@ abstract interface class DatabaseService implements DatabaseExecutor {
   /// When `false` or `null` (default), it allow reads but prevent writes
   /// from other connections.
   ///
-  /// Always use chain of results, DO NOT do like that:
+  /// Always use chain of results, for final result of transaction to be returned.
+  /// DO NOT do like that, to avoid missing transaction result:
   ///
   /// ```dart
   /// await transaction.delete(tableName: 'old_data');
