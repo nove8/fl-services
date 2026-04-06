@@ -1,89 +1,19 @@
-import 'dart:async';
-
 import 'package:async/async.dart';
-import 'package:database_service/src/entity/database_order.dart';
+import 'package:database_service/src/entity/database_executor.dart';
+import 'package:database_service/src/entity/transaction.dart';
 
 /// A service interface for database operations.
-abstract interface class DatabaseService {
-  /// Inserts all rows from [valuesIterable] into [tableName], ignoring conflicts.
-  Future<Result<void>> insertAllOrIgnore(
-    Iterable<Map<String, Object?>> valuesIterable, {
-    required String tableName,
-  });
-
-  /// Inserts a row from [values] into [tableName], replacing on conflicts.
-  Future<Result<void>> insertOrReplace(
-    Map<String, Object?> values, {
-    required String tableName,
-  });
-
-  /// Replaces all rows from [valuesIterable] in [tableName].
-  Future<Result<void>> replaceAll(
-    Iterable<Map<String, Object?>> valuesIterable, {
-    required String tableName,
-  });
-
-  /// Executes a raw SQL query with optional arguments.
-  Future<Result<List<Map<String, Object?>>>> rawQuery(
-    String query, {
-    List<Object?>? arguments,
-  });
-
-  /// Selects all rows from [tableName].
-  Future<Result<List<Map<String, Object?>>>> select({
-    required String tableName,
-    List<String?>? whereClauses,
-    List<Object?>? whereArgs,
-    String? orderByColumn,
-    DatabaseOrder? order,
-    List<String>? orderByClauses,
-    int? limit,
-  });
-
-  /// Selects rows from [tableName] where [targetColumnName] matches any value in [targetValues].
-  Future<Result<List<Map<String, Object?>>>> selectByColumnValues({
-    required String tableName,
-    required String targetColumnName,
-    required Set<Object> targetValues,
-    bool? isDistinct,
-    List<String>? selectColumns,
-    String? orderByColumn,
-    DatabaseOrder? order,
-    List<String>? orderByClauses,
-    int? limit,
-    List<String?>? additionalWhereClauses,
-  });
-
-  /// Selects distinct values of [valueColumnName] from [tableName].
-  Future<Result<Set<T>>> selectDistinctValues<T>({
-    required String tableName,
-    required String valueColumnName,
-    List<String?>? whereClauses,
-    List<Object?>? whereArgs,
-    String? orderByColumn,
-    DatabaseOrder? order,
-    List<String>? orderByClauses,
-    int? limit,
-  });
-
-  /// Inserts a row into [tableName], returning the row ID, or ignores on conflict.
-  Future<Result<int>> insertOrIgnoreValuesWithIdResult(
-    Map<String, Object?> values, {
-    required String tableName,
-  });
-
-  /// Deletes rows from [tableName] where [whereClauses] and [whereArgs] match.
-  Future<Result<void>> delete({
-    required String tableName,
-    List<String?>? whereClauses,
-    List<Object?>? whereArgs,
-  });
-
-  /// Updates rows in [tableName] with [values] where [whereClauses] match, or ignores if no rows match.
-  Future<Result<void>> updateOrIgnoreValues(
-    Map<String, Object?> values, {
-    required String tableName,
-    required List<String> whereClauses,
-    List<Object?>? whereArgs,
+abstract interface class DatabaseService implements DatabaseExecutor {
+  /// Calls in action must only be done using the transaction object.
+  /// Using the database service will trigger a dead-lock.
+  ///
+  /// [isExclusive] controls the transaction lock level. When `true` it
+  /// prevents all other database connections from reading or writing.
+  /// When `false` or `null` (default), it allow reads but prevent writes
+  /// from other connections.
+  ///
+  Future<Result<T>> transaction<T>(
+    Future<T> Function(Transaction txn) action, {
+    bool? isExclusive,
   });
 }

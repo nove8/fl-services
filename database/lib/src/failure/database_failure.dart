@@ -154,3 +154,17 @@ final class DeleteDatabaseFailure implements DatabaseFailure {
     return 'DeleteDatabaseFailure{error: $error}';
   }
 }
+
+/// Failure that occurs during a database transaction.
+final class TransactionDatabaseFailure implements DatabaseFailure {
+  /// Creates a [TransactionDatabaseFailure] with the underlying error.
+  const TransactionDatabaseFailure(this.error);
+
+  /// The underlying error object from the database operation.
+  final Object error;
+
+  @override
+  String toString() {
+    return 'TransactionDatabaseFailure{error: $error}';
+  }
+}

@@ -3,25 +3,26 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
 import 'package:database_service/src/database_service.dart';
+import 'package:database_service/src/entity/base_database_executor.dart';
 import 'package:database_service/src/entity/database_migration_statements_provider.dart';
-import 'package:database_service/src/entity/database_order.dart';
 import 'package:database_service/src/entity/database_table.dart';
+import 'package:database_service/src/entity/transaction.dart';
 import 'package:database_service/src/failure/database_failure.dart';
 import 'package:database_service/src/util/collection_util.dart';
-import 'package:database_service/src/util/database_clause_util.dart';
-import 'package:database_service/src/util/database_row_util.dart';
-import 'package:database_service/src/util/database_util.dart';
 import 'package:database_service/src/util/future_util.dart';
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite/sqflite.dart' as sqflite;
 
 /// Default implementation of [DatabaseService] using the sqflite package.
-final class SqfliteDatabaseService implements DatabaseService {
+final class SqfliteDatabaseService with BaseDatabaseExecutor implements DatabaseService {
   const SqfliteDatabaseService._(this._database);
 
   static Completer<Result<SqfliteDatabaseService>>? _completer;
 
-  final Database _database;
+  final sqflite.Database _database;
+
+  @override
+  sqflite.DatabaseExecutor get sqfliteDatabaseExecutor => _database;
 
   /// Creates and initializes a [SqfliteDatabaseService] instance.
   static Future<Result<SqfliteDatabaseService>> create({
@@ -53,21 +54,21 @@ final class SqfliteDatabaseService implements DatabaseService {
     required List<DatabaseMigrationStatementsProvider> migrationStatementsProviders,
   }) async {
     try {
-      final String databasePath = join(await getDatabasesPath(), databaseName);
-      final Database database = await openDatabase(
+      final String databasePath = join(await sqflite.getDatabasesPath(), databaseName);
+      final sqflite.Database database = await sqflite.openDatabase(
         databasePath,
         version: version,
-        onConfigure: (Database database) async {
+        onConfigure: (sqflite.Database database) async {
           await database.execute('PRAGMA foreign_keys = ON');
         },
-        onCreate: (Database database, _) async {
+        onCreate: (sqflite.Database database, _) async {
           await _onCreate(
             database: database,
             tables: tables,
           );
         },
         // ignore:prefer-trailing-comma
-        onUpgrade: (Database database, int oldVersion, int newVersion) {
+        onUpgrade: (sqflite.Database database, int oldVersion, int newVersion) {
           return _onUpgrade(
             database: database,
             oldVersion: oldVersion,
@@ -83,22 +84,22 @@ final class SqfliteDatabaseService implements DatabaseService {
   }
 
   static Future<void> _onCreate({
-    required Database database,
+    required sqflite.Database database,
     required List<DatabaseTable> tables,
   }) async {
     final List<String> schemaList = tables.optimizedExpandToList((DatabaseTable table) => table.schemaList);
-    final Batch batch = database.batch();
+    final sqflite.Batch batch = database.batch();
     schemaList.forEach(batch.execute);
     await batch.commit(noResult: true);
   }
 
   static Future<void> _onUpgrade({
-    required Database database,
+    required sqflite.Database database,
     required int oldVersion,
     required int newVersion,
     required List<DatabaseMigrationStatementsProvider> migrationStatementsProviders,
   }) async {
-    final Batch batch = database.batch();
+    final sqflite.Batch batch = database.batch();
     for (int fromVersion = oldVersion; fromVersion < newVersion; fromVersion++) {
       final int toVersion = fromVersion + 1;
       final List<String> migrationStatements = migrationStatementsProviders
@@ -117,175 +118,18 @@ final class SqfliteDatabaseService implements DatabaseService {
   }
 
   @override
-  Future<Result<void>> insertAllOrIgnore(
-    Iterable<Map<String, Object?>> valuesIterable, {
-    required String tableName,
-  }) {
-    final Batch batch = _database.batch();
-    batch.insertAllOrIgnore(valuesIterable, tableName: tableName);
-    return batch.commit(noResult: true, continueOnError: true).mapToResult(InsertAllDatabaseFailure.new);
-  }
-
-  @override
-  Future<Result<void>> insertOrReplace(Map<String, Object?> values, {required String tableName}) {
-    return _database
-        .insert(
-          tableName,
-          values,
-          conflictAlgorithm: ConflictAlgorithm.replace,
-        )
-        .mapToResult(InsertOrReplaceDatabaseFailure.new);
-  }
-
-  @override
-  Future<Result<void>> replaceAll(
-    Iterable<Map<String, Object?>> valuesIterable, {
-    required String tableName,
-  }) {
-    final Batch batch = _database.batch();
-    batch.replaceAll(valuesIterable, tableName: tableName);
-    return batch.commit(noResult: true, continueOnError: true).mapToResult(ReplaceAllDatabaseFailure.new);
-  }
-
-  @override
-  Future<Result<List<Map<String, Object?>>>> rawQuery(
-    String query, {
-    List<Object?>? arguments,
-  }) {
-    return _database.rawQuery(query, arguments).mapToResult(RawQueryDatabaseFailure.new);
-  }
-
-  @override
-  Future<Result<List<Map<String, Object?>>>> select({
-    required String tableName,
-    List<String?>? whereClauses,
-    List<Object?>? whereArgs,
-    String? orderByColumn,
-    DatabaseOrder? order,
-    List<String>? orderByClauses,
-    int? limit,
+  Future<Result<T>> transaction<T>(
+    Future<T> Function(Transaction) action, {
+    bool? isExclusive,
   }) {
     return _database
-        .queryExtended(
-          tableName,
-          whereClause: whereClauses?.toPredicateClause(),
-          whereArgs: whereArgs,
-          orderByColumn: orderByColumn,
-          order: order,
-          orderByClauses: orderByClauses,
-          limit: limit,
+        .transaction(
+          (sqflite.Transaction sqfliteTransaction) {
+            final Transaction transaction = Transaction(sqfliteTransaction: sqfliteTransaction);
+            return action(transaction);
+          },
+          exclusive: isExclusive,
         )
-        .mapToResult(SelectAllRowsDatabaseFailure.new);
-  }
-
-  @override
-  Future<Result<List<Map<String, Object?>>>> selectByColumnValues({
-    required String tableName,
-    required String targetColumnName,
-    required Set<Object> targetValues,
-    bool? isDistinct,
-    List<String>? selectColumns,
-    String? orderByColumn,
-    DatabaseOrder? order,
-    List<String>? orderByClauses,
-    int? limit,
-    List<String?>? additionalWhereClauses,
-  }) {
-    final String whereClause = '$targetColumnName ${targetValues.toInWithoutArgumentsClause()}';
-    final List<Object?> whereArguments = targetValues.toUnmodifiableList();
-    return targetValues.isNotEmpty
-        ? _database
-              .queryExtended(
-                tableName,
-                isDistinct: isDistinct,
-                selectColumns: selectColumns,
-                whereClause: <String?>[
-                  whereClause,
-                  ...?additionalWhereClauses,
-                ].toPredicateClause(),
-                whereArgs: whereArguments,
-                orderByColumn: orderByColumn,
-                order: order,
-                orderByClauses: orderByClauses,
-                limit: limit,
-              )
-              .mapToResult(SelectByColumnValuesDatabaseFailure.new)
-        : <Map<String, Object?>>[].toFutureSuccessResult();
-  }
-
-  @override
-  Future<Result<Set<T>>> selectDistinctValues<T>({
-    required String tableName,
-    required String valueColumnName,
-    List<String?>? whereClauses,
-    List<Object?>? whereArgs,
-    String? orderByColumn,
-    DatabaseOrder? order,
-    List<String>? orderByClauses,
-    int? limit,
-  }) {
-    return _database
-        .queryExtended(
-          tableName,
-          isDistinct: true,
-          selectColumns: <String>[valueColumnName],
-          whereClause: whereClauses?.toPredicateClause(),
-          whereArgs: whereArgs,
-          orderByColumn: orderByColumn,
-          order: order,
-          orderByClauses: orderByClauses,
-          limit: limit,
-        )
-        .mapToResult(SelectDistinctValuesDatabaseFailure.new)
-        .toEntitiesSet();
-  }
-
-  @override
-  Future<Result<int>> insertOrIgnoreValuesWithIdResult(
-    Map<String, Object?> values, {
-    required String tableName,
-  }) {
-    return _database
-        .insert(
-          tableName,
-          values,
-          conflictAlgorithm: ConflictAlgorithm.ignore,
-        )
-        .then((int id) {
-          return id > 0 ? id.toSuccessResult() : FailureResult(const InsertDatabaseFailure());
-        });
-  }
-
-  @override
-  Future<Result<void>> delete({
-    required String tableName,
-    List<String?>? whereClauses,
-    List<Object?>? whereArgs,
-  }) {
-    return _database
-        .delete(
-          tableName,
-          where: whereClauses?.toPredicateClause(),
-          whereArgs: whereArgs,
-        )
-        .mapToResult(DeleteDatabaseFailure.new);
-  }
-
-  @override
-  Future<Result<void>> updateOrIgnoreValues(
-    Map<String, Object?> values, {
-    required String tableName,
-    required List<String> whereClauses,
-    List<Object?>? whereArgs,
-  }) {
-    return _database
-        .update(
-          tableName,
-          values,
-          where: whereClauses.toPredicateClause(),
-          whereArgs: whereArgs,
-          conflictAlgorithm: ConflictAlgorithm.ignore,
-        )
-        .mapToResult(UpdateOrIgnoreValuesDatabaseFailure.new);
+        .mapToResult(TransactionDatabaseFailure.new);
   }
 }
