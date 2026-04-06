@@ -7,6 +7,7 @@ import 'package:database_service/src/entity/base_database_executor.dart';
 import 'package:database_service/src/entity/database_migration_statements_provider.dart';
 import 'package:database_service/src/entity/database_table.dart';
 import 'package:database_service/src/entity/transaction.dart';
+import 'package:database_service/src/exception/transaction_database_exception.dart';
 import 'package:database_service/src/failure/database_failure.dart';
 import 'package:database_service/src/util/collection_util.dart';
 import 'package:database_service/src/util/future_util.dart';
@@ -119,17 +120,27 @@ final class SqfliteDatabaseService with BaseDatabaseExecutor implements Database
 
   @override
   Future<Result<T>> transaction<T>(
-    Future<T> Function(Transaction) action, {
+    Future<Result<T>> Function(Transaction) action, {
     bool? isExclusive,
   }) {
     return _database
         .transaction(
-          (sqflite.Transaction sqfliteTransaction) {
+          (sqflite.Transaction sqfliteTransaction) async {
             final Transaction transaction = Transaction(sqfliteTransaction: sqfliteTransaction);
-            return action(transaction);
+            final Result<T> actionResult = await action(transaction);
+            return _handleTransactionActionResult(actionResult);
           },
           exclusive: isExclusive,
         )
         .mapToResult(TransactionDatabaseFailure.new);
+  }
+
+  T _handleTransactionActionResult<T>(Result<T> actionResult) {
+    if (actionResult.isSuccessful) {
+      return (actionResult as SuccessResult<T>).output;
+    } else {
+      final Failure failure = (actionResult as FailureResult).failure;
+      throw TransactionDatabaseException(failure: failure);
+    }
   }
 }
