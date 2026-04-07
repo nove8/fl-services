@@ -79,48 +79,6 @@ final class RawQueryDatabaseFailure implements DatabaseFailure {
   }
 }
 
-/// Failure that occurs when selecting all rows.
-final class SelectAllRowsDatabaseFailure implements DatabaseFailure {
-  /// Creates a [SelectAllRowsDatabaseFailure] with the underlying error.
-  const SelectAllRowsDatabaseFailure(this.error);
-
-  /// The underlying error object from the database operation.
-  final Object error;
-
-  @override
-  String toString() {
-    return 'SelectAllDatabaseFailure{error: $error}';
-  }
-}
-
-/// Failure that occurs when selecting rows by column values.
-final class SelectByColumnValuesDatabaseFailure implements DatabaseFailure {
-  /// Creates a [SelectByColumnValuesDatabaseFailure] with the underlying error.
-  const SelectByColumnValuesDatabaseFailure(this.error);
-
-  /// The underlying error object from the database operation.
-  final Object error;
-
-  @override
-  String toString() {
-    return 'SelectByColumnValuesDatabaseFailure{error: $error}';
-  }
-}
-
-/// Failure that occurs when selecting distinct rows.
-final class SelectDistinctValuesDatabaseFailure implements DatabaseFailure {
-  /// Creates a [SelectDistinctValuesDatabaseFailure] with the underlying error.
-  const SelectDistinctValuesDatabaseFailure(this.error);
-
-  /// The underlying error object from the database operation.
-  final Object error;
-
-  @override
-  String toString() {
-    return 'SelectDistinctValuesDatabaseFailure{error: $error}';
-  }
-}
-
 /// Failure that occurs when inserting a row into a database.
 final class InsertDatabaseFailure implements DatabaseFailure {
   /// Creates an [InsertDatabaseFailure].
@@ -152,5 +110,19 @@ final class DeleteDatabaseFailure implements DatabaseFailure {
   @override
   String toString() {
     return 'DeleteDatabaseFailure{error: $error}';
+  }
+}
+
+/// Failure that occurs during a database transaction.
+final class TransactionDatabaseFailure implements DatabaseFailure {
+  /// Creates a [TransactionDatabaseFailure] with the underlying error.
+  const TransactionDatabaseFailure(this.error);
+
+  /// The underlying error object from the database operation.
+  final Object error;
+
+  @override
+  String toString() {
+    return 'TransactionDatabaseFailure{error: $error}';
   }
 }

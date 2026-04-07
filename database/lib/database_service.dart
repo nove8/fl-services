@@ -1,4 +1,6 @@
 export 'src/database_service.dart';
+export 'src/database_service_executor.dart';
+export 'src/database_service_transaction.dart';
 export 'src/entity/database_entity.dart';
 export 'src/entity/database_migration_statements_provider.dart';
 export 'src/entity/database_order.dart';
@@ -8,4 +10,4 @@ export 'src/util/database_clause_util.dart';
 export 'src/util/database_migration_statement_factory.dart';
 export 'src/util/database_row_util.dart';
 export 'src/util/database_schema_statement_factory.dart';
-export 'src/util/database_service_util.dart';
+export 'src/util/database_service_executor_util.dart';
