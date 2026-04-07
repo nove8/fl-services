@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:database_service/src/database_service.dart';
+import 'package:database_service/src/database_service_transaction.dart';
 import 'package:database_service/src/entity/database_order.dart';
-import 'package:database_service/src/entity/transaction.dart';
 
-/// Common interface for database operations for [DatabaseService] and [Transaction]
-abstract interface class DatabaseExecutor {
+/// Common interface for database operations for [DatabaseService] and [DatabaseServiceTransaction]
+abstract interface class DatabaseServiceExecutor {
   /// Inserts all rows from [valuesIterable] into [tableName], ignoring conflicts.
   Future<Result<void>> insertAllOrIgnore(
     Iterable<Map<String, Object?>> valuesIterable, {

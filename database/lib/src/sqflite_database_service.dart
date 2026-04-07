@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
-import 'package:database_service/src/base_database_executor_mixin.dart';
+import 'package:database_service/src/sqflite_database_executor_mixin.dart';
 import 'package:database_service/src/database_service.dart';
-import 'package:database_service/src/database_transaction.dart';
+import 'package:database_service/src/sqflite_database_service_transaction.dart';
 import 'package:database_service/src/entity/database_migration_statements_provider.dart';
 import 'package:database_service/src/entity/database_table.dart';
-import 'package:database_service/src/entity/transaction.dart';
+import 'package:database_service/src/database_service_transaction.dart';
 import 'package:database_service/src/exception/transaction_database_exception.dart';
 import 'package:database_service/src/failure/database_failure.dart';
 import 'package:database_service/src/util/collection_util.dart';
@@ -16,7 +16,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
 /// Default implementation of [DatabaseService] using the sqflite package.
-final class SqfliteDatabaseService with BaseDatabaseExecutorMixin implements DatabaseService {
+final class SqfliteDatabaseService with SqfliteDatabaseServiceExecutorMixin implements DatabaseService {
   const SqfliteDatabaseService._(this._database);
 
   static Completer<Result<SqfliteDatabaseService>>? _completer;
@@ -121,13 +121,13 @@ final class SqfliteDatabaseService with BaseDatabaseExecutorMixin implements Dat
 
   @override
   Future<Result<T>> transaction<T>(
-    Future<Result<T>> Function(Transaction) action, {
+    Future<Result<T>> Function(DatabaseServiceTransaction) action, {
     bool? isExclusive,
   }) {
     return _database
         .transaction(
           (sqflite.Transaction sqfliteTransaction) async {
-            final Transaction transaction = DatabaseTransaction(sqfliteTransaction: sqfliteTransaction);
+            final DatabaseServiceTransaction transaction = SqfliteDatabaseServiceTransaction(sqfliteTransaction: sqfliteTransaction);
             final Result<T> actionResult = await action(transaction);
             return _handleTransactionActionResult(actionResult);
           },
@@ -137,11 +137,15 @@ final class SqfliteDatabaseService with BaseDatabaseExecutorMixin implements Dat
   }
 
   T _handleTransactionActionResult<T>(Result<T> actionResult) {
-    if (actionResult.isSuccessful) {
-      return (actionResult as SuccessResult<T>).output;
-    } else {
-      final Failure failure = (actionResult as FailureResult).failure;
-      throw TransactionDatabaseException(failure: failure);
-    }
+    return actionResult.when(
+      onSuccess: (T output) => output,
+      onFailure: (Failure failure) {
+        // `sqflite` lib handles the result of transaction with try/catch.
+        // So, fot lib to rollback changes made in transaction before error,
+        // we need to throw exception. `sqflite` doesn't use and support
+        // `Result` from `async` api.
+        throw TransactionDatabaseException(failure: failure);
+      },
+    );
   }
 }

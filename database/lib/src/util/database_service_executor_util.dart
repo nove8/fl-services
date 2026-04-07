@@ -1,6 +1,6 @@
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
-import 'package:database_service/src/database_executor.dart';
+import 'package:database_service/src/database_service_executor.dart';
 import 'package:database_service/src/database_service.dart';
 import 'package:database_service/src/entity/database_entity.dart';
 import 'package:database_service/src/failure/database_failure.dart';
@@ -9,7 +9,7 @@ import 'package:database_service/src/util/database_row_util.dart';
 import 'package:database_service/src/util/object_util.dart';
 
 /// Extension methods for [DatabaseService] with entity-based operations.
-extension DatabaseExecutorUtil on DatabaseExecutor {
+extension DatabaseServiceExecutorUtil on DatabaseServiceExecutor {
   /// Inserts entities into the database, ignoring conflicts.
   Future<Result<void>> insertEntities(
     Iterable<DatabaseEntity> entities, {

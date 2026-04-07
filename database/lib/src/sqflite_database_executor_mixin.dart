@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
-import 'package:database_service/src/database_executor.dart';
+import 'package:database_service/src/database_service_executor.dart';
 import 'package:database_service/src/entity/database_order.dart';
 import 'package:database_service/src/failure/database_failure.dart';
 import 'package:database_service/src/util/collection_util.dart';
@@ -13,8 +13,8 @@ import 'package:database_service/src/util/future_util.dart';
 import 'package:meta/meta.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
-/// Base implementation of [DatabaseExecutor] methods.
-base mixin BaseDatabaseExecutorMixin implements DatabaseExecutor {
+/// Sqflite implementation of [DatabaseServiceExecutor] methods.
+base mixin SqfliteDatabaseServiceExecutorMixin implements DatabaseServiceExecutor {
   /// The underlying sqflite database executor instance.
   @protected
   sqflite.DatabaseExecutor get sqfliteDatabaseExecutor;
