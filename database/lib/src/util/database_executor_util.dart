@@ -1,6 +1,6 @@
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
-import 'package:database_service/database_service.dart';
+import 'package:database_service/src/database_executor.dart';
 import 'package:database_service/src/database_service.dart';
 import 'package:database_service/src/entity/database_entity.dart';
 import 'package:database_service/src/failure/database_failure.dart';

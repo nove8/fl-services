@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
-import 'package:database_service/src/entity/database_executor.dart';
+import 'package:database_service/src/database_executor.dart';
 import 'package:database_service/src/entity/database_order.dart';
 import 'package:database_service/src/failure/database_failure.dart';
 import 'package:database_service/src/util/collection_util.dart';

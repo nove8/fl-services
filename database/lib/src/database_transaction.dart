@@ -1,4 +1,4 @@
-import 'package:database_service/src/entity/base_database_executor_mixin.dart';
+import 'package:database_service/src/base_database_executor_mixin.dart';
 import 'package:database_service/src/entity/transaction.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 

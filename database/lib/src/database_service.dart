@@ -1,5 +1,5 @@
 import 'package:async/async.dart';
-import 'package:database_service/src/entity/database_executor.dart';
+import 'package:database_service/src/database_executor.dart';
 import 'package:database_service/src/entity/transaction.dart';
 
 /// A service interface for database operations.
@@ -29,7 +29,7 @@ abstract interface class DatabaseService implements DatabaseExecutor {
   /// ```
   ///
   Future<Result<T>> transaction<T>(
-    Future<Result<T>> Function(Transaction txn) action, {
+    Future<Result<T>> Function(Transaction) action, {
     bool? isExclusive,
   });
 }
