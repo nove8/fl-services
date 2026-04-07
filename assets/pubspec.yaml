@@ -21,4 +21,4 @@ dev_dependencies:
   common_package:
     git:
       url: git@github.com:nove8/fl-common-package.git
-      ref: 4.1.0
+      ref: 4.2.0
