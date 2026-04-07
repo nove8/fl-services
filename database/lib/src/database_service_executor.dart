@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:database_service/src/database_service.dart';
 import 'package:database_service/src/database_service_transaction.dart';
-import 'package:database_service/src/entity/database_order.dart';
-
 /// Common interface for database operations for [DatabaseService] and [DatabaseServiceTransaction]
 abstract interface class DatabaseServiceExecutor {
   /// Inserts all rows from [valuesIterable] into [tableName], ignoring conflicts.
@@ -29,43 +27,6 @@ abstract interface class DatabaseServiceExecutor {
   Future<Result<List<Map<String, Object?>>>> rawQuery(
     String query, {
     List<Object?>? arguments,
-  });
-
-  /// Selects all rows from [tableName].
-  Future<Result<List<Map<String, Object?>>>> select({
-    required String tableName,
-    List<String?>? whereClauses,
-    List<Object?>? whereArgs,
-    String? orderByColumn,
-    DatabaseOrder? order,
-    List<String>? orderByClauses,
-    int? limit,
-  });
-
-  /// Selects rows from [tableName] where [targetColumnName] matches any value in [targetValues].
-  Future<Result<List<Map<String, Object?>>>> selectByColumnValues({
-    required String tableName,
-    required String targetColumnName,
-    required Set<Object> targetValues,
-    bool? isDistinct,
-    List<String>? selectColumns,
-    String? orderByColumn,
-    DatabaseOrder? order,
-    List<String>? orderByClauses,
-    int? limit,
-    List<String?>? additionalWhereClauses,
-  });
-
-  /// Selects distinct values of [valueColumnName] from [tableName].
-  Future<Result<Set<T>>> selectDistinctValues<T>({
-    required String tableName,
-    required String valueColumnName,
-    List<String?>? whereClauses,
-    List<Object?>? whereArgs,
-    String? orderByColumn,
-    DatabaseOrder? order,
-    List<String>? orderByClauses,
-    int? limit,
   });
 
   /// Inserts a row into [tableName], returning the row ID, or ignores on conflict.

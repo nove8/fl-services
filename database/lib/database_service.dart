@@ -7,7 +7,7 @@ export 'src/entity/database_order.dart';
 export 'src/entity/database_predicate_operator.dart';
 export 'src/entity/database_table.dart';
 export 'src/util/database_clause_util.dart';
-export 'src/util/database_service_executor_util.dart';
 export 'src/util/database_migration_statement_factory.dart';
 export 'src/util/database_row_util.dart';
 export 'src/util/database_schema_statement_factory.dart';
+export 'src/util/database_service_executor_util.dart';
