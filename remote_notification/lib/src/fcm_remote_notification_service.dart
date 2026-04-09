@@ -6,6 +6,7 @@ import 'package:common_result/common_result.dart';
 import 'package:firebase_messaging/firebase_messaging.dart' as fcm;
 import 'package:remote_notification_service/src/data_source/background_callback_handle_preferences_data_source.dart';
 import 'package:remote_notification_service/src/entity/remote_notification.dart';
+import 'package:remote_notification_service/src/entity/reteno_user_custom_field.dart';
 import 'package:remote_notification_service/src/failure/remote_notification_failure.dart';
 import 'package:remote_notification_service/src/mapper/fcm_remote_notification_mappers.dart';
 import 'package:remote_notification_service/src/remote_notification_service.dart';
@@ -50,6 +51,13 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
   Future<Result<String?>> getToken() {
     return _firebaseMessaging.getToken().mapToResult(GetRemoteNotificationTokenFailure.new);
   }
+
+  @override
+  Future<Result<void>> setUserAttributes({
+    required String userId,
+    String? userEmail,
+    List<RetenoUserCustomField>? customFields,
+  }) async => Result<void>.value(null);
 
   @override
   Future<void> dispose() async {

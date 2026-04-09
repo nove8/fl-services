@@ -6,6 +6,7 @@ final class RemoteNotification {
     required this.title,
     required this.body,
     required this.additionalData,
+    this.imageUrl,
   });
 
   /// A unique ID assigned to every notification.
@@ -20,8 +21,11 @@ final class RemoteNotification {
   /// Any additional data sent with the notification.
   final Map<String, Object?> additionalData;
 
+  /// Optional image URL attached to the notification (platform-specific).
+  final String? imageUrl;
+
   @override
   String toString() {
-    return 'RemoteNotification{notificationId: $notificationId, title: $title, body: $body, additionalData: $additionalData}';
+    return 'RemoteNotification{notificationId: $notificationId, title: $title, body: $body, additionalData: $additionalData, imageUrl: $imageUrl}';
   }
 }

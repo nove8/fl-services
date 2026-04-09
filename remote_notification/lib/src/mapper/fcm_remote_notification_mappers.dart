@@ -14,6 +14,7 @@ final class FcmRemoteMessageToRemoteNotificationMapper {
       title: notification?.title,
       body: notification?.body,
       additionalData: message.data,
+      imageUrl: notification?.android?.imageUrl ?? notification?.apple?.imageUrl ?? notification?.web?.image,
     );
   }
 }
