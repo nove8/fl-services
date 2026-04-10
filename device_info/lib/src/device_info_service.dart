@@ -7,7 +7,7 @@ abstract interface class DeviceInfoService {
   /// The current locale of the device (e.g. language and region settings).
   Result<Locale> get currentLocale;
 
-  /// The physical screen size of the device in pixels.
+  /// The physical screen size of the device in physical pixels.
   Result<Size> get screenSize;
 
   /// The name of the current operating system (e.g. "ios", "android").

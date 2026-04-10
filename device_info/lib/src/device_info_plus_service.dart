@@ -8,6 +8,7 @@ import 'package:device_info_service/src/device_info_service.dart';
 import 'package:device_info_service/src/entity/app_platform.dart';
 import 'package:device_info_service/src/failure/device_info_failure.dart';
 import 'package:device_info_service/src/util/future_util.dart';
+import 'package:device_info_service/src/util/object_util.dart';
 import 'package:flutter/foundation.dart';
 
 /// Default implementation of [DeviceInfoService] using the device_info_plus package.
