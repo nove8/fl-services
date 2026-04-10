@@ -18,10 +18,20 @@ import 'package:rxdart/rxdart.dart';
 /// Implementation of [RemoteNotificationService] using Firebase Cloud Messaging (FCM).
 final class FcmRemoteNotificationService implements RemoteNotificationService {
   /// Creates a new instance of [FcmRemoteNotificationService].
+  ///
   /// Optionally accepts a [BackgroundRemoteNotificationHandler] to handle background notifications.
-  FcmRemoteNotificationService({BackgroundRemoteNotificationHandler? onBackgroundRemoteNotification}) {
+  ///
+  /// [webVapidKey] is required for web push notifications. Without it, [getToken] will
+  /// return `null` on web. Has no effect on non-web platforms.
+  FcmRemoteNotificationService({
+    BackgroundRemoteNotificationHandler? onBackgroundRemoteNotification,
+    this.webVapidKey,
+  }) {
     _init(onBackgroundNotification: onBackgroundRemoteNotification);
   }
+
+  /// The VAPID key used to get the FCM token on web.
+  final String? webVapidKey;
 
   final StreamController<Result<RemoteNotification>> _foregroundNotificationReceivedController =
       BehaviorSubject<Result<RemoteNotification>>();
@@ -49,7 +59,9 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
 
   @override
   Future<Result<String?>> getToken() {
-    return _firebaseMessaging.getToken().mapToResult(GetRemoteNotificationTokenFailure.new);
+    return _firebaseMessaging
+        .getToken(vapidKey: webVapidKey)
+        .mapToResult(GetRemoteNotificationTokenFailure.new);
   }
 
   @override
