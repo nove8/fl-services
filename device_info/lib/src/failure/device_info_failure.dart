@@ -22,3 +22,23 @@ final class UnsupportedPlatformFailure implements DeviceInfoFailure {
   /// Creates a [UnsupportedPlatformFailure].
   const UnsupportedPlatformFailure();
 }
+
+/// Failure that occurs when the implicit [FlutterView] is not available.
+final class MissingImplicitViewFailure implements DeviceInfoFailure {
+  /// Creates a [MissingImplicitViewFailure].
+  const MissingImplicitViewFailure();
+}
+
+/// Failure that occurs when retrieving the operating system name fails.
+final class GetOperationSystemFailure implements DeviceInfoFailure {
+  /// Creates a [GetOperationSystemFailure] with the underlying error.
+  const GetOperationSystemFailure(this.error);
+
+  /// The underlying error object from the platform API call.
+  final Object error;
+
+  @override
+  String toString() {
+    return 'GetOperationSystemFailure{error: $error}';
+  }
+}

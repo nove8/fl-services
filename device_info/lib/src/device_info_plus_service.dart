@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
@@ -12,6 +13,29 @@ import 'package:flutter/foundation.dart';
 /// Default implementation of [DeviceInfoService] using the device_info_plus package.
 final class DeviceInfoPlusService implements DeviceInfoService {
   final device_info_plus.DeviceInfoPlugin _deviceInfoPlugin = device_info_plus.DeviceInfoPlugin();
+
+  @override
+  Result<Locale> get currentLocale => _platformDispatcher.locale.toSuccessResult();
+
+  @override
+  Result<Size> get screenSize {
+    return _flutterViewResult.map((FlutterView flutterView) => flutterView.physicalSize);
+  }
+
+  @override
+  Result<String> get operatingSystem {
+    return mapToResult(
+      valueProvider: () => Platform.operatingSystem,
+      failureProvider: GetOperationSystemFailure.new,
+    );
+  }
+
+  PlatformDispatcher get _platformDispatcher => PlatformDispatcher.instance;
+
+  Result<FlutterView> get _flutterViewResult {
+    return _platformDispatcher.implicitView?.toSuccessResult() ??
+        FailureResult(const MissingImplicitViewFailure());
+  }
 
   @override
   Future<Result<String?>> getIdentifierForVendor() {
