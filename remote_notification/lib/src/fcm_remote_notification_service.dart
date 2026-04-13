@@ -42,21 +42,16 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
   StreamSubscription<Result<fcm.RemoteMessage>>? _foregroundNotificationReceivedStreamSubscription;
 
   @override
-  Stream<Result<String>> get tokenRefreshedStream =>
-      _firebaseMessaging.onTokenRefresh.mapToResultStream(RemoteNotificationTokenRefreshedFailure.new);
-
-  @override
-  Stream<Result<RemoteNotification>> get foregroundNotificationReceivedStream =>
-      _foregroundNotificationReceivedController.stream;
-
-  @override
   Stream<Result<RemoteNotification>> get notificationClickedStream => _notificationClickedController.stream;
 
-  @override
-  Future<Result<String?>> getToken({String? webVapidKey}) {
-    return _firebaseMessaging
-        .getToken(vapidKey: webVapidKey)
-        .mapToResult(GetRemoteNotificationTokenFailure.new);
+  /// Stream that emits refreshed notification token (e.g. when FCM/APNs token changes).
+  Stream<Result<String>> get tokenRefreshedStream {
+    return _firebaseMessaging.onTokenRefresh.mapToResultStream(RemoteNotificationTokenRefreshedFailure.new);
+  }
+
+  /// Stream that emits a [RemoteNotification] when a notification is received in the foreground.
+  Stream<Result<RemoteNotification>> get foregroundNotificationReceivedStream {
+    return _foregroundNotificationReceivedController.stream;
   }
 
   @override
@@ -65,6 +60,13 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
     await _foregroundNotificationReceivedStreamSubscription?.cancel();
     await _foregroundNotificationReceivedController.close();
     await _notificationClickedController.close();
+  }
+
+  /// Gets the current device notification token, or null if unavailable.
+  Future<Result<String?>> getToken({String? webVapidKey}) {
+    return _firebaseMessaging
+        .getToken(vapidKey: webVapidKey)
+        .mapToResult(GetRemoteNotificationTokenFailure.new);
   }
 
   void _init({

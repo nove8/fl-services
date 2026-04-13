@@ -1,11 +1,17 @@
+import 'dart:async';
+
 import 'package:async/async.dart';
+import 'package:remote_notification_service/src/entity/remote_notification.dart';
 import 'package:remote_notification_service/src/entity/remote_notification_user_custom_field.dart';
 import 'package:remote_notification_service/src/failure/remote_notification_failure.dart';
+import 'package:remote_notification_service/src/mapper/reteno_remote_notification_mappers.dart';
+import 'package:remote_notification_service/src/remote_notification_service.dart';
 import 'package:remote_notification_service/src/util/future_util.dart';
 import 'package:reteno_plugin/reteno.dart' as reteno;
+import 'package:rxdart/rxdart.dart';
 
 /// Service that uses the Reteno SDK for user attributes and targeting.
-final class RetenoRemoteNotificationService {
+final class RetenoRemoteNotificationService implements RemoteNotificationService {
   /// Creates a new instance of [RetenoRemoteNotificationService] and initializes the Reteno SDK.
   ///
   /// [isTestEnvironment] controls which Reteno access key is used.
@@ -20,7 +26,7 @@ final class RetenoRemoteNotificationService {
   }) : _isTestEnvironment = isTestEnvironment,
        _testAccessKey = testAccessKey,
        _prodAccessKey = prodAccessKey {
-    _initReteno();
+    _init();
   }
 
   final bool _isTestEnvironment;
@@ -28,6 +34,21 @@ final class RetenoRemoteNotificationService {
   final String _prodAccessKey;
 
   final reteno.Reteno _reteno = reteno.Reteno();
+
+  final StreamController<Result<RemoteNotification>> _notificationClickedController =
+      BehaviorSubject<Result<RemoteNotification>>();
+
+  final RetenoNotificationDataToRemoteNotificationMapper _retenoMapper =
+      const RetenoNotificationDataToRemoteNotificationMapper();
+
+  @override
+  Stream<Result<RemoteNotification>> get notificationClickedStream => _notificationClickedController.stream;
+
+
+  @override
+  Future<void> dispose() async {
+    await _notificationClickedController.close();
+  }
 
   /// Sets user attributes for targeting and segmentation on the Reteno platform.
   ///
@@ -58,13 +79,25 @@ final class RetenoRemoteNotificationService {
         .mapToResult(SetRetenoUserAttributesFailure.new);
   }
 
+  void _init() {
+    _initReteno();
+    _listenNotificationClicks();
+  }
+
   void _initReteno() {
-    _reteno.initialize(
+    _reteno.initWith(
       accessKey: _isTestEnvironment ? _testAccessKey : _prodAccessKey,
-      options: reteno.RetenoInitOptions(
-        isDebug: _isTestEnvironment,
-        lifecycleTrackingOptions: reteno.LifecycleTrackingOptions.all(),
-      ),
+      isDebug: _isTestEnvironment,
+      lifecycleTrackingOptions: reteno.LifecycleTrackingOptions.all(),
     );
+  }
+
+  void _listenNotificationClicks() {
+    reteno.Reteno.onRetenoNotificationClicked.listen(_onRetenoNotificationClicked);
+  }
+
+  void _onRetenoNotificationClicked(Map<String, Object?> notificationData) {
+    print('Reteno Notification Clicked: $notificationData');
+    _notificationClickedController.add(_retenoMapper.transform(notificationData));
   }
 }

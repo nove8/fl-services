@@ -73,6 +73,20 @@ final class ForegroundRemoteNotificationReceivedFailure implements RemoteNotific
   }
 }
 
+/// Failure when Reteno notification data cannot be parsed into a [RemoteNotification].
+final class InvalidRetenoNotificationDataFailure implements RemoteNotificationFailure {
+  /// Creates an [InvalidRetenoNotificationDataFailure].
+  const InvalidRetenoNotificationDataFailure(this.data);
+
+  /// The raw notification data that failed to be parsed.
+  final Map<String, Object?> data;
+
+  @override
+  String toString() {
+    return 'InvalidRetenoNotificationDataFailure{data: $data}';
+  }
+}
+
 /// Failure when setting Reteno user attributes.
 final class SetRetenoUserAttributesFailure implements RemoteNotificationFailure {
   /// Creates a [SetRetenoUserAttributesFailure].
