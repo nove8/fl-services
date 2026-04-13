@@ -6,7 +6,7 @@ import 'package:common_result/common_result.dart';
 import 'package:firebase_messaging/firebase_messaging.dart' as fcm;
 import 'package:remote_notification_service/src/data_source/background_callback_handle_preferences_data_source.dart';
 import 'package:remote_notification_service/src/entity/remote_notification.dart';
-import 'package:remote_notification_service/src/entity/reteno_user_custom_field.dart';
+import 'package:remote_notification_service/src/entity/remote_notification_user_custom_field.dart';
 import 'package:remote_notification_service/src/failure/remote_notification_failure.dart';
 import 'package:remote_notification_service/src/mapper/fcm_remote_notification_mappers.dart';
 import 'package:remote_notification_service/src/remote_notification_service.dart';
@@ -25,13 +25,9 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
   /// return `null` on web. Has no effect on non-web platforms.
   FcmRemoteNotificationService({
     BackgroundRemoteNotificationHandler? onBackgroundRemoteNotification,
-    this.webVapidKey,
   }) {
     _init(onBackgroundNotification: onBackgroundRemoteNotification);
   }
-
-  /// The VAPID key used to get the FCM token on web.
-  final String? webVapidKey;
 
   final StreamController<Result<RemoteNotification>> _foregroundNotificationReceivedController =
       BehaviorSubject<Result<RemoteNotification>>();
@@ -58,7 +54,7 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
   Stream<Result<RemoteNotification>> get notificationClickedStream => _notificationClickedController.stream;
 
   @override
-  Future<Result<String?>> getToken() {
+  Future<Result<String?>> getToken({String? webVapidKey}) {
     return _firebaseMessaging
         .getToken(vapidKey: webVapidKey)
         .mapToResult(GetRemoteNotificationTokenFailure.new);
@@ -68,8 +64,10 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
   Future<Result<void>> setUserAttributes({
     required String userId,
     String? userEmail,
-    List<RetenoUserCustomField>? customFields,
-  }) async => Result<void>.value(null);
+    List<RemoteNotificationUserCustomField>? customFields,
+  }) {
+    return null.toFutureSuccessResult();
+  }
 
   @override
   Future<void> dispose() async {

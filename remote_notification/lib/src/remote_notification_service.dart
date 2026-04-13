@@ -1,6 +1,6 @@
 import 'package:async/async.dart';
 import 'package:remote_notification_service/src/entity/remote_notification.dart';
-import 'package:remote_notification_service/src/entity/reteno_user_custom_field.dart';
+import 'package:remote_notification_service/src/entity/remote_notification_user_custom_field.dart';
 
 /// Handler function type for processing remote notifications received in the background.
 typedef BackgroundRemoteNotificationHandler =
@@ -18,7 +18,7 @@ abstract interface class RemoteNotificationService {
   Stream<Result<RemoteNotification>> get notificationClickedStream;
 
   /// Gets the current device notification token, or null if unavailable.
-  Future<Result<String?>> getToken();
+  Future<Result<String?>> getToken({String? webVapidKey});
 
   /// Sets user attributes for targeting and segmentation on the notification platform.
   ///
@@ -28,7 +28,7 @@ abstract interface class RemoteNotificationService {
   Future<Result<void>> setUserAttributes({
     required String userId,
     String? userEmail,
-    List<RetenoUserCustomField>? customFields,
+    List<RemoteNotificationUserCustomField>? customFields,
   });
 
   /// Disposes the service, cancels stream subscriptions and closes stream controllers
