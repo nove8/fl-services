@@ -59,10 +59,12 @@ final class RetenoRemoteNotificationService {
   }
 
   void _initReteno() {
-    _reteno.initWith(
+    _reteno.initialize(
       accessKey: _isTestEnvironment ? _testAccessKey : _prodAccessKey,
-      isDebug: _isTestEnvironment,
-      lifecycleTrackingOptions: reteno.LifecycleTrackingOptions.all(),
+      options: reteno.RetenoInitOptions(
+        isDebug: _isTestEnvironment,
+        lifecycleTrackingOptions: reteno.LifecycleTrackingOptions.all(),
+      ),
     );
   }
 }
