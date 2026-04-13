@@ -17,8 +17,6 @@ final class RetenoRemoteNotificationService implements RemoteNotificationService
   /// [isTestEnvironment] controls which Reteno access key is used.
   /// [testAccessKey] is used when [isTestEnvironment] is `true`.
   /// [prodAccessKey] is used when [isTestEnvironment] is `false`.
-  /// [isDebug] enables Reteno debug mode.
-  /// [lifecycleTrackingOptions] configures Reteno lifecycle tracking.
   RetenoRemoteNotificationService({
     required bool isTestEnvironment,
     required String testAccessKey,
@@ -41,12 +39,14 @@ final class RetenoRemoteNotificationService implements RemoteNotificationService
   final RetenoNotificationDataToRemoteNotificationMapper _retenoMapper =
       const RetenoNotificationDataToRemoteNotificationMapper();
 
+  StreamSubscription<Map<String, Object?>>? _notificationClickedSubscription;
+
   @override
   Stream<Result<RemoteNotification>> get notificationClickedStream => _notificationClickedController.stream;
 
-
   @override
   Future<void> dispose() async {
+    await _notificationClickedSubscription?.cancel();
     await _notificationClickedController.close();
   }
 
@@ -84,8 +84,8 @@ final class RetenoRemoteNotificationService implements RemoteNotificationService
     _listenNotificationClicks();
   }
 
-  void _initReteno() {
-    _reteno.initWith(
+  Future<void> _initReteno() {
+    return _reteno.initWith(
       accessKey: _isTestEnvironment ? _testAccessKey : _prodAccessKey,
       isDebug: _isTestEnvironment,
       lifecycleTrackingOptions: reteno.LifecycleTrackingOptions.all(),
@@ -93,11 +93,12 @@ final class RetenoRemoteNotificationService implements RemoteNotificationService
   }
 
   void _listenNotificationClicks() {
-    reteno.Reteno.onRetenoNotificationClicked.listen(_onRetenoNotificationClicked);
+    _notificationClickedSubscription = reteno.Reteno.onRetenoNotificationClicked.listen(
+      _onRetenoNotificationClicked,
+    );
   }
 
   void _onRetenoNotificationClicked(Map<String, Object?> notificationData) {
-    print('Reteno Notification Clicked: $notificationData');
     _notificationClickedController.add(_retenoMapper.transform(notificationData));
   }
 }
