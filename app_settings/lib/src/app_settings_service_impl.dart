@@ -12,12 +12,12 @@ final class AppSettingsServiceImpl implements AppSettingsService {
   /// Creates an [AppSettingsServiceImpl].
   const AppSettingsServiceImpl();
 
-  static const _AppSettingsTypeServiceToLibMapper _typeMapper = _AppSettingsTypeServiceToLibMapper();
+  static const _AppSettingsTypeServiceToLibMapper _settingsTypeMapper = _AppSettingsTypeServiceToLibMapper();
 
   @override
   Future<Result<void>> openAppSettings({required AppSettingsType type}) {
     return lib.AppSettings.openAppSettings(
-      type: _typeMapper.transform(type),
+      type: _settingsTypeMapper.transform(type),
     ).mapToResult(AppSettingsOpenFailure.new);
   }
 }

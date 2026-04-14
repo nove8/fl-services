@@ -1,4 +1,8 @@
 /// Defines the different types of app settings that can be opened.
+///
+/// Not all types are supported on every platform. Each value documents
+/// which platforms it is supported on. If an unsupported type is used,
+/// the general app settings screen will be opened as a fallback.
 enum AppSettingsType {
   /// Open the accessibility settings.
   ///
@@ -101,6 +105,8 @@ enum AppSettingsType {
   security,
 
   /// Open the app settings.
+  ///
+  /// Supported on all platforms.
   settings,
 
   /// Open the audio settings.
