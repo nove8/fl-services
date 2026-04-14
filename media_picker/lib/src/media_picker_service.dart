@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:async/async.dart';
-import 'package:media_picker_service/src/entity/media_image_source.dart';
+import 'package:media_picker_service/src/entity/pick_media_source.dart';
 
 /// A service interface for picking media from the device.
 abstract interface class MediaPickerService {
@@ -10,7 +10,7 @@ abstract interface class MediaPickerService {
   /// Returns `null` as a successful result if the user hasn't picked any image.
   /// [maxWidth] and [maxHeight] can be used to constrain the image dimensions.
   Future<Result<Uint8List?>> pickImageBytes(
-    MediaImageSource source, {
+    PickMediaSource source, {
     double? maxWidth,
     double? maxHeight,
   });
@@ -20,7 +20,7 @@ abstract interface class MediaPickerService {
   /// Returns `null` as a successful result if the user hasn't picked any image.
   /// [maxWidth] and [maxHeight] can be used to constrain the image dimensions.
   Future<Result<String?>> pickImagePath(
-    MediaImageSource source, {
+    PickMediaSource source, {
     double? maxWidth,
     double? maxHeight,
   });
