@@ -100,3 +100,9 @@ final class SetRetenoUserAttributesFailure implements RemoteNotificationFailure 
     return 'SetRetenoUserAttributesFailure{error: $error}';
   }
 }
+
+/// Failure that occurs when retrieving device information from the platform isn't possible.
+final class UnsupportedPlatformFailure implements RemoteNotificationFailure {
+  /// Creates a [UnsupportedPlatformFailure].
+  const UnsupportedPlatformFailure();
+}

@@ -7,6 +7,9 @@ environment:
   sdk: ^3.10.1
 
 dependencies:
+  flutter:
+    sdk: flutter
+
   async: ^2.13.0
   firebase_messaging: ^16.1.0
   reteno_plugin: ^1.8.8
