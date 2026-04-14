@@ -2,9 +2,9 @@ import 'package:image_picker/image_picker.dart' as image_picker;
 import 'package:media_picker_service/src/entity/media_image_source.dart';
 
 /// Maps [MediaImageSource] to plugin [ImageSource].
-final class MediaImageSourceToImageSourceMapper {
-  /// Creates a [MediaImageSourceToImageSourceMapper].
-  const MediaImageSourceToImageSourceMapper();
+final class MediaImageSourceServiceToLibMapper {
+  /// Creates a [MediaImageSourceServiceToLibMapper].
+  const MediaImageSourceServiceToLibMapper();
 
   /// Transforms [source] to [ImageSource].
   image_picker.ImageSource transform(MediaImageSource source) {
