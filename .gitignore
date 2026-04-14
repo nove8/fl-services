@@ -6,3 +6,4 @@
 *.ipr
 *.iws
 .idea/
+/media_picker/pubspec.lock
