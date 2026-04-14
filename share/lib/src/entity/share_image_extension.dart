@@ -1,32 +1,26 @@
 /// Supported image file extensions for sharing.
 enum ShareImageExtension {
   /// PNG image format.
-  png(fileExtension: '.png', mimeType: 'image/png'),
+  png(fileExtension: '.png'),
 
   /// JPEG image format.
-  jpeg(fileExtension: '.jpeg', mimeType: 'image/jpeg'),
+  jpeg(fileExtension: '.jpeg'),
 
   /// JPG image format.
-  jpg(fileExtension: '.jpg', mimeType: 'image/jpeg'),
+  jpg(fileExtension: '.jpg'),
 
   /// GIF image format.
-  gif(fileExtension: '.gif', mimeType: 'image/gif'),
+  gif(fileExtension: '.gif'),
 
   /// WebP image format.
-  webp(fileExtension: '.webp', mimeType: 'image/webp'),
+  webp(fileExtension: '.webp'),
 
   /// BMP image format.
-  bmp(fileExtension: '.bmp', mimeType: 'image/bmp')
+  bmp(fileExtension: '.bmp')
   ;
 
-  const ShareImageExtension({
-    required this.fileExtension,
-    required this.mimeType,
-  });
+  const ShareImageExtension({required this.fileExtension});
 
   /// The file extension including the leading dot (e.g. `.png`).
   final String fileExtension;
-
-  /// The MIME type of the image format (e.g. `image/png`).
-  final String mimeType;
 }

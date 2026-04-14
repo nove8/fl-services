@@ -11,10 +11,10 @@ abstract interface class ShareService {
   /// Shares a URI.
   Future<Result<void>> shareUri({required Uri uri});
 
-  /// Shares an image from bytes with the given [imageName] and [extension].
+  /// Shares an image from bytes with the given [imageName] and [imageExtension].
   Future<Result<void>> shareImage({
     required Uint8List imageBytes,
     required String imageName,
-    required ShareImageExtension extension,
+    required ShareImageExtension imageExtension,
   });
 }

@@ -17,12 +17,11 @@ final class ShareServiceImpl implements ShareService {
   Future<Result<void>> shareImage({
     required Uint8List imageBytes,
     required String imageName,
-    required ShareImageExtension extension,
+    required ShareImageExtension imageExtension,
   }) {
     final XFile xFile = XFile.fromData(
       imageBytes,
-      name: imageName + extension.fileExtension,
-      mimeType: extension.mimeType,
+      name: imageName + imageExtension.fileExtension,
     );
     return _share(ShareParams(files: <XFile>[xFile]));
   }
