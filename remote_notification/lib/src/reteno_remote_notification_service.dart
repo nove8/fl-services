@@ -36,7 +36,7 @@ final class RetenoRemoteNotificationService implements RemoteNotificationService
   final StreamController<Result<RemoteNotification>> _notificationClickedController =
       BehaviorSubject<Result<RemoteNotification>>();
 
-  final RetenoNotificationDataToRemoteNotificationMapper _retenoMapper =
+  final RetenoNotificationDataToRemoteNotificationMapper _notificationDataMapper =
       const RetenoNotificationDataToRemoteNotificationMapper();
 
   StreamSubscription<Map<String, Object?>>? _notificationClickedSubscription;
@@ -99,6 +99,6 @@ final class RetenoRemoteNotificationService implements RemoteNotificationService
   }
 
   void _onRetenoNotificationClicked(Map<String, Object?> notificationData) {
-    _notificationClickedController.add(_retenoMapper.transform(notificationData));
+    _notificationClickedController.add(_notificationDataMapper.transform(notificationData));
   }
 }
