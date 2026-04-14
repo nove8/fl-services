@@ -1,18 +1,22 @@
 import 'dart:typed_data';
 
 import 'package:async/async.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart' as image_picker;
 import 'package:media_picker_service/src/entity/media_image_source.dart';
 import 'package:media_picker_service/src/failure/media_picker_failure.dart';
+import 'package:media_picker_service/src/mapper/media_image_source_to_image_source_mapper.dart';
 import 'package:media_picker_service/src/media_picker_service.dart';
 import 'package:media_picker_service/src/util/future_util.dart';
 
 /// Flutter implementation of [MediaPickerService] using [ImagePicker].
 final class FlutterMediaPickerService implements MediaPickerService {
   /// Creates a [FlutterMediaPickerService].
-  FlutterMediaPickerService();
+  FlutterMediaPickerService()
+    : _imagePicker = image_picker.ImagePicker(),
+      _mediaImageSourceToImagePickerSourceMapper = const MediaImageSourceToImageSourceMapper();
 
-  final ImagePicker _imagePicker = ImagePicker();
+  final image_picker.ImagePicker _imagePicker;
+  final MediaImageSourceToImageSourceMapper _mediaImageSourceToImagePickerSourceMapper;
 
   @override
   Future<Result<Uint8List?>> pickImageBytes(
@@ -20,8 +24,12 @@ final class FlutterMediaPickerService implements MediaPickerService {
     double? maxWidth,
     double? maxHeight,
   }) {
-    return _pickXFile(source, maxWidth: maxWidth, maxHeight: maxHeight)
-        .then((XFile? pickedFile) async => await pickedFile?.readAsBytes())
+    return _pickImageFileFromDevice(
+          source,
+          maxWidth: maxWidth,
+          maxHeight: maxHeight,
+        )
+        .then((image_picker.XFile? pickedFile) async => await pickedFile?.readAsBytes())
         .mapToResult(PickImageServiceFailure.new);
   }
 
@@ -31,30 +39,23 @@ final class FlutterMediaPickerService implements MediaPickerService {
     double? maxWidth,
     double? maxHeight,
   }) {
-    return _pickXFile(source, maxWidth: maxWidth, maxHeight: maxHeight)
-        .then((XFile? pickedFile) => pickedFile?.path)
-        .mapToResult(PickImageServiceFailure.new);
+    return _pickImageFileFromDevice(
+      source,
+      maxWidth: maxWidth,
+      maxHeight: maxHeight,
+    ).then((image_picker.XFile? pickedFile) => pickedFile?.path).mapToResult(PickImageServiceFailure.new);
   }
 
-  Future<XFile?> _pickXFile(
+  Future<image_picker.XFile?> _pickImageFileFromDevice(
     MediaImageSource source, {
     double? maxWidth,
     double? maxHeight,
   }) {
     return _imagePicker.pickImage(
-      source: source._toImageSource(),
+      source: _mediaImageSourceToImagePickerSourceMapper.transform(source),
       maxWidth: maxWidth,
       maxHeight: maxHeight,
       requestFullMetadata: false,
     );
-  }
-}
-
-extension on MediaImageSource {
-  ImageSource _toImageSource() {
-    return switch (this) {
-      MediaImageSource.camera => ImageSource.camera,
-      MediaImageSource.gallery => ImageSource.gallery,
-    };
   }
 }
