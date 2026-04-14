@@ -2,12 +2,6 @@ import 'package:app_settings_service/src/entity/app_settings_type.dart';
 import 'package:async/async.dart';
 
 /// A service interface for opening platform app settings.
-///
-/// Not all [AppSettingsType] values are supported on every platform.
-/// See [AppSettingsType] for platform-specific availability of each type.
-///
-/// If an unsupported [AppSettingsType] is passed on a given platform,
-/// the general app settings screen will be opened as a fallback.
 abstract interface class AppSettingsService {
   /// Opens the app settings for the given [type].
   ///
