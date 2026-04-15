@@ -60,12 +60,11 @@ final class FlutterAssetsService implements AssetsService {
   Future<Result<EntityT>> loadStructuredData<EntityT extends Object>(
     String assetPath, {
     required EntityT Function(Map<String, Object?> jsonMap) parser,
-    bool isIsolateParse = false,
   }) {
     return loadBytes(assetPath).flatMapFuture((Uint8List bytesData) async {
       try {
         final Map<String, Object?> jsonMap =
-            bytesData.lengthInBytes < _maxResponseSizeForDeserializationInMainIsolate || !isIsolateParse
+            bytesData.lengthInBytes < _maxResponseSizeForDeserializationInMainIsolate
             ? _decodeJsonMap(bytesData)
             : await _isolateService.executeInIsolate(
                 _decodeJsonMap,

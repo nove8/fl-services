@@ -22,12 +22,9 @@ abstract interface class AssetsService {
 
   /// Retrieve a string from the asset bundle, parse it with the given function,
   /// and return the function's result.
-  /// If [isIsolateParse] is set to true, the JSON decoding will be performed
-  /// in a background isolate if the asset size exceeds a certain threshold.
   Future<Result<EntityT>> loadStructuredData<EntityT extends Object>(
     String assetPath, {
     required EntityT Function(Map<String, Object?> jsonMap) parser,
-    bool isIsolateParse = false,
   });
 
   /// Provides full asset path started from root "assets" folder.
