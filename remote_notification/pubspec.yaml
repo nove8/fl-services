@@ -1,6 +1,6 @@
 name: remote_notification_service
 description: Remote notification service module
-version: 1.0.0
+version: 1.1.0
 publish_to: none
 
 environment:
@@ -19,10 +19,10 @@ dependencies:
     git:
       url: git@github.com:nove8/fl-services.git
       path: preferences
-      ref: preferences-v2.2.0
+      ref: preferences-v2.2.1
 
 dev_dependencies:
   common_package:
     git:
       url: git@github.com:nove8/fl-common-package.git
-      ref: 4.1.0
+      ref: 4.2.0
