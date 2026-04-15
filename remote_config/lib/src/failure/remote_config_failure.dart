@@ -42,22 +42,6 @@ final class FetchAndActivateRemoteConfigFailure implements RemoteConfigFailure {
   }
 }
 
-/// Failure for missing remote config parameter.
-class MissingRemoteConfigParameterForKeyFailure implements RemoteConfigFailure {
-  /// Creates a [MissingRemoteConfigParameterForKeyFailure].
-  const MissingRemoteConfigParameterForKeyFailure({
-    required this.parameterKey,
-  });
-
-  /// A key of the parameter.
-  final String parameterKey;
-
-  @override
-  String toString() {
-    return 'MissingRemoteConfigParameterForKeyFailure{parameterKey: $parameterKey}';
-  }
-}
-
 /// Failure during decoding remote config parameter value.
 class RemoteConfigParameterValueDecodingFailure implements RemoteConfigFailure {
   /// Creates a [RemoteConfigParameterValueDecodingFailure].

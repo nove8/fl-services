@@ -28,8 +28,11 @@ final class LabelsSegmentedRemoteConfigParameter {
 
   /// Gets [T] parameter value.
   /// Supported types are: String, int, double, bool.
-  Future<Result<T>> getValue<T extends Object>() {
-    return _defaultRemoteConfigParameter.getJsonMapValue().flatMapFuture((Map<String, Object?> jsonMap) {
+  /// Returns null if the parameter with [parameterKey] is not configured in remote config.
+  Future<Result<T?>> getValue<T extends Object>() {
+    return _defaultRemoteConfigParameter.getJsonMapValue().flatMapNotNullValueFuture((
+      Map<String, Object?> jsonMap,
+    ) {
       return getSegmentedValueFromJson(
         jsonMap,
         valueTransform: (Object? value) => _defaultRemoteConfigParameter.decodeValue(() => value! as T),
@@ -39,8 +42,9 @@ final class LabelsSegmentedRemoteConfigParameter {
 
   /// Gets parameter value as collection of [T] values.
   /// Supported collection types are: List, Set.
-  Future<Result<CollectionT>> getCollectionValue<T, CollectionT extends Iterable<T>>() {
-    return getValue<Iterable<Object?>>().flatMapAsync((Iterable<Object?> collection) {
+  /// Returns null if the parameter with [parameterKey] is not configured in remote config.
+  Future<Result<CollectionT?>> getCollectionValue<T, CollectionT extends Iterable<T>>() {
+    return getValue<Iterable<Object?>>().flatMapNotNullValueAsync((Iterable<Object?> collection) {
       return _defaultRemoteConfigParameter.decodeCollectionValue<T, CollectionT>(collection);
     });
   }
