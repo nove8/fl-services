@@ -9,7 +9,6 @@ import 'package:media_picker_service/src/mapper/media_image_source_service_to_li
 import 'package:media_picker_service/src/media_picker_service.dart';
 import 'package:media_picker_service/src/util/future_util.dart';
 
-/// Maps a picked image file to a target value of type [T].
 typedef _PickedFileMapper<T> = FutureOr<T?> Function(image_picker.XFile? pickedFile);
 
 /// Flutter implementation of [MediaPickerService] using [ImagePicker].
@@ -17,7 +16,7 @@ final class FlutterMediaPickerService implements MediaPickerService {
   /// Creates a [FlutterMediaPickerService].
   FlutterMediaPickerService()
     : _imagePicker = image_picker.ImagePicker(),
-        _pickMediaSourceServiceToLibMapper = const PickMediaSourceServiceToLibMapper();
+      _pickMediaSourceServiceToLibMapper = const PickMediaSourceServiceToLibMapper();
 
   final image_picker.ImagePicker _imagePicker;
   final PickMediaSourceServiceToLibMapper _pickMediaSourceServiceToLibMapper;
