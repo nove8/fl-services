@@ -1,0 +1,17 @@
+name: isolate_service
+description: Isolate service module
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.10.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  common_package:
+    git:
+      url: git@github.com:nove8/fl-common-package.git
+      ref: 4.2.0
