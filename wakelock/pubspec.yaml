@@ -8,7 +8,7 @@ environment:
 
 dependencies:
   async: ^2.13.1
-  wakelock_plus: ^1.6.0
+  wakelock_plus: ^1.5.2
 
   common_result:
     git:
