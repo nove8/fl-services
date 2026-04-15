@@ -25,6 +25,7 @@ abstract interface class AssetsService {
   Future<Result<EntityT>> loadStructuredData<EntityT extends Object>(
     String assetPath, {
     required EntityT Function(Map<String, Object?> jsonMap) parser,
+    bool isIsolateParse = false,
   });
 
   /// Provides full asset path started from root "assets" folder.

@@ -16,6 +16,11 @@ dependencies:
     git:
       url: git@github.com:nove8/fl-common-result.git
       ref: 4.0.0
+  isolate_service:
+    git:
+      url: git@github.com:nove8/fl-services.git
+      path: isolate
+      ref: isolate-v1.0.0
 
 dev_dependencies:
   common_package:
