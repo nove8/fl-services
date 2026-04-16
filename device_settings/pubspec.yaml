@@ -1,5 +1,5 @@
-name: app_settings_service
-description: App settings service module
+name: device_settings_service
+description: Device settings service module
 version: 1.0.0
 publish_to: none
 

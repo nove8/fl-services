@@ -1,5 +1,5 @@
-/// Defines the different types of app settings that can be opened.
-enum AppSettingsType {
+/// Defines the different types of device settings that can be opened.
+enum DeviceSettingsType {
   /// Open the accessibility settings.
   ///
   /// Only supported on Android.
@@ -18,7 +18,12 @@ enum AppSettingsType {
   /// Open the app language settings.
   ///
   /// Only supported on Android 13+.
-  appLocale,
+  appSettingsLocale,
+
+  /// Open the app settings.
+  ///
+  /// Supported on all platforms.
+  appSettings,
 
   /// Open the Battery Optimization settings.
   ///
@@ -48,7 +53,7 @@ enum AppSettingsType {
   /// Open the device settings.
   ///
   /// Only supported on Android.
-  device,
+  settings,
 
   /// Open the general device settings.
   ///
@@ -93,17 +98,12 @@ enum AppSettingsType {
   /// Open the notification settings.
   ///
   /// Supported on Android and iOS 16+.
-  notification,
+  appSettingsNotification,
 
   /// Open the security settings.
   ///
   /// Only supported on Android.
   security,
-
-  /// Open the app settings.
-  ///
-  /// Supported on all platforms.
-  settings,
 
   /// Open the audio settings.
   ///
