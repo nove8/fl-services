@@ -9,9 +9,9 @@ import 'package:image_editor_service/src/image_editor_service.dart';
 import 'package:image_editor_service/src/util/future_util.dart';
 
 /// Flutter implementation of [ImageEditorService] using the [image_editor] package.
-final class FlutterImageEditorService implements ImageEditorService {
-  /// Creates a [FlutterImageEditorService].
-  const FlutterImageEditorService();
+final class ImageEditorServiceImpl implements ImageEditorService {
+  /// Creates a [ImageEditorServiceImpl].
+  const ImageEditorServiceImpl();
 
   @override
   Future<Result<Uint8List>> cropImageBytes(
@@ -33,7 +33,7 @@ final class FlutterImageEditorService implements ImageEditorService {
     option.addOption(image_editor.ClipOption.fromRect(cropRect));
 
     return image_editor.ImageEditor.editImage(image: imageBytes, imageEditorOption: option)
-        .mapToResult(UnknownImageEditorFailure.new)
+        .mapToResult(CommonImageEditorFailure.new)
         .flatMapNullValueAsyncToFailure(() => const MissingResultImageEditorFailure());
   }
 }

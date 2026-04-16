@@ -1,1 +1,1 @@
-export 'src/flutter_image_editor_service.dart';
+export 'src/image_editor_service_impl.dart';

@@ -10,9 +10,9 @@ final class MissingResultImageEditorFailure implements ImageEditorFailure {
 }
 
 /// Failure when an unknown error occurs during image editing.
-final class UnknownImageEditorFailure implements ImageEditorFailure {
-  /// Creates an [UnknownImageEditorFailure].
-  const UnknownImageEditorFailure(this.error);
+final class CommonImageEditorFailure implements ImageEditorFailure {
+  /// Creates an [CommonImageEditorFailure].
+  const CommonImageEditorFailure(this.error);
 
   /// The original error that caused the failure.
   final Object error;
