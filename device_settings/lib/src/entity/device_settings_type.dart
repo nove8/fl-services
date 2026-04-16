@@ -18,7 +18,7 @@ enum DeviceSettingsType {
   /// Open the app language settings.
   ///
   /// Only supported on Android 13+.
-  appLocale,
+  appSettingsLocale,
 
   /// Open the app settings.
   ///
@@ -53,7 +53,7 @@ enum DeviceSettingsType {
   /// Open the device settings.
   ///
   /// Only supported on Android.
-  device,
+  settings,
 
   /// Open the general device settings.
   ///
@@ -98,7 +98,7 @@ enum DeviceSettingsType {
   /// Open the notification settings.
   ///
   /// Supported on Android and iOS 16+.
-  notification,
+  appSettingsNotification,
 
   /// Open the security settings.
   ///

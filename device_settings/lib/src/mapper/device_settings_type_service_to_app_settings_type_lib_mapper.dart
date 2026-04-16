@@ -1,9 +1,9 @@
 part of '../device_settings_service_impl.dart';
 
 /// Mapper that transforms service [DeviceSettingsType] to library [lib.AppSettingsType].
-final class _DeviceSettingsTypeServiceToLibMapper {
-  /// Creates a [_DeviceSettingsTypeServiceToLibMapper].
-  const _DeviceSettingsTypeServiceToLibMapper();
+final class _DeviceSettingsTypeServiceToAppSettingsTypeLibMapper {
+  /// Creates a [_DeviceSettingsTypeServiceToAppSettingsTypeLibMapper].
+  const _DeviceSettingsTypeServiceToAppSettingsTypeLibMapper();
 
   /// Transforms a [DeviceSettingsType] to its corresponding [lib.AppSettingsType].
   lib.AppSettingsType transform(DeviceSettingsType type) {
@@ -11,14 +11,14 @@ final class _DeviceSettingsTypeServiceToLibMapper {
       DeviceSettingsType.accessibility => lib.AppSettingsType.accessibility,
       DeviceSettingsType.alarm => lib.AppSettingsType.alarm,
       DeviceSettingsType.apn => lib.AppSettingsType.apn,
-      DeviceSettingsType.appLocale => lib.AppSettingsType.appLocale,
+      DeviceSettingsType.appSettingsLocale => lib.AppSettingsType.appLocale,
       DeviceSettingsType.appSettings => lib.AppSettingsType.settings,
       DeviceSettingsType.batteryOptimization => lib.AppSettingsType.batteryOptimization,
       DeviceSettingsType.bluetooth => lib.AppSettingsType.bluetooth,
       DeviceSettingsType.dataRoaming => lib.AppSettingsType.dataRoaming,
       DeviceSettingsType.date => lib.AppSettingsType.date,
       DeviceSettingsType.developer => lib.AppSettingsType.developer,
-      DeviceSettingsType.device => lib.AppSettingsType.device,
+      DeviceSettingsType.settings => lib.AppSettingsType.device,
       DeviceSettingsType.generalSettings => lib.AppSettingsType.generalSettings,
       DeviceSettingsType.display => lib.AppSettingsType.display,
       DeviceSettingsType.hotspot => lib.AppSettingsType.hotspot,
@@ -27,7 +27,7 @@ final class _DeviceSettingsTypeServiceToLibMapper {
       DeviceSettingsType.lockAndPassword => lib.AppSettingsType.lockAndPassword,
       DeviceSettingsType.manageUnknownAppSources => lib.AppSettingsType.manageUnknownAppSources,
       DeviceSettingsType.nfc => lib.AppSettingsType.nfc,
-      DeviceSettingsType.notification => lib.AppSettingsType.notification,
+      DeviceSettingsType.appSettingsNotification => lib.AppSettingsType.notification,
       DeviceSettingsType.security => lib.AppSettingsType.security,
       DeviceSettingsType.sound => lib.AppSettingsType.sound,
       DeviceSettingsType.subscriptions => lib.AppSettingsType.subscriptions,
