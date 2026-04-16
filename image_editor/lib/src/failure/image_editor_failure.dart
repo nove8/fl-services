@@ -9,7 +9,7 @@ final class MissingResultImageEditorFailure implements ImageEditorFailure {
   const MissingResultImageEditorFailure();
 }
 
-/// Failure when an unknown error occurs during image editing.
+/// Failure when a some error occurs during image editing.
 final class CommonImageEditorFailure implements ImageEditorFailure {
   /// Creates an [CommonImageEditorFailure].
   const CommonImageEditorFailure(this.error);
@@ -19,6 +19,6 @@ final class CommonImageEditorFailure implements ImageEditorFailure {
 
   @override
   String toString() {
-    return 'UnknownImageEditorFailure{error: $error}';
+    return 'CommonImageEditorFailure{error: $error}';
   }
 }
