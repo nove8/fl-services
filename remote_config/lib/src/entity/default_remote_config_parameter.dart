@@ -24,14 +24,13 @@ final class DefaultRemoteConfigParameter {
 
   /// Gets [T] parameter value.
   /// Supported types are: String, int, double, bool.
-  Future<Result<T>> getValue<T extends Object>() {
+  /// Returns null if the parameter with [_parameterKey] is not configured in remote config.
+  Future<Result<T?>> getValue<T extends Object>() {
     return _remoteConfigValueProvider.call(parameterKey: _parameterKey).flatMapAsync((
       RemoteConfigValue remoteConfigValue,
     ) {
       return switch (remoteConfigValue.source) {
-        ValueSource.valueStatic => MissingRemoteConfigParameterForKeyFailure(
-          parameterKey: _parameterKey,
-        ).toFailureResult(),
+        ValueSource.valueStatic => null.toSuccessResult(),
         ValueSource.valueDefault || ValueSource.valueRemote => _decodeRemoteConfigValue(remoteConfigValue),
       };
     });
@@ -39,14 +38,16 @@ final class DefaultRemoteConfigParameter {
 
   /// Gets parameter value as collection of [T] values.
   /// Supported collection types are: List, Set.
-  Future<Result<CollectionT>> getCollectionValue<T, CollectionT extends Iterable<T>>() {
-    return _getJsonValue<Iterable<Object?>>().flatMapAsync((Iterable<Object?> collection) {
+  /// Returns null if the parameter with [_parameterKey] is not configured in remote config.
+  Future<Result<CollectionT?>> getCollectionValue<T, CollectionT extends Iterable<T>>() {
+    return _getJsonValue<Iterable<Object?>>().flatMapNotNullValueAsync((Iterable<Object?> collection) {
       return decodeCollectionValue<T, CollectionT>(collection);
     });
   }
 
   /// Gets parameter value as `Map<String, Object?>`.
-  Future<Result<Map<String, Object?>>> getJsonMapValue() => _getJsonValue();
+  /// Returns null if the parameter with [_parameterKey] is not configured in remote config.
+  Future<Result<Map<String, Object?>?>> getJsonMapValue() => _getJsonValue();
 
   /// Decodes value from [valueProvider].
   Result<T> decodeValue<T>(T Function() valueProvider) {
@@ -81,8 +82,8 @@ final class DefaultRemoteConfigParameter {
     }).flatMapNullValueToFailure(() => const UnsupportedRemoteConfigParameterValueTypeFailure());
   }
 
-  Future<Result<JsonT>> _getJsonValue<JsonT extends Object>() {
-    return getValue<String>().flatMapAsync((String jsonString) {
+  Future<Result<JsonT?>> _getJsonValue<JsonT extends Object>() {
+    return getValue<String>().flatMapNotNullValueAsync((String jsonString) {
       return mapToResult(
         valueProvider: () => jsonDecode(jsonString) as JsonT,
         failureProvider: RemoteConfigJsonParameterValueDecodingFailure.new,

@@ -47,51 +47,41 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
   /// Fires when config was fully initialized.
   Future<Result<void>> get _configInitialization => _configInitializationCompleter.future;
 
-  /// Awaits config initialization and gets [String] parameter value for selected [parameterKey].
   @override
-  Future<Result<String>> getStringParameterValue({required String parameterKey}) =>
+  Future<Result<String?>> getStringParameterValue({required String parameterKey}) =>
       _getDefaultParameterValue(parameterKey: parameterKey);
 
-  /// Awaits config initialization and gets [int] parameter value for selected [parameterKey].
   @override
-  Future<Result<int>> getIntParameterValue({required String parameterKey}) =>
+  Future<Result<int?>> getIntParameterValue({required String parameterKey}) =>
       _getDefaultParameterValue(parameterKey: parameterKey);
 
-  /// Awaits config initialization and gets [double] parameter value for selected [parameterKey].
   @override
-  Future<Result<double>> getDoubleParameterValue({required String parameterKey}) =>
+  Future<Result<double?>> getDoubleParameterValue({required String parameterKey}) =>
       _getDefaultParameterValue(parameterKey: parameterKey);
 
-  /// Awaits config initialization and gets [bool] parameter value for selected [parameterKey].
   @override
-  Future<Result<bool>> getBoolParameterValue({required String parameterKey}) =>
+  Future<Result<bool?>> getBoolParameterValue({required String parameterKey}) =>
       _getDefaultParameterValue(parameterKey: parameterKey);
 
-  /// Awaits config initialization and gets parameter value as List of [T] values
-  /// for selected [parameterKey].
   @override
-  Future<Result<List<T>>> getListParameterValue<T>({required String parameterKey}) {
+  Future<Result<List<T>?>> getListParameterValue<T>({required String parameterKey}) {
     return _getCollectionDefaultParameterValue<T, List<T>>(parameterKey: parameterKey);
   }
 
-  /// Awaits config initialization and gets parameter value as Set of [T] values
-  /// for selected [parameterKey].
   @override
-  Future<Result<Set<T>>> getSetParameterValue<T>({required String parameterKey}) {
+  Future<Result<Set<T>?>> getSetParameterValue<T>({required String parameterKey}) {
     return _getCollectionDefaultParameterValue<T, Set<T>>(parameterKey: parameterKey);
   }
 
-  /// Awaits config initialization and gets complex feature parameter value for selected [parameterKey].
-  /// On any thrown error from [featureFactory] will be returned [RemoteConfigFeatureParameterParsingFailure].
   @override
-  Future<Result<FeatureT>> getFeatureParameterValue<FeatureT extends Object>({
+  Future<Result<FeatureT?>> getFeatureParameterValue<FeatureT extends Object>({
     required String parameterKey,
     required FeatureT Function(Map<String, Object?> json) featureFactory,
   }) {
     return _getParameterValueWithDefaultRemoteConfigParameter(
       parameterKey: parameterKey,
       parameterValueProvider: (DefaultRemoteConfigParameter parameter) {
-        return parameter.getJsonMapValue().flatMapAsync((Map<String, Object?> jsonMap) {
+        return parameter.getJsonMapValue().flatMapNotNullValueAsync((Map<String, Object?> jsonMap) {
           try {
             return featureFactory.call(jsonMap).toSuccessResult();
           } catch (error) {
@@ -102,55 +92,40 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
     );
   }
 
-  /// Awaits config initialization and gets [String] labels segmented parameter value
-  /// for selected [parameterKey].
-  /// [userLabels] is a map of user labels where key is the label key and value is the label value.
   @override
-  Future<Result<String>> getStringLabelsSegmentedParameterValue({
+  Future<Result<String?>> getStringLabelsSegmentedParameterValue({
     required String parameterKey,
     required FutureOr<Map<String, String>> userLabels,
   }) {
     return _getLabelsSegmentedParameterValue(parameterKey: parameterKey, userLabels: userLabels);
   }
 
-  /// Awaits config initialization and gets [int] labels segmented parameter value
-  /// for selected [parameterKey].
-  /// [userLabels] is a map of user labels where key is the label key and value is the label value.
   @override
-  Future<Result<int>> getIntLabelsSegmentedParameterValue({
+  Future<Result<int?>> getIntLabelsSegmentedParameterValue({
     required String parameterKey,
     required FutureOr<Map<String, String>> userLabels,
   }) {
     return _getLabelsSegmentedParameterValue(parameterKey: parameterKey, userLabels: userLabels);
   }
 
-  /// Awaits config initialization and gets [double] labels segmented parameter value
-  /// for selected [parameterKey].
-  /// [userLabels] is a map of user labels where key is the label key and value is the label value.
   @override
-  Future<Result<double>> getDoubleLabelsSegmentedParameterValue({
+  Future<Result<double?>> getDoubleLabelsSegmentedParameterValue({
     required String parameterKey,
     required FutureOr<Map<String, String>> userLabels,
   }) {
     return _getLabelsSegmentedParameterValue(parameterKey: parameterKey, userLabels: userLabels);
   }
 
-  /// Awaits config initialization and gets [bool] labels segmented parameter value
-  /// for selected [parameterKey].
-  /// [userLabels] is a map of user labels where key is the label key and value is the label value.
   @override
-  Future<Result<bool>> getBoolLabelsSegmentedParameterValue({
+  Future<Result<bool?>> getBoolLabelsSegmentedParameterValue({
     required String parameterKey,
     required FutureOr<Map<String, String>> userLabels,
   }) {
     return _getLabelsSegmentedParameterValue(parameterKey: parameterKey, userLabels: userLabels);
   }
 
-  /// Awaits config initialization and gets parameter value as List of [T] values
-  /// for selected [parameterKey].
-  /// [userLabels] is a map of user labels where key is the label key and value is the label value.
   @override
-  Future<Result<List<T>>> getListLabelsSegmentedParameterValue<T>({
+  Future<Result<List<T>?>> getListLabelsSegmentedParameterValue<T>({
     required String parameterKey,
     required FutureOr<Map<String, String>> userLabels,
   }) {
@@ -160,11 +135,8 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
     );
   }
 
-  /// Awaits config initialization and gets parameter value as Set of [T] values
-  /// for selected [parameterKey].
-  /// [userLabels] is a map of user labels where key is the label key and value is the label value.
   @override
-  Future<Result<Set<T>>> getSetLabelsSegmentedParameterValue<T>({
+  Future<Result<Set<T>?>> getSetLabelsSegmentedParameterValue<T>({
     required String parameterKey,
     required FutureOr<Map<String, String>> userLabels,
   }) {
@@ -197,7 +169,7 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
     return _remoteConfig.fetchAndActivate().mapToResult(FetchAndActivateRemoteConfigFailure.new);
   }
 
-  Future<Result<T>> _getDefaultParameterValue<T extends Object>({required String parameterKey}) {
+  Future<Result<T?>> _getDefaultParameterValue<T extends Object>({required String parameterKey}) {
     return _getParameterValueWithDefaultRemoteConfigParameter(
       parameterKey: parameterKey,
       parameterValueProvider: (DefaultRemoteConfigParameter parameter) => parameter.getValue(),
@@ -219,7 +191,7 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
     return _configInitialization.mapAsync((_) => _remoteConfig.getValue(parameterKey));
   }
 
-  Future<Result<CollectionT>> _getCollectionDefaultParameterValue<T, CollectionT extends Iterable<T>>({
+  Future<Result<CollectionT?>> _getCollectionDefaultParameterValue<T, CollectionT extends Iterable<T>>({
     required String parameterKey,
   }) {
     return _getParameterValueWithDefaultRemoteConfigParameter(
@@ -229,7 +201,7 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
     );
   }
 
-  Future<Result<T>> _getLabelsSegmentedParameterValue<T extends Object>({
+  Future<Result<T?>> _getLabelsSegmentedParameterValue<T extends Object>({
     required String parameterKey,
     required FutureOr<Map<String, String>> userLabels,
   }) {
@@ -254,10 +226,11 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
     return parameterValueProvider.call(parameter);
   }
 
-  Future<Result<CollectionT>> _getCollectionLabelsSegmentedParameterValue<
-    T,
-    CollectionT extends Iterable<T>
-  >({required String parameterKey, required FutureOr<Map<String, String>> userLabels}) {
+  Future<Result<CollectionT?>>
+  _getCollectionLabelsSegmentedParameterValue<T, CollectionT extends Iterable<T>>({
+    required String parameterKey,
+    required FutureOr<Map<String, String>> userLabels,
+  }) {
     return _getValueWithLabelsSegmentedRemoteConfigParameter(
       parameterKey: parameterKey,
       userLabels: userLabels,

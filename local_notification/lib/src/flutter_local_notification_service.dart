@@ -88,15 +88,15 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
 
     return _localNotificationsPlugin
         .zonedSchedule(
-          notification.id,
-          notification.title,
-          notification.body,
-          payload: notification.payload,
-          timezone.TZDateTime.from(notification.triggerDateTime, timezone.local),
-          _obtainNotificationDetails(channel: channel, notification: notification),
+          id: notification.id,
+          scheduledDate: timezone.TZDateTime.from(notification.triggerDateTime, timezone.local),
+          notificationDetails: _obtainNotificationDetails(channel: channel, notification: notification),
           androidScheduleMode: _scheduleModeToAndroidScheduleModeMapper.transform(
             notification.androidDetails.androidScheduleMode,
           ),
+          title: notification.title,
+          body: notification.body,
+          payload: notification.payload,
           matchDateTimeComponents: _repeatIntervalToDateTimeComponentsMapper.transform(
             notification.repeatInterval,
           ),
@@ -113,10 +113,10 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
 
     return _localNotificationsPlugin
         .show(
-          notification.id,
-          notification.title,
-          notification.body,
-          _obtainNotificationDetails(channel: channel, notification: notification),
+          id: notification.id,
+          title: notification.title,
+          body: notification.body,
+          notificationDetails: _obtainNotificationDetails(channel: channel, notification: notification),
           payload: notification.payload,
         )
         .mapToResult(LocalNotificationNotShownFailure.new);
@@ -125,7 +125,7 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
   @override
   Future<Result<void>> cancelNotification({required int notificationId}) {
     return _localNotificationsPlugin
-        .cancel(notificationId)
+        .cancel(id: notificationId)
         .mapToResult(LocalNotificationNotCancelledFailure.new);
   }
 
@@ -171,7 +171,7 @@ final class FlutterLocalNotificationService implements LocalNotificationService 
 
   Future<void> _initializePlugin() {
     return _localNotificationsPlugin.initialize(
-      InitializationSettings(
+      settings: InitializationSettings(
         iOS: const DarwinInitializationSettings(
           requestAlertPermission: false,
           requestBadgePermission: false,

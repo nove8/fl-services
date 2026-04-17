@@ -1,6 +1,6 @@
 name: remote_config_service
 description: Remote config service module
-version: 2.0.0
+version: 4.0.0
 publish_to: none
 
 environment:
@@ -8,7 +8,7 @@ environment:
 
 dependencies:
   async: ^2.13.0
-  firebase_remote_config: ^6.1.1
+  firebase_remote_config: ^6.4.0
   meta: ^1.17.0
 
   common_result:
@@ -20,4 +20,4 @@ dev_dependencies:
   common_package:
     git:
       url: git@github.com:nove8/fl-common-package.git
-      ref: 4.0.0
+      ref: 4.2.0
