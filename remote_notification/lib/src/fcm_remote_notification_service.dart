@@ -98,9 +98,18 @@ final class FcmRemoteNotificationServiceImpl implements FcmRemoteNotificationSer
     required BackgroundRemoteNotificationHandler? onBackgroundNotification,
   }) {
     _evaluateBackgroundRemoteNotificationHandler(onBackgroundNotification);
+    _setForegroundNotificationPresentationOptions();
     _listenNotificationOpened();
     _listenForegroundNotification();
     _listenBackgroundNotification();
+  }
+
+  Future<void> _setForegroundNotificationPresentationOptions() {
+    return _firebaseMessaging.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
   }
 
   void _listenNotificationOpened() {

@@ -5,7 +5,6 @@ import 'package:remote_notification_service/src/entity/remote_notification.dart'
 import 'package:remote_notification_service/src/entity/remote_notification_user_custom_field.dart';
 import 'package:remote_notification_service/src/failure/remote_notification_failure.dart';
 import 'package:remote_notification_service/src/mapper/reteno_remote_notification_mappers.dart';
-
 import 'package:remote_notification_service/src/util/future_util.dart';
 import 'package:reteno_plugin/reteno.dart' as reteno;
 import 'package:rxdart/rxdart.dart';
@@ -102,10 +101,12 @@ final class RetenoRemoteNotificationServiceImpl implements RetenoRemoteNotificat
   }
 
   Future<void> _initReteno() {
-    return _reteno.initWith(
+    return _reteno.initialize(
       accessKey: _isTestEnvironment ? _testAccessKey : _prodAccessKey,
-      isDebug: _isTestEnvironment,
-      lifecycleTrackingOptions: reteno.LifecycleTrackingOptions.all(),
+      options: reteno.RetenoInitOptions(
+        isDebug: _isTestEnvironment,
+        lifecycleTrackingOptions: reteno.LifecycleTrackingOptions.all(),
+      ),
     );
   }
 
