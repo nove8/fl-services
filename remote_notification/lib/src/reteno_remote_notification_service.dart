@@ -96,8 +96,8 @@ final class RetenoRemoteNotificationServiceImpl implements RetenoRemoteNotificat
   }
 
   void _init() {
-    _initReteno();
     _listenNotificationClicks();
+    _initReteno().then((_) => _handleInitialRetenoNotificationIfPresent());
   }
 
   Future<void> _initReteno() {
@@ -114,6 +114,14 @@ final class RetenoRemoteNotificationServiceImpl implements RetenoRemoteNotificat
     _notificationClickedSubscription = reteno.Reteno.onRetenoNotificationClicked.listen(
       _onRetenoNotificationClicked,
     );
+  }
+
+  Future<void> _handleInitialRetenoNotificationIfPresent() {
+    return _reteno.getInitialNotification().then((Object? payload) {
+      if (payload is Map<String, Object?>) {
+        _onRetenoNotificationClicked(payload);
+      }
+    });
   }
 
   void _onRetenoNotificationClicked(Map<String, Object?> notificationData) {
