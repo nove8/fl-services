@@ -8,21 +8,43 @@ import 'package:remote_notification_service/src/data_source/background_callback_
 import 'package:remote_notification_service/src/entity/remote_notification.dart';
 import 'package:remote_notification_service/src/failure/remote_notification_failure.dart';
 import 'package:remote_notification_service/src/mapper/fcm_remote_notification_mappers.dart';
-import 'package:remote_notification_service/src/remote_notification_service.dart';
+
 import 'package:remote_notification_service/src/util/future_util.dart';
 import 'package:remote_notification_service/src/util/object_util.dart';
 import 'package:remote_notification_service/src/util/stream_util.dart';
 import 'package:rxdart/rxdart.dart';
 
-/// Implementation of [RemoteNotificationService] using Firebase Cloud Messaging (FCM).
-final class FcmRemoteNotificationService implements RemoteNotificationService {
-  /// Creates a new instance of [FcmRemoteNotificationService].
+/// Handler function type for processing remote notifications received in the background.
+typedef BackgroundRemoteNotificationHandler =
+Future<void> Function(Result<RemoteNotification> remoteNotification);
+
+/// Interface for Firebase Cloud Messaging (FCM) remote notification service API.
+abstract interface class FcmRemoteNotificationService {
+  /// Stream that emits a [RemoteNotification] when a notification is clicked by the user.
+  Stream<Result<RemoteNotification>> get notificationClickedStream;
+
+  /// Stream that emits refreshed notification token (e.g. when FCM/APNs token changes).
+  Stream<Result<String>> get tokenRefreshedStream;
+
+  /// Stream that emits a [RemoteNotification] when a notification is received in the foreground.
+  Stream<Result<RemoteNotification>> get foregroundNotificationReceivedStream;
+
+  /// Gets the current device notification token, or null if unavailable.
+  Future<Result<String?>> getToken({String? webVapidKey});
+
+  /// Disposes the service, cancels stream subscriptions and closes stream controllers.
+  Future<void> dispose();
+}
+
+/// Implementation of [FcmRemoteNotificationService] using Firebase Cloud Messaging (FCM).
+final class FcmRemoteNotificationServiceImpl implements FcmRemoteNotificationService {
+  /// Creates a new instance of [FcmRemoteNotificationServiceImpl].
   ///
   /// Optionally accepts a [BackgroundRemoteNotificationHandler] to handle background notifications.
   ///
   /// [webVapidKey] is required for web push notifications. Without it, [getToken] will
   /// return `null` on web. Has no effect on non-web platforms.
-  FcmRemoteNotificationService({
+  FcmRemoteNotificationServiceImpl({
     BackgroundRemoteNotificationHandler? onBackgroundRemoteNotification,
   }) {
     _init(onBackgroundNotification: onBackgroundRemoteNotification);
@@ -45,11 +67,13 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
   Stream<Result<RemoteNotification>> get notificationClickedStream => _notificationClickedController.stream;
 
   /// Stream that emits refreshed notification token (e.g. when FCM/APNs token changes).
+  @override
   Stream<Result<String>> get tokenRefreshedStream {
     return _firebaseMessaging.onTokenRefresh.mapToResultStream(RemoteNotificationTokenRefreshedFailure.new);
   }
 
   /// Stream that emits a [RemoteNotification] when a notification is received in the foreground.
+  @override
   Stream<Result<RemoteNotification>> get foregroundNotificationReceivedStream {
     return _foregroundNotificationReceivedController.stream;
   }
@@ -63,6 +87,7 @@ final class FcmRemoteNotificationService implements RemoteNotificationService {
   }
 
   /// Gets the current device notification token, or null if unavailable.
+  @override
   Future<Result<String?>> getToken({String? webVapidKey}) {
     return _firebaseMessaging
         .getToken(vapidKey: webVapidKey)
