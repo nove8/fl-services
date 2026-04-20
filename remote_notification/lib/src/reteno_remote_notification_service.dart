@@ -112,19 +112,19 @@ final class RetenoRemoteNotificationServiceImpl implements RetenoRemoteNotificat
 
   void _listenNotificationClicks() {
     _notificationClickedSubscription = reteno.Reteno.onRetenoNotificationClicked.listen(
-      _onRetenoNotificationClicked,
+      _onNotificationClick,
     );
   }
 
   Future<void> _handleInitialRetenoNotificationIfPresent() {
-    return _reteno.getInitialNotification().then((Object? payload) {
-      if (payload is Map<String, Object?>) {
-        _onRetenoNotificationClicked(payload);
+    return _reteno.getInitialNotification().then((Object? notificationData) {
+      if (notificationData is Map<String, Object?>) {
+        _onNotificationClick(notificationData);
       }
     });
   }
 
-  void _onRetenoNotificationClicked(Map<String, Object?> notificationData) {
+  void _onNotificationClick(Map<String, Object?> notificationData) {
     _notificationClickedController.add(_notificationDataMapper.transform(notificationData));
   }
 }

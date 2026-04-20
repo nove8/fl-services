@@ -16,7 +16,7 @@ import 'package:rxdart/rxdart.dart';
 
 /// Handler function type for processing remote notifications received in the background.
 typedef BackgroundRemoteNotificationHandler =
-Future<void> Function(Result<RemoteNotification> remoteNotification);
+    Future<void> Function(Result<RemoteNotification> remoteNotification);
 
 /// Interface for Firebase Cloud Messaging (FCM) remote notification service API.
 abstract interface class FcmRemoteNotificationService {
@@ -30,7 +30,7 @@ abstract interface class FcmRemoteNotificationService {
   Stream<Result<RemoteNotification>> get foregroundNotificationReceivedStream;
 
   /// Gets the current device notification token, or null if unavailable.
-  Future<Result<String?>> getToken({String? webVapidKey});
+  Future<Result<String?>> getToken();
 
   /// Disposes the service, cancels stream subscriptions and closes stream controllers.
   Future<void> dispose();
@@ -45,10 +45,13 @@ final class FcmRemoteNotificationServiceImpl implements FcmRemoteNotificationSer
   /// [webVapidKey] is required for web push notifications. Without it, [getToken] will
   /// return `null` on web. Has no effect on non-web platforms.
   FcmRemoteNotificationServiceImpl({
+    String? webVapidKey,
     BackgroundRemoteNotificationHandler? onBackgroundRemoteNotification,
-  }) {
+  }) : _webVapidKey = webVapidKey {
     _init(onBackgroundNotification: onBackgroundRemoteNotification);
   }
+
+  final String? _webVapidKey;
 
   final StreamController<Result<RemoteNotification>> _foregroundNotificationReceivedController =
       BehaviorSubject<Result<RemoteNotification>>();
@@ -88,9 +91,9 @@ final class FcmRemoteNotificationServiceImpl implements FcmRemoteNotificationSer
 
   /// Gets the current device notification token, or null if unavailable.
   @override
-  Future<Result<String?>> getToken({String? webVapidKey}) {
+  Future<Result<String?>> getToken() {
     return _firebaseMessaging
-        .getToken(vapidKey: webVapidKey)
+        .getToken(vapidKey: _webVapidKey)
         .mapToResult(GetRemoteNotificationTokenFailure.new);
   }
 
