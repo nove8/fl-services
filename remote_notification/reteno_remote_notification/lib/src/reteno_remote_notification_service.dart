@@ -1,12 +1,10 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
-import 'package:remote_notification_service/src/entity/remote_notification.dart';
-import 'package:remote_notification_service/src/entity/remote_notification_user_custom_field.dart';
-import 'package:remote_notification_service/src/failure/remote_notification_failure.dart';
-import 'package:remote_notification_service/src/mapper/reteno_remote_notification_mappers.dart';
-import 'package:remote_notification_service/src/util/future_util.dart';
+import 'package:remote_notification_service/remote_notification_service.dart';
 import 'package:reteno_plugin/reteno.dart' as reteno;
+import 'package:reteno_remote_notification_service/src/mapper/reteno_remote_notification_mappers.dart';
+import 'package:reteno_remote_notification_service/src/util/future_util.dart';
 import 'package:rxdart/rxdart.dart';
 
 /// Interface for Reteno remote notification service API.

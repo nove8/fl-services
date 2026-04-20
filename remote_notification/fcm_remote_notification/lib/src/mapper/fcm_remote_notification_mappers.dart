@@ -2,11 +2,10 @@ import 'dart:io';
 
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
+import 'package:fcm_remote_notification_service/src/entity/app_platform.dart';
 import 'package:firebase_messaging/firebase_messaging.dart' as fcm;
 import 'package:flutter/foundation.dart';
-import 'package:remote_notification_service/src/entity/app_platform.dart';
-import 'package:remote_notification_service/src/entity/remote_notification.dart';
-import 'package:remote_notification_service/src/failure/remote_notification_failure.dart';
+import 'package:remote_notification_service/remote_notification_service.dart';
 
 /// Mapper class to convert [fcm.RemoteMessage] into [RemoteNotification].
 final class FcmRemoteMessageToRemoteNotificationMapper {

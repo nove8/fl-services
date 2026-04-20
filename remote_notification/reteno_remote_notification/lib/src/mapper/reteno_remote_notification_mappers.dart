@@ -1,8 +1,7 @@
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
-import 'package:remote_notification_service/src/entity/remote_notification.dart';
-import 'package:remote_notification_service/src/failure/remote_notification_failure.dart';
-import 'package:remote_notification_service/src/util/object_util.dart';
+import 'package:remote_notification_service/remote_notification_service.dart';
+import 'package:reteno_remote_notification_service/src/util/object_util.dart';
 
 /// Mapper class to convert Reteno notification data [Map] into [RemoteNotification].
 final class RetenoNotificationDataToRemoteNotificationMapper {

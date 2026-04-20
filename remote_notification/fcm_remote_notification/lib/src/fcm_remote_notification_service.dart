@@ -3,15 +3,13 @@ import 'dart:ui';
 
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
+import 'package:fcm_remote_notification_service/src/data_source/background_callback_handle_preferences_data_source.dart';
+import 'package:fcm_remote_notification_service/src/mapper/fcm_remote_notification_mappers.dart';
+import 'package:fcm_remote_notification_service/src/util/future_util.dart';
+import 'package:fcm_remote_notification_service/src/util/object_util.dart';
+import 'package:fcm_remote_notification_service/src/util/stream_util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart' as fcm;
-import 'package:remote_notification_service/src/data_source/background_callback_handle_preferences_data_source.dart';
-import 'package:remote_notification_service/src/entity/remote_notification.dart';
-import 'package:remote_notification_service/src/failure/remote_notification_failure.dart';
-import 'package:remote_notification_service/src/mapper/fcm_remote_notification_mappers.dart';
-
-import 'package:remote_notification_service/src/util/future_util.dart';
-import 'package:remote_notification_service/src/util/object_util.dart';
-import 'package:remote_notification_service/src/util/stream_util.dart';
+import 'package:remote_notification_service/remote_notification_service.dart';
 import 'package:rxdart/rxdart.dart';
 
 /// Handler function type for processing remote notifications received in the background.
