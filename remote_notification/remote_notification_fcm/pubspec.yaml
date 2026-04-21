@@ -26,7 +26,7 @@ dependencies:
   remote_notification_service:
     git:
       url: git@github.com:nove8/fl-services.git
-      path: remote_notification
+      path: remote_notification/remote_notification
       ref: remote_notification-v2.0.0
 
 dev_dependencies:
