@@ -1,12 +1,12 @@
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
+import 'package:remote_notification_reteno_service/src/util/object_util.dart';
 import 'package:remote_notification_service/remote_notification_service.dart';
-import 'package:reteno_remote_notification_service/src/util/object_util.dart';
 
 /// Mapper class to convert Reteno notification data [Map] into [RemoteNotification].
-final class RetenoNotificationDataToRemoteNotificationMapper {
-  /// Default constructor for [RetenoNotificationDataToRemoteNotificationMapper].
-  const RetenoNotificationDataToRemoteNotificationMapper();
+final class RemoteNotificationRetenoNotificationDataToRemoteNotificationMapper {
+  /// Default constructor for [RemoteNotificationRetenoNotificationDataToRemoteNotificationMapper].
+  const RemoteNotificationRetenoNotificationDataToRemoteNotificationMapper();
 
   static const String _notificationIdKey = 'es_interaction_id';
   static const String _apsKey = 'aps';

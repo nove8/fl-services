@@ -1,4 +1,4 @@
-name: reteno_remote_notification_service
+name: remote_notification_reteno_service
 description: Reteno remote notification service module
 version: 1.0.0
 publish_to: none
@@ -13,7 +13,10 @@ dependencies:
       url: git@github.com:nove8/fl-common-result.git
       ref: 4.0.0
   remote_notification_service:
-    path: ../remote_notification
+    git:
+      url: git@github.com:nove8/fl-services.git
+      path: remote_notification
+      ref: remote_notification-v2.0.0
   reteno_plugin: ^1.9.1
   rxdart: ^0.28.0
 

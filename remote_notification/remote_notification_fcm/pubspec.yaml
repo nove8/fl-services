@@ -1,4 +1,4 @@
-name: fcm_remote_notification_service
+name: remote_notification_fcm_service
 description: Firebase Cloud Messaging remote notification service module
 version: 1.0.0
 publish_to: none
@@ -24,7 +24,10 @@ dependencies:
       path: preferences
       ref: preferences-v2.2.1
   remote_notification_service:
-    path: ../remote_notification
+    git:
+      url: git@github.com:nove8/fl-services.git
+      path: remote_notification
+      ref: remote_notification-v2.0.0
 
 dev_dependencies:
   common_package:

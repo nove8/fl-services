@@ -3,12 +3,12 @@ import 'dart:ui';
 
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
-import 'package:fcm_remote_notification_service/src/data_source/background_callback_handle_preferences_data_source.dart';
-import 'package:fcm_remote_notification_service/src/mapper/fcm_remote_notification_mappers.dart';
-import 'package:fcm_remote_notification_service/src/util/future_util.dart';
-import 'package:fcm_remote_notification_service/src/util/object_util.dart';
-import 'package:fcm_remote_notification_service/src/util/stream_util.dart';
 import 'package:firebase_messaging/firebase_messaging.dart' as fcm;
+import 'package:remote_notification_fcm_service/src/data_source/background_callback_handle_preferences_data_source.dart';
+import 'package:remote_notification_fcm_service/src/mapper/remote_notification_fcm_mappers.dart';
+import 'package:remote_notification_fcm_service/src/util/future_util.dart';
+import 'package:remote_notification_fcm_service/src/util/object_util.dart';
+import 'package:remote_notification_fcm_service/src/util/stream_util.dart';
 import 'package:remote_notification_service/remote_notification_service.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -17,7 +17,7 @@ typedef BackgroundRemoteNotificationHandler =
     Future<void> Function(Result<RemoteNotification> remoteNotification);
 
 /// Interface for Firebase Cloud Messaging (FCM) remote notification service API.
-abstract interface class FcmRemoteNotificationService {
+abstract interface class RemoteNotificationFcmService {
   /// Stream that emits a [RemoteNotification] when a notification is clicked by the user.
   Stream<Result<RemoteNotification>> get notificationClickedStream;
 
@@ -34,15 +34,15 @@ abstract interface class FcmRemoteNotificationService {
   Future<void> dispose();
 }
 
-/// Implementation of [FcmRemoteNotificationService] using Firebase Cloud Messaging (FCM).
-final class FcmRemoteNotificationServiceImpl implements FcmRemoteNotificationService {
-  /// Creates a new instance of [FcmRemoteNotificationServiceImpl].
+/// Implementation of [RemoteNotificationFcmService] using Firebase Cloud Messaging (FCM).
+final class RemoteNotificationFcmServiceImpl implements RemoteNotificationFcmService {
+  /// Creates a new instance of [RemoteNotificationFcmServiceImpl].
   ///
   /// Optionally accepts a [BackgroundRemoteNotificationHandler] to handle background notifications.
   ///
   /// [webVapidKey] is required for web push notifications. Without it, [getToken] will
   /// return `null` on web. Has no effect on non-web platforms.
-  FcmRemoteNotificationServiceImpl({
+  RemoteNotificationFcmServiceImpl({
     String? webVapidKey,
     BackgroundRemoteNotificationHandler? onBackgroundRemoteNotification,
   }) : _webVapidKey = webVapidKey {
@@ -56,8 +56,9 @@ final class FcmRemoteNotificationServiceImpl implements FcmRemoteNotificationSer
   final StreamController<Result<RemoteNotification>> _notificationClickedController =
       BehaviorSubject<Result<RemoteNotification>>();
 
-  final FcmRemoteMessageToRemoteNotificationMapper _fcmRemoteMessageToRemoteNotificationMapper =
-      const FcmRemoteMessageToRemoteNotificationMapper();
+  final RemoteNotificationFcmMessageToRemoteNotificationMapper
+  _remoteNotificationFcmMessageToRemoteNotificationMapper =
+      const RemoteNotificationFcmMessageToRemoteNotificationMapper();
 
   late final fcm.FirebaseMessaging _firebaseMessaging = fcm.FirebaseMessaging.instance;
 
@@ -127,13 +128,15 @@ final class FcmRemoteNotificationServiceImpl implements FcmRemoteNotificationSer
   }
 
   void _handleInitialMessage(fcm.RemoteMessage message) {
-    final RemoteNotification notification = _fcmRemoteMessageToRemoteNotificationMapper.transform(message);
+    final RemoteNotification notification = _remoteNotificationFcmMessageToRemoteNotificationMapper.transform(
+      message,
+    );
     _notificationClickedController.add(notification.toSuccessResult());
   }
 
   void _onNotificationOpen(Result<fcm.RemoteMessage> messageResult) {
     final Result<RemoteNotification> notificationResult = messageResult.map(
-      _fcmRemoteMessageToRemoteNotificationMapper.transform,
+      _remoteNotificationFcmMessageToRemoteNotificationMapper.transform,
     );
     _notificationClickedController.add(notificationResult);
   }
@@ -146,13 +149,13 @@ final class FcmRemoteNotificationServiceImpl implements FcmRemoteNotificationSer
 
   void _onForegroundNotificationReceive(Result<fcm.RemoteMessage> messageResult) {
     final Result<RemoteNotification> notification = messageResult.map(
-      _fcmRemoteMessageToRemoteNotificationMapper.transform,
+      _remoteNotificationFcmMessageToRemoteNotificationMapper.transform,
     );
     _foregroundNotificationReceivedController.add(notification);
   }
 
   void _listenBackgroundNotification() {
-    fcm.FirebaseMessaging.onBackgroundMessage(_handleBackgroundFcmRemoteNotificationReceipt);
+    fcm.FirebaseMessaging.onBackgroundMessage(_handleBackgroundRemoteNotificationFcmReceipt);
   }
 }
 
@@ -173,16 +176,15 @@ void _evaluateBackgroundRemoteNotificationHandler(
 }
 
 @pragma('vm:entry-point')
-Future<void> _handleBackgroundFcmRemoteNotificationReceipt(fcm.RemoteMessage message) async {
+Future<void> _handleBackgroundRemoteNotificationFcmReceipt(fcm.RemoteMessage message) async {
   final CallbackHandle? callbackHandle =
       await BackgroundCallbackHandlePreferencesDataSource.getBackgroundCallbackHandle().outputOrNull;
   final BackgroundRemoteNotificationHandler? notificationHandler = callbackHandle
       ?.let(PluginUtilities.getCallbackFromHandle)
       ?.castTo();
   if (notificationHandler != null) {
-    final RemoteNotification notification = const FcmRemoteMessageToRemoteNotificationMapper().transform(
-      message,
-    );
+    final RemoteNotification notification = const RemoteNotificationFcmMessageToRemoteNotificationMapper()
+        .transform(message);
     await notificationHandler.call(notification.toSuccessResult());
   }
 }

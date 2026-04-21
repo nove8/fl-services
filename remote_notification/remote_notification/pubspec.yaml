@@ -7,11 +7,6 @@ environment:
   sdk: ^3.10.1
 
 dependencies:
-  fcm_remote_notification_service:
-    path: ../fcm_remote_notification
-  reteno_remote_notification_service:
-    path: ../reteno_remote_notification
-
   common_result:
     git:
       url: git@github.com:nove8/fl-common-result.git

@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
+import 'package:remote_notification_reteno_service/src/mapper/remote_notification_reteno_mappers.dart';
+import 'package:remote_notification_reteno_service/src/util/future_util.dart';
 import 'package:remote_notification_service/remote_notification_service.dart';
 import 'package:reteno_plugin/reteno.dart' as reteno;
-import 'package:reteno_remote_notification_service/src/mapper/reteno_remote_notification_mappers.dart';
-import 'package:reteno_remote_notification_service/src/util/future_util.dart';
 import 'package:rxdart/rxdart.dart';
 
 /// Interface for Reteno remote notification service API.
-abstract interface class RetenoRemoteNotificationService {
+abstract interface class RemoteNotificationRetenoService {
   /// Stream that emits a [RemoteNotification] when a notification is clicked by the user.
   Stream<Result<RemoteNotification>> get notificationClickedStream;
 
@@ -24,13 +24,13 @@ abstract interface class RetenoRemoteNotificationService {
 }
 
 /// Service implementation that uses the Reteno SDK for user attributes and targeting.
-final class RetenoRemoteNotificationServiceImpl implements RetenoRemoteNotificationService {
-  /// Creates a new instance of [RetenoRemoteNotificationServiceImpl] and initializes the Reteno SDK.
+final class RemoteNotificationRetenoServiceImpl implements RemoteNotificationRetenoService {
+  /// Creates a new instance of [RemoteNotificationRetenoServiceImpl] and initializes the Reteno SDK.
   ///
   /// [isTestEnvironment] controls which Reteno access key is used.
   /// [testAccessKey] is used when [isTestEnvironment] is `true`.
   /// [prodAccessKey] is used when [isTestEnvironment] is `false`.
-  RetenoRemoteNotificationServiceImpl({
+  RemoteNotificationRetenoServiceImpl({
     required bool isTestEnvironment,
     required String testAccessKey,
     required String prodAccessKey,
@@ -49,8 +49,8 @@ final class RetenoRemoteNotificationServiceImpl implements RetenoRemoteNotificat
   final StreamController<Result<RemoteNotification>> _notificationClickedController =
       BehaviorSubject<Result<RemoteNotification>>();
 
-  final RetenoNotificationDataToRemoteNotificationMapper _notificationDataMapper =
-      const RetenoNotificationDataToRemoteNotificationMapper();
+  final RemoteNotificationRetenoNotificationDataToRemoteNotificationMapper _notificationDataMapper =
+      const RemoteNotificationRetenoNotificationDataToRemoteNotificationMapper();
 
   StreamSubscription<Map<String, Object?>>? _notificationClickedSubscription;
 
