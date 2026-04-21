@@ -16,7 +16,7 @@ dependencies:
     git:
       url: git@github.com:nove8/fl-services.git
       path: remote_notification/remote_notification
-      ref: remote_notification-v2.0.0
+      ref: remote-notification-v2.0.0
   reteno_plugin: ^1.9.1
   rxdart: ^0.28.0
 
