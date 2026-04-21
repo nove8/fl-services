@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:async/async.dart';
 import 'package:common_result/common_result.dart';
 import 'package:preferences_service/shared_preferences_service_with_cache.dart' as preferences_service;
-import 'package:remote_notification_service/src/util/object_util.dart';
+import 'package:remote_notification_fcm_service/src/util/object_util.dart';
 
 /// Data source for storing and retrieving the [CallbackHandle] used for background remote notifications.
 abstract final class BackgroundCallbackHandlePreferencesDataSource {
