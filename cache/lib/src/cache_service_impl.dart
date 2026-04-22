@@ -14,27 +14,15 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 /// Uses a singleton pattern — the first call to the factory constructor
 /// creates the instance, and subsequent calls return the same instance.
 final class CacheServiceImpl implements CacheService {
-  /// Creates a [CacheServiceImpl] singleton.
+  /// Creates a [CacheServiceImpl].
   ///
   /// [cacheKey] is used as the cache store identifier.
   /// [maxNrOfCacheObjects] limits the number of cached objects.
   /// [stalePeriod] defines how long a cached object is considered fresh.
-  factory CacheServiceImpl({
+  CacheServiceImpl({
     required String cacheKey,
-    int maxNrOfCacheObjects = 666666666,
-    Duration stalePeriod = const Duration(days: 666666),
-  }) {
-    return _instance ??= CacheServiceImpl._(
-      cacheKey: cacheKey,
-      maxNrOfCacheObjects: maxNrOfCacheObjects,
-      stalePeriod: stalePeriod,
-    );
-  }
-
-  CacheServiceImpl._({
-    required String cacheKey,
-    required int maxNrOfCacheObjects,
-    required Duration stalePeriod,
+    int maxNrOfCacheObjects = _maxNrOfCacheObjects,
+    Duration stalePeriod = const Duration(days: _fiveYears),
   }) : _cacheManager = CacheManager(
          Config(
            cacheKey,
@@ -43,60 +31,80 @@ final class CacheServiceImpl implements CacheService {
          ),
        );
 
-  static CacheServiceImpl? _instance;
+  static const int _maxNrOfCacheObjects = 1000;
+  static const int _fiveYears = 365 * 5;
 
   final CacheManager _cacheManager;
 
   @override
-  Future<Result<Uint8List>> putFile({
-    required String cacheKey,
+  Future<Result<File>> putFile({
+    required String fileCacheKey,
     required Uint8List fileBytes,
     required String fileExtension,
   }) {
-    return _cacheManager
-        .putFile(
-          cacheKey,
-          fileBytes,
-          fileExtension: fileExtension,
-        )
-        .mapToResult(PutFileToCacheFailure.new)
-        .mapFuture((File file) => file.readAsBytes());
+    return _putFile(
+      cacheKey: fileCacheKey,
+      fileBytes: fileBytes,
+      fileExtension: fileExtension,
+    ).mapToResult(PutFileToCacheFailure.new);
   }
 
   @override
-  Future<Result<void>> removeFile({
-    required String cacheKey,
+  Future<Result<Uint8List>> putFileAsBytes({
+    required String fileCacheKey,
+    required Uint8List fileBytes,
+    required String fileExtension,
   }) {
-    return _cacheManager.removeFile(cacheKey).mapToResult(DeleteFileFromCacheFailure.new);
+    return _putFile(
+      cacheKey: fileCacheKey,
+      fileBytes: fileBytes,
+      fileExtension: fileExtension,
+    ).mapToResult(PutFileToCacheFailure.new).mapFuture((File file) => file.readAsBytes());
   }
 
   @override
-  Future<Result<Uint8List>> getFileBytesFromCache({
-    required String cacheKey,
-  }) {
+  Future<Result<void>> removeFile({required String fileCacheKey}) {
+    return _cacheManager.removeFile(fileCacheKey).mapToResult(DeleteFileFromCacheFailure.new);
+  }
+
+  @override
+  Future<Result<Uint8List>> getFileBytesFromCache({required String fileCacheKey}) {
     return _getFileInfoFromCache(
-      cacheKey,
+      fileCacheKey,
     ).flatMapNullValueAsyncToFailure(() => const MissingFileInCacheFailure()).mapFuture(_readFileBytes);
   }
 
   @override
-  Future<Result<bool>> hasFileInCache({
-    required String cacheKey,
-  }) {
-    return _getFileInfoFromCache(cacheKey).mapAsync((FileInfo? fileInfo) => fileInfo != null);
+  Future<Result<bool>> hasFileInCache({required String fileCacheKey}) {
+    return _getFileInfoFromCache(fileCacheKey).mapAsync((FileInfo? fileInfo) => fileInfo != null);
   }
 
   @override
-  Future<Result<Uint8List>> downloadFile({
-    required Uri url,
+  Future<Result<File>> downloadFile({required Uri url, required String fileCacheKey}) {
+    return _downloadFileResult(url: url, cacheKey: fileCacheKey).mapAsync((FileInfo fileInfo) => fileInfo.file);
+  }
+
+  @override
+  Future<Result<Uint8List>> downloadFileAsBytes({required Uri url, required String fileCacheKey}) {
+    return _downloadFileResult(url: url, cacheKey: fileCacheKey).mapFuture(_readFileBytes);
+  }
+
+  Future<File> _putFile({
     required String cacheKey,
+    required Uint8List fileBytes,
+    required String fileExtension,
   }) {
+    return _cacheManager.putFile(
+      cacheKey,
+      fileBytes,
+      fileExtension: fileExtension,
+    );
+  }
+
+  Future<Result<FileInfo>> _downloadFileResult({required Uri url, required String cacheKey}) {
     return url.isNetwork
-        ? _cacheManager
-              .downloadFile(url.toString(), key: cacheKey)
-              .then(_readFileBytes)
-              .mapToResult(DownloadFileFailure.new)
-        : .value(FailureResult(CannotDownloadNotNetworkUriFailure(url)));
+        ? _cacheManager.downloadFile(url.toString(), key: cacheKey).mapToResult(DownloadFileFailure.new)
+        : CannotDownloadNotNetworkUriFailure(url).toFailureResultFuture();
   }
 
   Future<Result<FileInfo?>> _getFileInfoFromCache(String cacheKey) {

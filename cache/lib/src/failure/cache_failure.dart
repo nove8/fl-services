@@ -1,7 +1,7 @@
 import 'package:common_result/common_result.dart';
 
 /// Base class for cache-related failures.
-abstract class CacheFailure implements Failure {}
+sealed class CacheFailure implements Failure {}
 
 /// Failure that occurs when a requested file is not found in the cache.
 final class MissingFileInCacheFailure implements CacheFailure {
