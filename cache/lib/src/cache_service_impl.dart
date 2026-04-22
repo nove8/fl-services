@@ -31,7 +31,7 @@ final class CacheServiceImpl implements CacheService {
          ),
        );
 
-  static const int _maxNrOfCacheObjects = 1000;
+  static const int _maxNrOfCacheObjects = 10000;
   static const int _fiveYears = 365 * 5;
 
   final CacheManager _cacheManager;
@@ -50,7 +50,7 @@ final class CacheServiceImpl implements CacheService {
   }
 
   @override
-  Future<Result<Uint8List>> putFileAsBytes({
+  Future<Result<Uint8List>> putFileBytes({
     required String fileCacheKey,
     required Uint8List fileBytes,
     required String fileExtension,
@@ -64,7 +64,7 @@ final class CacheServiceImpl implements CacheService {
 
   @override
   Future<Result<void>> removeFile({required String fileCacheKey}) {
-    return _cacheManager.removeFile(fileCacheKey).mapToResult(DeleteFileFromCacheFailure.new);
+    return _cacheManager.removeFile(fileCacheKey).mapToResult(RemoveFileFromCacheFailure.new);
   }
 
   @override
@@ -85,7 +85,7 @@ final class CacheServiceImpl implements CacheService {
   }
 
   @override
-  Future<Result<Uint8List>> downloadFileAsBytes({required Uri url, required String fileCacheKey}) {
+  Future<Result<Uint8List>> downloadFileBytes({required Uri url, required String fileCacheKey}) {
     return _downloadFileResult(url: url, cacheKey: fileCacheKey).mapFuture(_readFileBytes);
   }
 

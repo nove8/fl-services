@@ -24,9 +24,9 @@ final class PutFileToCacheFailure implements CacheFailure {
 }
 
 /// Failure that occurs when deleting a file from the cache fails.
-final class DeleteFileFromCacheFailure implements CacheFailure {
-  /// Creates a [DeleteFileFromCacheFailure].
-  const DeleteFileFromCacheFailure(this.error);
+final class RemoveFileFromCacheFailure implements CacheFailure {
+  /// Creates a [RemoveFileFromCacheFailure].
+  const RemoveFileFromCacheFailure(this.error);
 
   /// An error that occurred.
   final Object error;

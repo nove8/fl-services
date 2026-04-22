@@ -23,7 +23,7 @@ abstract interface class CacheService {
   /// The [fileExtension] should be provided without a dot (e.g. `"jpg"`).
   ///
   /// Returns the cached file content as bytes.
-  Future<Result<Uint8List>> putFileAsBytes({
+  Future<Result<Uint8List>> putFileBytes({
     required String fileCacheKey,
     required Uint8List fileBytes,
     required String fileExtension,
@@ -52,5 +52,5 @@ abstract interface class CacheService {
   /// under the given [fileCacheKey].
   ///
   /// Returns the cached file content as bytes.
-  Future<Result<Uint8List>> downloadFileAsBytes({required Uri url, required String fileCacheKey});
+  Future<Result<Uint8List>> downloadFileBytes({required Uri url, required String fileCacheKey});
 }
