@@ -1,0 +1,23 @@
+name: quick_action_service
+description: Quick action service module
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  async: ^2.13.1
+  quick_actions: ^1.1.0
+  rxdart: ^0.28.0
+
+  common_result:
+    git:
+      url: git@github.com:nove8/fl-common-result.git
+      ref: 4.0.0
+
+dev_dependencies:
+  common_package:
+    git:
+      url: git@github.com:nove8/fl-common-package.git
+      ref: 4.2.0
