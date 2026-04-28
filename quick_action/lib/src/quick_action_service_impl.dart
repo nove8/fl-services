@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
+import 'package:collection/collection.dart';
+import 'package:common_result/common_result.dart';
 import 'package:quick_action_service/src/entity/quick_action_config.dart';
 import 'package:quick_action_service/src/failure/quick_action_failure.dart';
 import 'package:quick_action_service/src/mapper/quick_action_config_to_quick_actions_shortcut_item_mapper.dart';
@@ -11,31 +13,30 @@ import 'package:rxdart/rxdart.dart';
 
 /// Default implementation of [QuickActionService] backed by the
 /// `quick_actions` Flutter plugin.
-final class QuickActionServiceImpl<T extends Enum> implements QuickActionService<T> {
+final class QuickActionServiceImpl<QuickActionT extends Enum> implements QuickActionService<QuickActionT> {
   /// Creates a [QuickActionServiceImpl] for [supportedTypes].
   ///
   /// The service converts enum values to native shortcut ids via `type.name`
-  /// and maps callback ids back using [supportedTypes].
+  /// and resolves callback ids back by matching `name` against [supportedTypes].
   QuickActionServiceImpl({
-    required Iterable<T> supportedTypes,
-  }) : _quickActionTypeByName = <String, T>{
-         for (final T type in supportedTypes) type.name: type,
-       } {
-    _init();
+    required Iterable<QuickActionT> supportedTypes,
+  }) {
+    _init(supportedTypes);
   }
 
-  final Map<String, T> _quickActionTypeByName;
-
   final quick_actions.QuickActions _quickActions = const quick_actions.QuickActions();
-  final QuickActionConfigToQuickActionsShortcutItemMapper<T> _quickActionConfigMapper =
-      QuickActionConfigToQuickActionsShortcutItemMapper<T>();
-  final StreamController<T> _clickedQuickActionController = BehaviorSubject<T>(sync: true);
+  final QuickActionConfigToQuickActionsShortcutItemMapper<QuickActionT> _quickActionConfigMapper =
+      QuickActionConfigToQuickActionsShortcutItemMapper<QuickActionT>();
+  final StreamController<Result<QuickActionT>> _clickedQuickActionController =
+      BehaviorSubject<Result<QuickActionT>>(
+    sync: true,
+  );
 
   @override
-  Stream<T> get clickedQuickActionStream => _clickedQuickActionController.stream;
+  Stream<Result<QuickActionT>> get clickedQuickActionStream => _clickedQuickActionController.stream;
 
   @override
-  Future<Result<void>> configureQuickActions(List<QuickActionConfig<T>> configs) {
+  Future<Result<void>> configureQuickActions(List<QuickActionConfig<QuickActionT>> configs) {
     final List<quick_actions.ShortcutItem> shortcutItems = configs
         .map(_quickActionConfigMapper.transform)
         .toList(growable: false);
@@ -47,11 +48,18 @@ final class QuickActionServiceImpl<T extends Enum> implements QuickActionService
     return _clickedQuickActionController.close();
   }
 
-  Future<void> _init() {
+  Future<void> _init(Iterable<QuickActionT> supportedTypes) {
+    final List<QuickActionT> supportedQuickActionTypes = supportedTypes.toList(growable: false);
     return _quickActions.initialize((String quickActionTypeName) {
-      final T? quickActionType = _quickActionTypeByName[quickActionTypeName];
+      final QuickActionT? quickActionType = supportedQuickActionTypes.firstWhereOrNull(
+        (QuickActionT e) => e.name == quickActionTypeName,
+      );
       if (quickActionType != null) {
-        _clickedQuickActionController.add(quickActionType);
+        _clickedQuickActionController.add(quickActionType.toSuccessResult());
+      } else {
+        _clickedQuickActionController.add(
+          FailureResult(UnknownQuickActionTypeFailure(quickActionTypeName)),
+        );
       }
     });
   }

@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   async: ^2.13.1
+  collection: ^1.19.1
   quick_actions: ^1.1.0
   rxdart: ^0.28.0
 

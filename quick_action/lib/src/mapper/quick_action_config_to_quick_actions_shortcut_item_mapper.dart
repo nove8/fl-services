@@ -9,9 +9,9 @@ final class QuickActionConfigToQuickActionsShortcutItemMapper<T extends Enum> {
   /// Transforms [config] to [quick_actions.ShortcutItem].
   quick_actions.ShortcutItem transform(QuickActionConfig<T> config) {
     return quick_actions.ShortcutItem(
-      type: config.type.name,
-      localizedTitle: config.localizedTitle,
-      icon: config.platformIconName,
+      type: config.actionType.name,
+      localizedTitle: config.actionTitle,
+      icon: config.actionPlatformIconName,
     );
   }
 }

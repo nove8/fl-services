@@ -16,3 +16,17 @@ final class SetQuickActionsFailure implements QuickActionFailure {
     return 'SetQuickActionsFailure{error: $error}';
   }
 }
+
+/// Failure when native reports a quick action id string that does not match any supported enum value.
+final class UnknownQuickActionTypeFailure implements QuickActionFailure {
+  /// Creates an [UnknownQuickActionTypeFailure].
+  const UnknownQuickActionTypeFailure(this.quickActionTypeName);
+
+  /// Raw id string received from the platform (expected to match [Enum.name] for a supported value).
+  final String quickActionTypeName;
+
+  @override
+  String toString() {
+    return 'UnknownQuickActionTypeFailure{quickActionTypeName: $quickActionTypeName}';
+  }
+}
