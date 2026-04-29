@@ -1,0 +1,57 @@
+import 'dart:async';
+
+import 'package:async/async.dart';
+import 'package:quick_action_service/src/entity/quick_action_config.dart';
+import 'package:quick_action_service/src/failure/quick_action_failure.dart';
+import 'package:quick_action_service/src/mapper/quick_action_mappers.dart';
+import 'package:quick_action_service/src/quick_action_service.dart';
+import 'package:quick_action_service/src/util/future_util.dart';
+import 'package:quick_actions/quick_actions.dart' as quick_actions;
+import 'package:rxdart/rxdart.dart';
+
+/// Default implementation of [QuickActionService] backed by the
+/// `quick_actions` Flutter plugin.
+final class QuickActionServiceImpl<QuickActionT extends Enum> implements QuickActionService<QuickActionT> {
+  /// Creates a [QuickActionServiceImpl].
+  ///
+  /// [supportedTypes] enumerates quick action enum values used to resolve platform callback strings.
+  QuickActionServiceImpl({
+    required Iterable<QuickActionT> supportedTypes,
+  }) {
+    _init(supportedTypes);
+  }
+
+  final quick_actions.QuickActions _quickActions = const quick_actions.QuickActions();
+  final QuickActionConfigToQuickActionsShortcutItemMapper<QuickActionT> _quickActionConfigMapper =
+      QuickActionConfigToQuickActionsShortcutItemMapper<QuickActionT>();
+  final StreamController<Result<QuickActionT>> _clickedQuickActionController =
+      BehaviorSubject<Result<QuickActionT>>(
+        sync: true,
+      );
+
+  @override
+  Stream<Result<QuickActionT>> get clickedQuickActionStream => _clickedQuickActionController.stream;
+
+  @override
+  Future<Result<void>> configureQuickActions(List<QuickActionConfig<QuickActionT>> configs) {
+    final List<quick_actions.ShortcutItem> shortcutItems = configs
+        .map(_quickActionConfigMapper.transform)
+        .toList(growable: false);
+    return _quickActions.setShortcutItems(shortcutItems).mapToResult(SetQuickActionsFailure.new);
+  }
+
+  @override
+  Future<void> dispose() {
+    return _clickedQuickActionController.close();
+  }
+
+  Future<void> _init(Iterable<QuickActionT> supportedTypes) {
+    final QuickActionPlatformTypeNameToResultMapper<QuickActionT> quickActionPlatformTypeNameToResultMapper =
+        QuickActionPlatformTypeNameToResultMapper<QuickActionT>(supportedTypes);
+    return _quickActions.initialize((String quickActionTypeName) {
+      _clickedQuickActionController.add(
+        quickActionPlatformTypeNameToResultMapper.transform(quickActionTypeName),
+      );
+    });
+  }
+}
