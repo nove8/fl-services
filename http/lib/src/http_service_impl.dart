@@ -108,6 +108,21 @@ final class HttpServiceImpl implements HttpService {
   }
 
   @override
+  Future<Result<HttpServiceResponse>> patch(
+    Uri url, {
+    Object? body,
+    Map<String, String>? headers,
+  }) {
+    return _makeRequest(() {
+      return _httpWithMiddleware.patch(
+        url,
+        body: body,
+        headers: headers,
+      );
+    });
+  }
+
+  @override
   Future<Result<HttpServiceResponse>> delete(
     Uri uri, {
     Object? body,

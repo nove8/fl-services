@@ -41,6 +41,15 @@ abstract interface class HttpService {
     Map<String, String>? headers,
   });
 
+  /// Performs an HTTP PATCH request to [url].
+  /// [body] is the optional request body to send.
+  /// [headers] are optional HTTP headers to include with the request.
+  Future<Result<HttpServiceResponse>> patch(
+    Uri url, {
+    Object? body,
+    Map<String, String>? headers,
+  });
+
   /// Performs an HTTP DELETE request to [url].
   /// [body] is the optional request body to send.
   /// [headers] are optional HTTP headers to include with the request.
