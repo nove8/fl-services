@@ -1,6 +1,6 @@
-import 'package:database_service/database_service.dart';
 import 'package:database_service/src/util/constants.dart';
 import 'package:database_service/src/util/database_argument_util.dart';
+import 'package:database_service/src/util/database_schema_statement_factory.dart';
 import 'package:database_service/src/util/string_util.dart';
 
 /// Factory for building database migration SQL statements.
