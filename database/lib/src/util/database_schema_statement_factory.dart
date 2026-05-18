@@ -1,3 +1,5 @@
+import 'package:database_service/src/util/collection_util.dart';
+
 /// Factory for building database schema SQL statements.
 abstract final class DatabaseSchemaStatementFactory {
   /// Builds a CREATE INDEX IF NOT EXISTS statement for the specified table and column.
@@ -9,6 +11,20 @@ abstract final class DatabaseSchemaStatementFactory {
       tableName: tableName,
       columnName: columnName,
       isNeedToAddIfNotExists: true,
+    );
+  }
+
+  /// Builds a list of CREATE INDEX IF NOT EXISTS statements for the specified table and column names.
+  static List<String> buildCreateIndexesIfNotExistsStatements({
+    required String tableName,
+    required List<String> columnNames,
+  }) {
+    return columnNames.mapToUnmodifiableList(
+      (String columnName) => _buildCreateIndexStatement(
+        tableName: tableName,
+        columnName: columnName,
+        isNeedToAddIfNotExists: true,
+      ),
     );
   }
 
