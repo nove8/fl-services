@@ -1,4 +1,7 @@
+import 'package:database_service/src/util/constants.dart';
 import 'package:database_service/src/util/database_argument_util.dart';
+import 'package:database_service/src/util/database_schema_statement_factory.dart';
+import 'package:database_service/src/util/string_util.dart';
 
 /// Factory for building database migration SQL statements.
 abstract final class DatabaseMigrationStatementFactory {
@@ -118,6 +121,66 @@ abstract final class DatabaseMigrationStatementFactory {
     return 'ALTER TABLE $tableName RENAME COLUMN $oldColumnName TO $newColumnName';
   }
 
+  /// Builds a series of SQL statements to change the schema of a table.
+  ///
+  /// - Creates a temporary table with the new schema.
+  /// - Inserts data from the old table into the temporary table.
+  /// - Drops the old table.
+  /// - Renames the temporary table to the old table name.
+  /// - Optionally creates indexes for the new table.
+  static List<String> changeTableSchemaStatements({
+    required String tableName,
+    required String Function(String tableName) createNewTableStatement,
+    required List<String>? insertIntoColumns,
+    required List<String>? selectColumns,
+    List<String>? columnNamesForIndexes,
+  }) {
+    final List<String> statements = <String>[];
+
+    final String tempTableName = '${tableName}_temp';
+
+    final String createNewTableStatementForTempTable = createNewTableStatement.call(tempTableName);
+    statements.add(createNewTableStatementForTempTable);
+
+    statements.add(
+      insertIntoTableStatement(
+        insertIntoTableName: tempTableName,
+        selectTableName: tableName,
+        insertIntoColumns: insertIntoColumns,
+        selectColumns: selectColumns,
+      ),
+    );
+
+    statements.add(dropTableStatement(tableName));
+
+    statements.add(renameTableStatement(oldTableName: tempTableName, newTableName: tableName));
+
+    if (columnNamesForIndexes != null && columnNamesForIndexes.isNotEmpty) {
+      statements.addAll(
+        DatabaseSchemaStatementFactory.buildCreateIndexesIfNotExistsStatements(
+          tableName: tableName,
+          columnNames: columnNamesForIndexes,
+        ),
+      );
+    }
+
+    return statements;
+  }
+
+  /// Builds an `INSERT INTO ... SELECT ...` statement.
+  static String insertIntoTableStatement({
+    required String insertIntoTableName,
+    required String selectTableName,
+    required List<String>? insertIntoColumns,
+    required List<String>? selectColumns,
+  }) {
+    final String formattedInsertIntoColumns = insertIntoColumns != null
+        ? '(${insertIntoColumns.joinWithCommaAndSpace()})'
+        : emptyString;
+    final String formattedSelectColumns = selectColumns?.joinWithCommaAndSpace() ?? '*';
+    return 'INSERT INTO $insertIntoTableName $formattedInsertIntoColumns SELECT $formattedSelectColumns FROM $selectTableName';
+  }
+
   /// Builds an `ALTER TABLE ... RENAME TO ...` statement.
   static String renameTableStatement({
     required String oldTableName,
@@ -125,6 +188,9 @@ abstract final class DatabaseMigrationStatementFactory {
   }) {
     return 'ALTER TABLE $oldTableName RENAME TO $newTableName';
   }
+
+  /// Builds a `DROP TABLE ...` statement.
+  static String dropTableStatement(String tableName) => 'DROP TABLE $tableName';
 
   static String _addIntegerColumn({
     required String tableName,
