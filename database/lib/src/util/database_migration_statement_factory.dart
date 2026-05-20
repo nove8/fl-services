@@ -178,7 +178,7 @@ abstract final class DatabaseMigrationStatementFactory {
         ? '(${insertIntoColumns.joinWithCommaAndSpace()})'
         : emptyString;
     final String formattedSelectColumns = selectColumns?.joinWithCommaAndSpace() ?? '*';
-    return 'INSERT INTO $insertIntoTableName ($formattedInsertIntoColumns) SELECT $formattedSelectColumns FROM $selectTableName';
+    return 'INSERT INTO $insertIntoTableName $formattedInsertIntoColumns SELECT $formattedSelectColumns FROM $selectTableName';
   }
 
   /// Builds an `ALTER TABLE ... RENAME TO ...` statement.
