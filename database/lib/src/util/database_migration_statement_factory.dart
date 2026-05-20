@@ -130,7 +130,7 @@ abstract final class DatabaseMigrationStatementFactory {
   /// - Optionally creates indexes for the new table.
   static List<String> changeTableSchemaStatements({
     required String tableName,
-    required String Function(String tempTableName) createNewTableStatement,
+    required String Function(String tableName) createNewTableStatement,
     required List<String>? insertIntoColumns,
     required List<String>? selectColumns,
     List<String>? columnNamesForIndexes,
