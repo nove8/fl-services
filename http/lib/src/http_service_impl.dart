@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:async/async.dart';
@@ -9,7 +10,6 @@ import 'package:http_service/src/entity/post_multipart_request.dart';
 import 'package:http_service/src/failure/http_failure.dart';
 import 'package:http_service/src/http_service.dart';
 import 'package:http_service/src/util/future_util.dart';
-import 'package:http_service/src/util/object_util.dart';
 import 'package:network_info_service/network_info_connectivity_plus_service.dart';
 import 'package:network_info_service/network_info_service.dart';
 import 'package:pretty_http_logger/pretty_http_logger.dart' as pretty_http_logger;
@@ -19,18 +19,22 @@ part 'mapper/log_level_mapper.dart';
 /// Default implementation of [HttpService] using the http package.
 final class HttpServiceImpl implements HttpService {
   /// Creates an [HttpServiceImpl].
-  /// [networkInfoService] is used to check network connectivity before requests.
   /// [logLevel] controls the verbosity of HTTP request/response logging.
+  /// [networkInfoService] is used to check network connectivity before requests.
+  /// [requestTimeout] sets the optional timeout duration for HTTP requests.
   HttpServiceImpl({
     required LogLevel logLevel,
     NetworkInfoService networkInfoService = const NetworkInfoConnectivityPlusService(),
+    Duration? requestTimeout,
   }) : _libLogLevel = _logLevelServiceToLibMapper.transform(logLevel),
-       _networkInfoService = networkInfoService;
+       _networkInfoService = networkInfoService,
+       _requestTimeout = requestTimeout;
 
   static const _LogLevelServiceToLibMapper _logLevelServiceToLibMapper = _LogLevelServiceToLibMapper();
 
   final pretty_http_logger.LogLevel _libLogLevel;
   final NetworkInfoService _networkInfoService;
+  final Duration? _requestTimeout;
 
   late final pretty_http_logger.HttpWithMiddleware _httpWithMiddleware =
       pretty_http_logger.HttpWithMiddleware.build(
@@ -52,7 +56,7 @@ final class HttpServiceImpl implements HttpService {
     Uri uri, {
     Map<String, String>? headers,
   }) {
-    return _makeRequest(() {
+    return _makeRequestWithNetworkConnectionCheck(() {
       return _httpWithMiddleware.get(
         uri,
         headers: headers,
@@ -66,7 +70,7 @@ final class HttpServiceImpl implements HttpService {
     Object? body,
     Map<String, String>? headers,
   }) {
-    return _makeRequest(() {
+    return _makeRequestWithNetworkConnectionCheck(() {
       return _httpWithMiddleware.post(
         uri,
         body: body,
@@ -82,7 +86,7 @@ final class HttpServiceImpl implements HttpService {
     Map<String, String>? fields,
     Map<String, String>? headers,
   }) {
-    return _makeRequest(() {
+    return _makeRequestWithNetworkConnectionCheck(() {
       return _executeMultipartRequest(
         url,
         fileFieldNameToFileBytes,
@@ -98,7 +102,7 @@ final class HttpServiceImpl implements HttpService {
     Object? body,
     Map<String, String>? headers,
   }) {
-    return _makeRequest(() {
+    return _makeRequestWithNetworkConnectionCheck(() {
       return _httpWithMiddleware.put(
         url,
         body: body,
@@ -113,7 +117,7 @@ final class HttpServiceImpl implements HttpService {
     Object? body,
     Map<String, String>? headers,
   }) {
-    return _makeRequest(() {
+    return _makeRequestWithNetworkConnectionCheck(() {
       return _httpWithMiddleware.patch(
         url,
         body: body,
@@ -128,7 +132,7 @@ final class HttpServiceImpl implements HttpService {
     Object? body,
     Map<String, String>? headers,
   }) {
-    return _makeRequest(() {
+    return _makeRequestWithNetworkConnectionCheck(() {
       return _httpWithMiddleware.delete(
         uri,
         body: body,
@@ -137,12 +141,27 @@ final class HttpServiceImpl implements HttpService {
     });
   }
 
-  Future<Result<HttpServiceResponse>> _makeRequest(Future<http.Response> Function() request) async {
+  Future<Result<HttpServiceResponse>> _makeRequestWithNetworkConnectionCheck(
+    Future<http.Response> Function() request,
+  ) async {
     final bool isConnectedToTheInternet = await _networkInfoService.isConnectedToTheInternet.outputOrFalse;
+    if (!isConnectedToTheInternet) {
+      return FailureResult(const NoNetworkConnectionFailure());
+    } else {
+      return _makeRequest(request);
+    }
+  }
 
-    return isConnectedToTheInternet
-        ? request.call().mapToResult(HttpRequestFailure.new).flatMapAsync(_handleHttpResponse)
-        : FailureResult(const NoNetworkConnectionFailure()).toFuture();
+  Future<Result<HttpServiceResponse>> _makeRequest(Future<http.Response> Function() request) async {
+    final Future<http.Response> resultRequest = _requestTimeout != null
+        ? request.call().timeout(_requestTimeout)
+        : request.call();
+
+    return resultRequest
+        .mapToResult((Object error) {
+          return error is TimeoutException ? HttpRequestTimeoutFailure(error) : HttpRequestFailure(error);
+        })
+        .flatMapAsync(_handleHttpResponse);
   }
 
   Future<http.Response> _executeMultipartRequest(
