@@ -92,6 +92,11 @@ final class HttpRequestFailure implements HttpFailure {
 final class HttpRequestTimeoutFailure extends HttpRequestFailure {
   /// Creates a [HttpRequestTimeoutFailure].
   const HttpRequestTimeoutFailure(super.error);
+
+  @override
+  String toString() {
+    return 'HttpRequestTimeoutFailure{error: $error}';
+  }
 }
 
 /// Failure that occurs when there is no network connection available.
