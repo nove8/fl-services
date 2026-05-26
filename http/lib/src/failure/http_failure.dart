@@ -88,6 +88,12 @@ final class HttpRequestFailure implements HttpFailure {
   }
 }
 
+/// Failure that occurs when an HTTP request exceeds the configured timeout.
+final class HttpRequestTimeoutFailure extends HttpRequestFailure {
+  /// Creates a [HttpRequestTimeoutFailure].
+  const HttpRequestTimeoutFailure(super.error);
+}
+
 /// Failure that occurs when there is no network connection available.
 final class NoNetworkConnectionFailure implements HttpFailure {
   /// Creates a [NoNetworkConnectionFailure].
