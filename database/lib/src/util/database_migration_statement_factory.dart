@@ -192,6 +192,14 @@ abstract final class DatabaseMigrationStatementFactory {
   /// Builds a `DROP TABLE ...` statement.
   static String dropTableStatement(String tableName) => 'DROP TABLE $tableName';
 
+  /// Builds an `ALTER TABLE ... DROP COLUMN ...` statement.
+  static String dropColumnStatement({
+    required String tableName,
+    required String columnName,
+  }) {
+    return 'ALTER TABLE $tableName DROP COLUMN $columnName';
+  }
+
   static String _addIntegerColumn({
     required String tableName,
     required String columnName,
