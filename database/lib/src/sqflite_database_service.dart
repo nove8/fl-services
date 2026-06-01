@@ -60,9 +60,7 @@ final class SqfliteDatabaseService with SqfliteDatabaseServiceExecutorMixin impl
       final sqflite.Database database = await sqflite.openDatabase(
         databasePath,
         version: version,
-        onConfigure: (sqflite.Database database) async {
-          await database.execute('PRAGMA foreign_keys = ON');
-        },
+        onConfigure: _onConfigure,
         onCreate: (sqflite.Database database, _) async {
           await _onCreate(
             database: database,
@@ -78,11 +76,24 @@ final class SqfliteDatabaseService with SqfliteDatabaseServiceExecutorMixin impl
             migrationStatementsProviders: migrationStatementsProviders,
           );
         },
+        onOpen: _onOpen,
       );
       return SqfliteDatabaseService._(database).toSuccessResult();
     } catch (error) {
       return OpenDatabaseFailure(error).toFailureResult();
     }
+  }
+
+  static Future<void> _onConfigure(sqflite.Database database) async {
+    await _changeForeignKeysState(database, areForeignKeysEnabled: false);
+  }
+
+  static Future<void> _changeForeignKeysState(
+    sqflite.Database database, {
+    required bool areForeignKeysEnabled,
+  }) {
+    final String foreignKeyState = areForeignKeysEnabled ? 'ON' : 'OFF';
+    return database.execute('PRAGMA foreign_keys = $foreignKeyState');
   }
 
   static Future<void> _onCreate({
@@ -119,6 +130,10 @@ final class SqfliteDatabaseService with SqfliteDatabaseServiceExecutorMixin impl
     await batch.commit(noResult: true);
   }
 
+  static Future<void> _onOpen(sqflite.Database database) async {
+    await _changeForeignKeysState(database, areForeignKeysEnabled: true);
+  }
+
   @override
   Future<Result<T>> transaction<T>(
     Future<Result<T>> Function(DatabaseServiceTransaction) action, {
@@ -127,7 +142,9 @@ final class SqfliteDatabaseService with SqfliteDatabaseServiceExecutorMixin impl
     return _database
         .transaction(
           (sqflite.Transaction sqfliteTransaction) async {
-            final DatabaseServiceTransaction transaction = SqfliteDatabaseServiceTransaction(sqfliteTransaction: sqfliteTransaction);
+            final DatabaseServiceTransaction transaction = SqfliteDatabaseServiceTransaction(
+              sqfliteTransaction: sqfliteTransaction,
+            );
             final Result<T> actionResult = await action(transaction);
             return _handleTransactionActionResult(actionResult);
           },
