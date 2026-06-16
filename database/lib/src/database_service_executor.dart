@@ -23,8 +23,14 @@ abstract interface class DatabaseServiceExecutor {
     required String tableName,
   });
 
-  /// Executes a raw SQL query with optional arguments.
+  /// Executes a raw SQL query with optional arguments and returns the resulting rows.
   Future<Result<List<Map<String, Object?>>>> rawQuery(
+    String query, {
+    List<Object?>? arguments,
+  });
+
+  /// Executes a raw SQL statement with no return value.
+  Future<Result<void>> execute(
     String query, {
     List<Object?>? arguments,
   });
