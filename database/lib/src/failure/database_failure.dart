@@ -79,6 +79,20 @@ final class RawQueryDatabaseFailure implements DatabaseFailure {
   }
 }
 
+/// Failure that occurs when executing a raw SQL statement with no return value.
+final class ExecuteDatabaseFailure implements DatabaseFailure {
+  /// Creates an [ExecuteDatabaseFailure] with the underlying error.
+  const ExecuteDatabaseFailure(this.error);
+
+  /// The underlying error object from the database operation.
+  final Object error;
+
+  @override
+  String toString() {
+    return 'ExecuteDatabaseFailure{error: $error}';
+  }
+}
+
 /// Failure that occurs when inserting a row into a database.
 final class InsertDatabaseFailure implements DatabaseFailure {
   /// Creates an [InsertDatabaseFailure].

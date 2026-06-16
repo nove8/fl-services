@@ -56,6 +56,14 @@ base mixin SqfliteDatabaseServiceExecutorMixin implements DatabaseServiceExecuto
   }
 
   @override
+  Future<Result<void>> execute(
+    String query, {
+    List<Object?>? arguments,
+  }) {
+    return sqfliteDatabaseExecutor.execute(query, arguments).mapToResult(ExecuteDatabaseFailure.new);
+  }
+
+  @override
   Future<Result<int>> insertOrIgnoreValuesWithIdResult(
     Map<String, Object?> values, {
     required String tableName,
