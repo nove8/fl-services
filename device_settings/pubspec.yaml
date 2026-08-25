@@ -1,13 +1,13 @@
 name: device_settings_service
 description: Device settings service module
-version: 1.0.0
+version: 2.0.0
 publish_to: none
 
 environment:
-  sdk: ^3.11.4
+  sdk: ^3.13.1
 
 dependencies:
-  app_settings: ^7.0.0
+  app_settings: ^9.0.0
   async: ^2.13.1
 
   common_result:
