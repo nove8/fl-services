@@ -10,8 +10,7 @@ import 'package:system_proxy_service/src/entity/system_proxy.dart';
 ///
 /// ```dart
 /// if (environment.isTest) {
-///   final SystemProxyHttpOverrides? httpOverrides =
-///       await systemProxyService.getHttpOverrides().outputOrNull;
+///   final SystemProxyHttpOverrides? httpOverrides = await SystemProxyServiceImpl().getHttpOverrides();
 ///   if (httpOverrides != null) {
 ///     HttpOverrides.global = httpOverrides;
 ///   }
