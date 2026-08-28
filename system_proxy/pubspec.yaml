@@ -1,0 +1,34 @@
+name: system_proxy_service
+description: System proxy service module
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.1
+
+dependencies:
+  async: ^2.13.0
+
+  common_plugin:
+    git:
+      url: git@github.com:nove8/fl-common-plugin.git
+      ref: 5.0.0
+  common_result:
+    git:
+      url: git@github.com:nove8/fl-common-result.git
+      ref: 4.0.1
+
+dev_dependencies:
+  common_package:
+    git:
+      url: git@github.com:nove8/fl-common-package.git
+      ref: 6.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.nove8.system_proxy_service
+        pluginClass: SystemProxyServicePlugin
+      ios:
+        pluginClass: SystemProxyServicePlugin
