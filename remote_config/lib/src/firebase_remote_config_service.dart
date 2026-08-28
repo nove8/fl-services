@@ -36,6 +36,8 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
   static const Duration _testEnvironmentMinimumFetchInterval = Duration.zero;
   static const Duration _prodEnvironmentMinimumFetchInterval = Duration(minutes: 5);
 
+  static final DateTime _noFetchDateTime = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+
   static FirebaseRemoteConfigService? _instance;
 
   final bool _isTestEnvironment;
@@ -46,6 +48,8 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
 
   /// Fires when config was fully initialized.
   Future<Result<void>> get _configInitialization => _configInitializationCompleter.future;
+
+  bool get _isConfigFetchedBefore => _remoteConfig.lastFetchTime.isAfter(_noFetchDateTime);
 
   @override
   Future<Result<String?>> getStringParameterValue({required String parameterKey}) =>
@@ -167,12 +171,20 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
 
   Future<Result<void>> _initializeConfig() {
     return _fetchConfig()
-        .flatMapFailureFuture((_) => _ensureConfigInitialized())
+        .flatMapFailureFuture((Failure fetchFailure) {
+          return _ensureConfigInitialized().flatMapAsync((_) => _obtainCachedConfigResult(fetchFailure));
+        })
         .flatMapFuture((_) => _activateConfig());
   }
 
   Future<Result<void>> _fetchConfig() {
     return _remoteConfig.fetch().mapToResult(FetchRemoteConfigFailure.new);
+  }
+
+  Result<void> _obtainCachedConfigResult(Failure fetchFailure) {
+    return _isConfigFetchedBefore
+        ? null.toSuccessResult()
+        : MissingRemoteConfigFailure(fetchFailure).toFailureResult();
   }
 
   Future<Result<void>> _ensureConfigInitialized() {

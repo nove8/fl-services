@@ -6,52 +6,70 @@ sealed class RemoteConfigFailure implements Failure {}
 /// Failure during setting remote config settings.
 final class SetRemoteConfigSettingsFailure implements RemoteConfigFailure {
   /// Creates a [SetRemoteConfigSettingsFailure].
-  const SetRemoteConfigSettingsFailure(this._error);
+  const SetRemoteConfigSettingsFailure(this.error);
 
-  final Object _error;
+  /// The underlying error that caused this failure.
+  final Object error;
 
   @override
   String toString() {
-    return 'SetRemoteConfigSettingsFailure{error: $_error}';
+    return 'SetRemoteConfigSettingsFailure{error: $error}';
   }
 }
 
 /// Failure during fetching remote config.
 final class FetchRemoteConfigFailure implements RemoteConfigFailure {
   /// Creates a [FetchRemoteConfigFailure].
-  const FetchRemoteConfigFailure(this._error);
+  const FetchRemoteConfigFailure(this.error);
 
-  final Object _error;
+  /// The underlying error that caused this failure.
+  final Object error;
 
   @override
   String toString() {
-    return 'FetchRemoteConfigFailure{error: $_error}';
+    return 'FetchRemoteConfigFailure{error: $error}';
   }
 }
 
 /// Failure during ensuring remote config is initialized.
 final class EnsureRemoteConfigInitializedFailure implements RemoteConfigFailure {
   /// Creates a [EnsureRemoteConfigInitializedFailure].
-  const EnsureRemoteConfigInitializedFailure(this._error);
+  const EnsureRemoteConfigInitializedFailure(this.error);
 
-  final Object _error;
+  /// The underlying error that caused this failure.
+  final Object error;
 
   @override
   String toString() {
-    return 'EnsureRemoteConfigInitializedFailure{error: $_error}';
+    return 'EnsureRemoteConfigInitializedFailure{error: $error}';
   }
 }
 
 /// Failure during activating remote config.
 final class ActivateRemoteConfigFailure implements RemoteConfigFailure {
   /// Creates a [ActivateRemoteConfigFailure].
-  const ActivateRemoteConfigFailure(this._error);
+  const ActivateRemoteConfigFailure(this.error);
 
-  final Object _error;
+  /// The underlying error that caused this failure.
+  final Object error;
 
   @override
   String toString() {
-    return 'ActivateRemoteConfigFailure{error: $_error}';
+    return 'ActivateRemoteConfigFailure{error: $error}';
+  }
+}
+
+/// Failure when there is no config available: the fetch failed and no config was ever fetched before.
+final class MissingRemoteConfigFailure implements RemoteConfigFailure {
+  /// Creates a [MissingRemoteConfigFailure].
+  const MissingRemoteConfigFailure(this.fetchFailure);
+
+  /// The failure from the fetch attempt that left no config available.
+  final Failure fetchFailure;
+
+  @override
+  String toString() {
+    return 'MissingRemoteConfigFailure{fetchFailure: $fetchFailure}';
   }
 }
 
