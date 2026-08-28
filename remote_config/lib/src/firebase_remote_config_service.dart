@@ -148,7 +148,7 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
 
   Future<void> _init() async {
     await _setConfigSettings();
-    await _fetchAndActivateConfig().onComplete(_configInitializationCompleter.complete);
+    await _initializeConfig().onComplete(_configInitializationCompleter.complete);
   }
 
   Future<Result<void>> _setConfigSettings() {
@@ -165,8 +165,22 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
         .mapToResult(SetRemoteConfigSettingsFailure.new);
   }
 
-  Future<Result<void>> _fetchAndActivateConfig() {
-    return _remoteConfig.fetchAndActivate().mapToResult(FetchAndActivateRemoteConfigFailure.new);
+  Future<Result<void>> _initializeConfig() {
+    return _fetchConfig()
+        .flatMapFailureFuture((_) => _ensureConfigInitialized())
+        .flatMapFuture((_) => _activateConfig());
+  }
+
+  Future<Result<void>> _fetchConfig() {
+    return _remoteConfig.fetch().mapToResult(FetchRemoteConfigFailure.new);
+  }
+
+  Future<Result<void>> _ensureConfigInitialized() {
+    return _remoteConfig.ensureInitialized().mapToResult(EnsureRemoteConfigInitializedFailure.new);
+  }
+
+  Future<Result<bool>> _activateConfig() {
+    return _remoteConfig.activate().mapToResult(ActivateRemoteConfigFailure.new);
   }
 
   Future<Result<T?>> _getDefaultParameterValue<T extends Object>({required String parameterKey}) {
