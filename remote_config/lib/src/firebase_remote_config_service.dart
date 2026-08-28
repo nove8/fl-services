@@ -47,6 +47,8 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
   /// Fires when config was fully initialized.
   Future<Result<void>> get _configInitialization => _configInitializationCompleter.future;
 
+  bool get _isConfigEmpty => _remoteConfig.getAll().isEmpty;
+
   @override
   Future<Result<String?>> getStringParameterValue({required String parameterKey}) =>
       _getDefaultParameterValue(parameterKey: parameterKey);
@@ -172,7 +174,11 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
         .onFailure((Failure failure) => fetchFailure = failure)
         .flatMapFailureFuture((_) => _ensureConfigInitialized())
         .flatMapFuture((_) => _activateConfig())
-        .flatMapAsync((_) => _obtainConfigInitializationResult(fetchFailure: fetchFailure));
+        .then((Result<void> initializationResult) {
+          return _isConfigEmpty
+              ? MissingRemoteConfigFailure(fetchFailure: fetchFailure).toFailureResult()
+              : initializationResult;
+        });
   }
 
   Future<Result<void>> _fetchConfig() {
@@ -183,14 +189,8 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
     return _remoteConfig.ensureInitialized().mapToResult(EnsureRemoteConfigInitializedFailure.new);
   }
 
-  Future<Result<bool>> _activateConfig() {
+  Future<Result<void>> _activateConfig() {
     return _remoteConfig.activate().mapToResult(ActivateRemoteConfigFailure.new);
-  }
-
-  Result<void> _obtainConfigInitializationResult({required Failure? fetchFailure}) {
-    return _remoteConfig.getAll().isEmpty
-        ? MissingRemoteConfigFailure(fetchFailure: fetchFailure).toFailureResult()
-        : emptyResult;
   }
 
   Future<Result<T?>> _getDefaultParameterValue<T extends Object>({required String parameterKey}) {
