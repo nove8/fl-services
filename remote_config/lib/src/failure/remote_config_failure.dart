@@ -6,56 +6,52 @@ sealed class RemoteConfigFailure implements Failure {}
 /// Failure during setting remote config settings.
 final class SetRemoteConfigSettingsFailure implements RemoteConfigFailure {
   /// Creates a [SetRemoteConfigSettingsFailure].
-  const SetRemoteConfigSettingsFailure(this.error);
+  const SetRemoteConfigSettingsFailure(this._error);
 
-  /// The underlying error that caused this failure.
-  final Object error;
+  final Object _error;
 
   @override
   String toString() {
-    return 'SetRemoteConfigSettingsFailure{error: $error}';
+    return 'SetRemoteConfigSettingsFailure{error: $_error}';
   }
 }
 
 /// Failure during fetching remote config.
 final class FetchRemoteConfigFailure implements RemoteConfigFailure {
   /// Creates a [FetchRemoteConfigFailure].
-  const FetchRemoteConfigFailure(this.error);
+  const FetchRemoteConfigFailure(this._error);
 
-  /// The underlying error that caused this failure.
-  final Object error;
+  final Object _error;
 
   @override
   String toString() {
-    return 'FetchRemoteConfigFailure{error: $error}';
+    return 'FetchRemoteConfigFailure{error: $_error}';
   }
 }
 
 /// Failure during ensuring remote config is initialized.
 final class EnsureRemoteConfigInitializedFailure implements RemoteConfigFailure {
   /// Creates a [EnsureRemoteConfigInitializedFailure].
-  const EnsureRemoteConfigInitializedFailure(this.error);
+  const EnsureRemoteConfigInitializedFailure(this._error);
 
-  /// The underlying error that caused this failure.
-  final Object error;
+  final Object _error;
 
   @override
   String toString() {
-    return 'EnsureRemoteConfigInitializedFailure{error: $error}';
+    return 'EnsureRemoteConfigInitializedFailure{error: $_error}';
   }
 }
 
 /// Failure during activating remote config.
 final class ActivateRemoteConfigFailure implements RemoteConfigFailure {
   /// Creates a [ActivateRemoteConfigFailure].
-  const ActivateRemoteConfigFailure(this.error);
+  const ActivateRemoteConfigFailure(this._error);
 
-  /// The underlying error that caused this failure.
-  final Object error;
+  final Object _error;
 
   @override
   String toString() {
-    return 'ActivateRemoteConfigFailure{error: $error}';
+    return 'ActivateRemoteConfigFailure{error: $_error}';
   }
 }
 
