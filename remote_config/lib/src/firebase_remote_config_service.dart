@@ -190,7 +190,7 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
   }
 
   Result<void> _obtainConfigInitializationResult({required Failure? fetchFailure}) {
-    return _remoteConfig.getAll().isEmpty
+    return _isConfigEmpty
         ? MissingRemoteConfigFailure(fetchFailure: fetchFailure).toFailureResult()
         : emptyResult;
   }
