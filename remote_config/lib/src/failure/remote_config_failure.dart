@@ -59,13 +59,13 @@ final class ActivateRemoteConfigFailure implements RemoteConfigFailure {
   }
 }
 
-/// Failure when there is no config available: the fetch failed and no config was ever fetched before.
+/// Failure when the config has no values: the fetch failed or the fetched config is empty.
 final class MissingRemoteConfigFailure implements RemoteConfigFailure {
   /// Creates a [MissingRemoteConfigFailure].
-  const MissingRemoteConfigFailure(this.fetchFailure);
+  const MissingRemoteConfigFailure({this.fetchFailure});
 
-  /// The failure from the fetch attempt that left no config available.
-  final Failure fetchFailure;
+  /// The failure of the last fetch attempt, null when the fetch succeeded.
+  final Failure? fetchFailure;
 
   @override
   String toString() {

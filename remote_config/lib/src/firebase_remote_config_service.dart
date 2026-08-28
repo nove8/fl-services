@@ -36,8 +36,6 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
   static const Duration _testEnvironmentMinimumFetchInterval = Duration.zero;
   static const Duration _prodEnvironmentMinimumFetchInterval = Duration(minutes: 5);
 
-  static final DateTime _noFetchDateTime = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
-
   static FirebaseRemoteConfigService? _instance;
 
   final bool _isTestEnvironment;
@@ -48,8 +46,6 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
 
   /// Fires when config was fully initialized.
   Future<Result<void>> get _configInitialization => _configInitializationCompleter.future;
-
-  bool get _isConfigFetchedBefore => _remoteConfig.lastFetchTime.isAfter(_noFetchDateTime);
 
   @override
   Future<Result<String?>> getStringParameterValue({required String parameterKey}) =>
@@ -170,21 +166,17 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
   }
 
   Future<Result<void>> _initializeConfig() {
+    Failure? fetchFailure;
+
     return _fetchConfig()
-        .flatMapFailureFuture((Failure fetchFailure) {
-          return _ensureConfigInitialized().flatMapAsync((_) => _obtainCachedConfigResult(fetchFailure));
-        })
-        .flatMapFuture((_) => _activateConfig());
+        .onFailure((Failure failure) => fetchFailure = failure)
+        .flatMapFailureFuture((_) => _ensureConfigInitialized())
+        .flatMapFuture((_) => _activateConfig())
+        .flatMapAsync((_) => _obtainConfigInitializationResult(fetchFailure: fetchFailure));
   }
 
   Future<Result<void>> _fetchConfig() {
     return _remoteConfig.fetch().mapToResult(FetchRemoteConfigFailure.new);
-  }
-
-  Result<void> _obtainCachedConfigResult(Failure fetchFailure) {
-    return _isConfigFetchedBefore
-        ? null.toSuccessResult()
-        : MissingRemoteConfigFailure(fetchFailure).toFailureResult();
   }
 
   Future<Result<void>> _ensureConfigInitialized() {
@@ -193,6 +185,12 @@ final class FirebaseRemoteConfigService implements RemoteConfigService {
 
   Future<Result<bool>> _activateConfig() {
     return _remoteConfig.activate().mapToResult(ActivateRemoteConfigFailure.new);
+  }
+
+  Result<void> _obtainConfigInitializationResult({required Failure? fetchFailure}) {
+    return _remoteConfig.getAll().isEmpty
+        ? MissingRemoteConfigFailure(fetchFailure: fetchFailure).toFailureResult()
+        : emptyResult;
   }
 
   Future<Result<T?>> _getDefaultParameterValue<T extends Object>({required String parameterKey}) {
