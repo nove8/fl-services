@@ -3,19 +3,6 @@ import 'package:common_result/common_result.dart';
 /// A base class for any remote config failure.
 sealed class RemoteConfigFailure implements Failure {}
 
-/// Failure during remote config initialization.
-final class RemoteConfigInitializationFailure implements RemoteConfigFailure {
-  /// Creates a [RemoteConfigInitializationFailure].
-  const RemoteConfigInitializationFailure(this._error);
-
-  final Object _error;
-
-  @override
-  String toString() {
-    return 'RemoteConfigInitializationFailure{error: $_error}';
-  }
-}
-
 /// Failure during setting remote config settings.
 final class SetRemoteConfigSettingsFailure implements RemoteConfigFailure {
   /// Creates a [SetRemoteConfigSettingsFailure].
@@ -29,16 +16,56 @@ final class SetRemoteConfigSettingsFailure implements RemoteConfigFailure {
   }
 }
 
-/// Failure during fetching ad activating remote config.
-final class FetchAndActivateRemoteConfigFailure implements RemoteConfigFailure {
-  /// Creates a [FetchAndActivateRemoteConfigFailure].
-  const FetchAndActivateRemoteConfigFailure(this._error);
+/// Failure during fetching remote config.
+final class FetchRemoteConfigFailure implements RemoteConfigFailure {
+  /// Creates a [FetchRemoteConfigFailure].
+  const FetchRemoteConfigFailure(this._error);
 
   final Object _error;
 
   @override
   String toString() {
-    return 'FetchRemoteConfigSettingsFailure{error: $_error}';
+    return 'FetchRemoteConfigFailure{error: $_error}';
+  }
+}
+
+/// Failure during ensuring remote config is initialized.
+final class EnsureRemoteConfigInitializedFailure implements RemoteConfigFailure {
+  /// Creates a [EnsureRemoteConfigInitializedFailure].
+  const EnsureRemoteConfigInitializedFailure(this._error);
+
+  final Object _error;
+
+  @override
+  String toString() {
+    return 'EnsureRemoteConfigInitializedFailure{error: $_error}';
+  }
+}
+
+/// Failure during activating remote config.
+final class ActivateRemoteConfigFailure implements RemoteConfigFailure {
+  /// Creates a [ActivateRemoteConfigFailure].
+  const ActivateRemoteConfigFailure(this._error);
+
+  final Object _error;
+
+  @override
+  String toString() {
+    return 'ActivateRemoteConfigFailure{error: $_error}';
+  }
+}
+
+/// Failure when the config has no values: the fetch failed or the fetched config is empty.
+final class MissingRemoteConfigFailure implements RemoteConfigFailure {
+  /// Creates a [MissingRemoteConfigFailure].
+  const MissingRemoteConfigFailure({this.fetchFailure});
+
+  /// The failure of the last fetch attempt, null when the fetch succeeded.
+  final Failure? fetchFailure;
+
+  @override
+  String toString() {
+    return 'MissingRemoteConfigFailure{fetchFailure: $fetchFailure}';
   }
 }
 
@@ -107,8 +134,7 @@ class RemoteConfigFeatureParameterParsingFailure implements RemoteConfigFailure 
 }
 
 /// Failure for missing default value in labels segmented remote config parameter.
-class MissingDefaultValueInLabelsSegmentedRemoteConfigParameterFailure
-    implements RemoteConfigFailure {
+class MissingDefaultValueInLabelsSegmentedRemoteConfigParameterFailure implements RemoteConfigFailure {
   /// Default const constructor.
   const MissingDefaultValueInLabelsSegmentedRemoteConfigParameterFailure();
 }
